@@ -1,0 +1,115 @@
+pt-BR:
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      blank: "não pode ficar em branco"
+      invalid: "é inválido"
+      not_a_number: "não é um número"
+      greater_than: "deve ser maior que %{count}"
+      greater_than_or_equal_to: "deve ser maior ou igual a %{count}"
+      inclusion: "não está incluído na lista"
+      confirmation: "não confere"
+      accepted: "deve ser aceito"
+      empty: "não pode ficar vazio"
+      present: "deve ficar em branco"
+      too_long: "é muito longo (máximo: %{count} caracteres)"
+      too_short: "é muito curto (mínimo: %{count} caracteres)"
+      wrong_length: "não possui o tamanho esperado (%{count} caracteres)"
+      other_than: "deve ser diferente de %{count}"
+      equal_to: "deve ser igual a %{count}"
+      less_than: "deve ser menor que %{count}"
+      less_than_or_equal_to: "deve ser menor ou igual a %{count}"
+      odd: "deve ser ímpar"
+      even: "deve ser par"
+      taken: "já está em uso"
+      
+  activerecord:
+    errors:
+      messages:
+        blank: "não pode ficar em branco"
+        invalid: "é inválido"
+        not_a_number: "não é um número"
+        greater_than: "deve ser maior que %{count}"
+        greater_than_or_equal_to: "deve ser maior ou igual a %{count}"
+        inclusion: "não está incluído na lista"
+        confirmation: "não confere"
+        accepted: "deve ser aceito"
+        empty: "não pode ficar vazio"
+        present: "deve ficar em branco"
+        too_long: "é muito longo (máximo: %{count} caracteres)"
+        too_short: "é muito curto (mínimo: %{count} caracteres)"
+        wrong_length: "não possui o tamanho esperado (%{count} caracteres)"
+        other_than: "deve ser diferente de %{count}"
+        equal_to: "deve ser igual a %{count}"
+        less_than: "deve ser menor que %{count}"
+        less_than_or_equal_to: "deve ser menor ou igual a %{count}"
+        odd: "deve ser ímpar"
+        even: "deve ser par"
+        taken: "já está em uso"
+        
+      models:
+        event:
+          attributes:
+            event_type:
+              blank: "deve ser selecionado"
+              inclusion: "deve ser um tipo válido"
+            main_date:
+              blank: "deve ser informada"
+            estimated_guests:
+              blank: "deve ser informado"
+              not_a_number: "deve ser um número"
+              greater_than: "deve ser maior que zero"
+        event_owner:
+          attributes:
+            name:
+              blank: "deve ser informado"
+            email:
+              blank: "deve ser informado"
+              invalid: "deve ser um email válido"
+            phone_number:
+              blank: "deve ser informado"
+            cpf:
+              invalid: "deve estar no formato XXX.XXX.XXX-XX"
+        
+    attributes:
+      event:
+        title: "Título do evento"
+        event_type: "Tipo do evento"
+        main_date: "Data principal"
+        start_time: "Horário de início"
+        end_time: "Horário de término"
+        place: "Local"
+        address: "Endereço"
+        estimated_guests: "Número estimado de convidados"
+        extra_hours: "Horas extras"
+        
+      event_owner:
+        name: "Nome"
+        email: "Email"
+        phone_number: "Telefone"
+        cpf: "CPF"
+        role: "Função"
+        
+      provider:
+        provider_type: "Tipo de fornecedor"
+        name: "Nome da empresa"
+        contact_name: "Nome do contato"
+        phone_number: "Telefone"
+        document: "Documento"
+        
+      guest:
+        name: "Nome"
+        guest_type: "Tipo de convidado"
+        godparent_id: "Padrinho/Madrinha"
+        
+      manager_checklist:
+        task_name: "Nome da tarefa"
+        description: "Descrição"
+        due_date: "Data de vencimento"
+        priority: "Prioridade"
+        
+      owner_checklist:
+        task_name: "Nome da tarefa"
+        description: "Descrição"
+        due_date: "Data de vencimento"
+        priority: "Prioridade"

@@ -1,0 +1,113 @@
+<% content_for :title, "#{@provider.name} - EventFlow" %>
+
+<div class="mb-6">
+  <div class="flex justify-between items-start">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900"><%= @provider.name %></h1>
+      <p class="text-gray-600 mt-2"><%= translate_provider_type(@provider.provider_type) %></p>
+    </div>
+    <div class="flex space-x-2">
+      <%= link_to "Editar", edit_provider_path(@provider), class: "bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg" %>
+      <%= link_to "Excluir", @provider, method: :delete, 
+          confirm: "Tem certeza que deseja excluir este fornecedor?",
+          class: "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg" %>
+    </div>
+  </div>
+</div>
+
+<div class="grid lg:grid-cols-2 gap-6">
+  <!-- Provider Information -->
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Informações do Fornecedor</h2>
+    
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Nome da Empresa</label>
+        <p class="mt-1 text-sm text-gray-900"><%= @provider.name %></p>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Tipo de Fornecedor</label>
+        <p class="mt-1 text-sm text-gray-900"><%= translate_provider_type(@provider.provider_type) %></p>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Nome do Contato</label>
+        <p class="mt-1 text-sm text-gray-900"><%= @provider.contact_name %></p>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Telefone</label>
+        <p class="mt-1 text-sm text-gray-900">
+          <% if @provider.phone_number.present? %>
+            <a href="tel:<%= @provider.phone_number %>" class="text-blue-600 hover:text-blue-800">
+              <%= @provider.phone_number %>
+            </a>
+          <% else %>
+            <span class="text-gray-500">Não informado</span>
+          <% end %>
+        </p>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Documento (CNPJ/CPF)</label>
+        <p class="mt-1 text-sm text-gray-900">
+          <%= @provider.document.present? ? @provider.document : "Não informado" %>
+        </p>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Cadastrado em</label>
+        <p class="mt-1 text-sm text-gray-900"><%= @provider.created_at.strftime('%d/%m/%Y às %H:%M') %></p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Associated Events -->
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Eventos Associados</h2>
+    
+    <% if @provider.events.any? %>
+      <div class="space-y-3">
+        <% @provider.events.each do |event| %>
+          <div class="border border-gray-200 rounded-lg p-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-medium text-gray-900">
+                  <%= link_to translate_event_type(event.event_type), event, class: "text-blue-600 hover:text-blue-800" %>
+                </h3>
+                <p class="text-sm text-gray-600 mt-1">
+                  <%= event.main_date.strftime('%d/%m/%Y') %>
+                  <% if event.place.present? %>
+                    • <%= event.place %>
+                  <% end %>
+                </p>
+                <% if event.estimated_guests.present? %>
+                  <p class="text-sm text-gray-500 mt-1">
+                    <%= pluralize(event.estimated_guests, 'convidado') %>
+                  </p>
+                <% end %>
+              </div>
+              <div class="text-right">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Ativo
+                </span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-8">
+        <div class="text-gray-500 text-sm">
+          Este fornecedor ainda não está associado a nenhum evento
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Back to List -->
+<div class="mt-6">
+  <%= link_to "← Voltar para Fornecedores", providers_path, class: "text-blue-600 hover:text-blue-800 font-medium" %>
+</div>

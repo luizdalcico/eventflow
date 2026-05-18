@@ -1,0 +1,222 @@
+<% content_for :title, "Novo Evento - EventFlow" %>
+
+<div class="mb-6">
+  <h1 class="text-3xl font-bold text-gray-900">Novo Evento</h1>
+  <p class="text-gray-600 mt-2">Preencha as informações básicas do evento</p>
+</div>
+
+<div class="bg-white rounded-lg shadow-lg p-6">
+  <%= form_with model: @event, local: true, class: "space-y-6" do |form| %>
+    <% if @event.errors.any? %>
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <h3 class="text-sm font-medium text-red-800 mb-2">
+          <%= pluralize(@event.errors.count, "erro") %> encontrado<%= "s" if @event.errors.count > 1 %>:
+        </h3>
+        <ul class="text-sm text-red-700 list-disc list-inside">
+          <% @event.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- Basic Event Information -->
+    <div>
+      <%= form.label :title, "Título do Evento", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= form.text_field :title, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :event_type, "Tipo do Evento", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.select :event_type, 
+            options_for_select([
+              ["Casamento", "wedding"],
+              ["Aniversário Adulto", "adult_birthday"],  
+              ["Aniversário Infantil", "children_birthday"],
+              ["Evento Corporativo", "corporate_event"]
+            ], @event.event_type),
+            { prompt: "Selecione o tipo" },
+            { class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
+      </div>
+
+      <div>
+        <%= form.label :main_date, "Data Principal", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.date_field :main_date, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :start_time, "Horário de Início", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.time_field :start_time, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+
+      <div>
+        <%= form.label :end_time, "Horário de Término", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.time_field :end_time, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :place, "Local", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= form.text_field :place, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+
+    <div>
+      <%= form.label :address, "Endereço Completo", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= form.text_area :address, rows: 3, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :estimated_guests, "Número Estimado de Convidados", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.number_field :estimated_guests, min: 1, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+
+      <div>
+        <%= form.label :extra_hours, "Horas Extras", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.number_field :extra_hours, step: 0.5, min: 0, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+    </div>
+
+    <!-- Event Owners -->
+    <div class="border-t pt-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Responsáveis pelo Evento</h3>
+        <button type="button" id="add_owner" class="bg-green-600 hover:bg-green-700 text-white font-medium py-1 px-3 rounded text-sm">
+          + Adicionar Responsável
+        </button>
+      </div>
+      
+      <div id="event_owners">
+        <%= form.fields_for :event_owners do |owner_form| %>
+          <div class="event-owner-fields grid grid-cols-5 gap-4 mb-4 p-4 border border-gray-200 rounded-lg relative">
+            <button type="button" class="remove-owner absolute top-2 right-2 text-red-600 hover:text-red-800 text-sm font-medium" style="display: none;">
+              × Remover
+            </button>
+            
+            <div>
+              <%= owner_form.label :name, "Nome", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= owner_form.text_field :name, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+            </div>
+
+            <div>
+              <%= owner_form.label :email, "Email", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= owner_form.email_field :email, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+            </div>
+
+            <div>
+              <%= owner_form.label :phone_number, "Telefone", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= owner_form.text_field :phone_number, 
+                  placeholder: "(11) 99999-9999", 
+                  data: { controller: "simple-mask", "simple-mask-pattern-value": "(00) 00000-0000" },
+                  class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+            </div>
+
+            <div>
+              <%= owner_form.label :cpf, "CPF", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= owner_form.text_field :cpf, 
+                  placeholder: "000.000.000-00", 
+                  data: { controller: "simple-mask", "simple-mask-pattern-value": "000.000.000-00" },
+                  class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+            </div>
+
+            <div>
+              <%= owner_form.label :role, "Função", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= owner_form.text_field :role, placeholder: "ex: Noiva, Aniversariante", class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex justify-between pt-6 border-t">
+      <%= link_to "Cancelar", events_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-lg" %>
+      <%= form.submit "Criar Evento", class: "bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg" %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    let ownerIndex = <%= @event.event_owners.size %>;
+    
+    // Show remove buttons if there's more than one owner
+    function updateRemoveButtons() {
+      const ownerFields = document.querySelectorAll('.event-owner-fields');
+      const removeButtons = document.querySelectorAll('.remove-owner');
+      
+      removeButtons.forEach(function(button, index) {
+        if (ownerFields.length > 1) {
+          button.style.display = 'block';
+        } else {
+          button.style.display = 'none';
+        }
+      });
+    }
+    
+    // Add new owner
+    document.getElementById('add_owner').addEventListener('click', function() {
+      const container = document.getElementById('event_owners');
+      const template = `
+        <div class="event-owner-fields grid grid-cols-5 gap-4 mb-4 p-4 border border-gray-200 rounded-lg relative">
+          <button type="button" class="remove-owner absolute top-2 right-2 text-red-600 hover:text-red-800 text-sm font-medium">
+            × Remover
+          </button>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="event_event_owners_attributes_${ownerIndex}_name">Nome</label>
+            <input class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" type="text" name="event[event_owners_attributes][${ownerIndex}][name]" id="event_event_owners_attributes_${ownerIndex}_name">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="event_event_owners_attributes_${ownerIndex}_email">Email</label>
+            <input class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" type="email" name="event[event_owners_attributes][${ownerIndex}][email]" id="event_event_owners_attributes_${ownerIndex}_email">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="event_event_owners_attributes_${ownerIndex}_phone_number">Telefone</label>
+            <input class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" type="text" name="event[event_owners_attributes][${ownerIndex}][phone_number]" id="event_event_owners_attributes_${ownerIndex}_phone_number" placeholder="(11) 99999-9999" data-controller="simple-mask" data-simple-mask-pattern-value="(00) 00000-0000">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="event_event_owners_attributes_${ownerIndex}_cpf">CPF</label>
+            <input class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" type="text" name="event[event_owners_attributes][${ownerIndex}][cpf]" id="event_event_owners_attributes_${ownerIndex}_cpf" placeholder="000.000.000-00" data-controller="simple-mask" data-simple-mask-pattern-value="000.000.000-00">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="event_event_owners_attributes_${ownerIndex}_role">Função</label>
+            <input class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" type="text" name="event[event_owners_attributes][${ownerIndex}][role]" id="event_event_owners_attributes_${ownerIndex}_role" placeholder="ex: Noiva, Aniversariante">
+          </div>
+        </div>
+      `;
+      
+      container.insertAdjacentHTML('beforeend', template);
+      ownerIndex++;
+      updateRemoveButtons();
+      
+      // Add event listener to the new remove button
+      const newRemoveButton = container.lastElementChild.querySelector('.remove-owner');
+      newRemoveButton.addEventListener('click', function() {
+        this.closest('.event-owner-fields').remove();
+        updateRemoveButtons();
+      });
+    });
+    
+    // Remove existing owners
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('remove-owner')) {
+        e.target.closest('.event-owner-fields').remove();
+        updateRemoveButtons();
+      }
+    });
+    
+    // Initial setup
+    updateRemoveButtons();
+    
+    // Initial setup
+    updateRemoveButtons();
+  });
+</script>

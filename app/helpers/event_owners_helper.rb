@@ -1,0 +1,2 @@
+module EventOwnersHelper
+end

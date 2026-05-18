@@ -1,0 +1,2 @@
+module OwnerChecklistsHelper
+end
