@@ -1,6 +1,6 @@
 # Shared reverse proxy for the VPS. Owns ports 80/443 and terminates TLS
-# (automatic Let's Encrypt). Routes by hostname to each app. Lives in
-# /opt/proxy on the server; not part of the app auto-deploy cycle.
+# (automatic Let's Encrypt). Routes by hostname to each app over their docker
+# networks. Lives in /opt/proxy on the server; not part of the app auto-deploy.
 services:
   caddy:
     image: caddy:2
@@ -12,17 +12,20 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    # Lets Caddy reach apps that publish ports on the host (e.g. the
-    # github_pr_viewer nginx on 8081) via host.docker.internal.
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - web_proxy
+      - prviewer
 
 volumes:
   caddy_data:
   caddy_config:
 
 networks:
+  # Created by this compose; eventflow's stack joins it as external.
   web_proxy:
     name: web_proxy
+  # The github_pr_viewer stack's pre-existing network, so Caddy can reach its
+  # nginx container directly by service name.
+  prviewer:
+    name: github_pr_viewer_default
+    external: true

@@ -3,15 +3,20 @@
 }
 
 # eventflow — DNS points straight at this server, so Caddy obtains a real
-# Let's Encrypt certificate and terminates TLS here.
+# Let's Encrypt certificate and terminates TLS here. X-Forwarded-Proto is set
+# explicitly to https (Caddy redirects http->https, so the backend only ever
+# sees https-origin traffic).
 eventos.apisys.com.br {
 	encode gzip zstd
-	reverse_proxy eventflow-web:3000
+	reverse_proxy eventflow-web:3000 {
+		header_up X-Forwarded-Proto https
+	}
 }
 
 # github_pr_viewer — sits behind Cloudflare (Flexible mode), so TLS is
 # terminated at Cloudflare and traffic arrives here as plain HTTP on :80.
-# We forward to its nginx, which now publishes on host port 8081.
+# We reach its nginx over the app's own docker network (avoids the host
+# firewall), which in turn proxies to the pr-viewer web container.
 http://github-pr-viewer.dalcico.com.br {
-	reverse_proxy host.docker.internal:8081
+	reverse_proxy nginx:80
 }
