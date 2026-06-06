@@ -1,0 +1,10 @@
+[Unit]
+Description=Run eventflow deployment check every 5 minutes
+Requires=eventflow-deploy.service
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target

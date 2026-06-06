@@ -1,0 +1,28 @@
+# Shared reverse proxy for the VPS. Owns ports 80/443 and terminates TLS
+# (automatic Let's Encrypt). Routes by hostname to each app. Lives in
+# /opt/proxy on the server; not part of the app auto-deploy cycle.
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    # Lets Caddy reach apps that publish ports on the host (e.g. the
+    # github_pr_viewer nginx on 8081) via host.docker.internal.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - web_proxy
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  web_proxy:
+    name: web_proxy

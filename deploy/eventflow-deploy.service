@@ -1,0 +1,12 @@
+[Unit]
+Description=eventflow auto deployment
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/eventflow
+ExecStart=/opt/eventflow/deploy/auto-deploy.sh
+
+[Install]
+WantedBy=multi-user.target

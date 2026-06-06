@@ -1,0 +1,58 @@
+# Production stack for eventflow (bare-metal VPS via docker compose).
+# TLS + routing is handled by the shared Caddy proxy (see deploy/proxy-compose.yml),
+# which reaches the web container over the external `web_proxy` network.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: eventflow_production
+      POSTGRES_USER: eventflow
+      POSTGRES_PASSWORD: ${EVENTFLOW_DATABASE_PASSWORD}
+    volumes:
+      - eventflow_pg:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eventflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    # Plain `./bin/rails server` so the entrypoint runs `db:prepare` on every boot
+    # (creates/migrates the primary, cache, queue and cable databases). Solid Queue
+    # runs inside Puma via SOLID_QUEUE_IN_PUMA, so no separate worker is needed.
+    command: ["./bin/rails", "server"]
+    environment:
+      RAILS_ENV: production
+      PORT: 3000
+      DB_HOST: db
+      EVENTFLOW_DATABASE_PASSWORD: ${EVENTFLOW_DATABASE_PASSWORD}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      RAILS_LOG_TO_STDOUT: enabled
+      RAILS_SERVE_STATIC_FILES: enabled
+      SOLID_QUEUE_IN_PUMA: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/up"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      default:
+      web_proxy:
+        aliases:
+          - eventflow-web
+
+volumes:
+  eventflow_pg:
+
+networks:
+  default:
+  web_proxy:
+    external: true
