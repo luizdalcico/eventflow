@@ -5,6 +5,10 @@ Requires=docker.service
 
 [Service]
 Type=oneshot
+# Run as the repo owner (who is also in the docker group), so git operations
+# don't trip "dubious ownership" and `docker compose` works without sudo.
+User=ubuntu
+Group=ubuntu
 WorkingDirectory=/opt/eventflow
 ExecStart=/opt/eventflow/deploy/auto-deploy.sh
 
