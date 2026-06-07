@@ -1,0 +1,23 @@
+<%# Lista os campos do contrato ainda pendentes e bloqueia a geração do PDF. %>
+<dialog data-contract-modal-target="dialog" data-action="click->contract-modal#backdrop"
+        class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 m-0 rounded-xl shadow-2xl p-0 w-[90%] max-w-md backdrop:bg-black/40">
+  <div class="p-6 text-left">
+    <h3 class="text-base font-semibold text-gray-900 mb-2">Contrato incompleto</h3>
+    <p class="text-gray-700 text-sm mb-4">
+      Para gerar o contrato, preencha os seguintes campos no evento:
+    </p>
+    <ul class="list-disc list-inside text-sm text-gray-800 space-y-1 mb-6">
+      <% missing.each do |field| %>
+        <li><%= field %></li>
+      <% end %>
+    </ul>
+    <div class="flex justify-end gap-3">
+      <button type="button" data-action="contract-modal#close"
+              class="px-4 py-2 rounded-lg text-sm bg-gray-100 text-gray-700 hover:bg-gray-200">
+        Fechar
+      </button>
+      <%= link_to "Editar evento", edit_event_path(@event),
+            class: "px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-700" %>
+    </div>
+  </div>
+</dialog>

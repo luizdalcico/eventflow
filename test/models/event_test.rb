@@ -147,6 +147,36 @@ class EventTest < ActiveSupport::TestCase
     assert @event.valid?, @event.errors.full_messages.to_sentence
   end
 
+  test "contract_ready? is true only when every dynamic field is filled" do
+    event = full_contract_event
+    assert event.contract_ready?
+    assert_empty event.missing_contract_fields
+  end
+
+  test "missing_contract_fields lists every blank contract field by label" do
+    event = Event.create!(title: "Vazio", event_type: "wedding", main_date: Date.current + 1.month, estimated_guests: 80)
+
+    missing = event.missing_contract_fields
+
+    assert_not event.contract_ready?
+    assert_includes missing, "Horário de início"
+    assert_includes missing, "Horário de término"
+    assert_includes missing, "Horas extras"
+    assert_includes missing, "Valor total"
+    assert_includes missing, "Valor da hora extra"
+    assert_includes missing, "Data limite de pagamento"
+    assert_includes missing, "Nº de recepcionistas"
+    assert_includes missing, "Nome do contratante"
+    assert_includes missing, "CPF do contratante"
+  end
+
+  test "missing_contract_fields flags the contratante CPF when absent" do
+    event = full_contract_event
+    event.event_owners.first.update!(cpf: nil)
+
+    assert_equal [ "CPF do contratante" ], event.reload.missing_contract_fields
+  end
+
   test "provider totals aggregate cost, professionals, paid and balance" do
     event = events(:future_event)
     contracted = Provider.create!(provider_type: "buffet", name: "Buffet A", document: "11111111000111", contact_name: "Ana", phone_number: "11999990000")
@@ -284,5 +314,19 @@ class EventTest < ActiveSupport::TestCase
     event = Event.create!(title: "Festa", event_type: "adult_birthday",
                           main_date: Date.current + 1.month, estimated_guests: 50)
     assert_nil event.godparent_list
+  end
+
+  private
+
+  # Event with every dynamic contract field (and a complete contratante) filled.
+  def full_contract_event
+    event = Event.create!(
+      title: "Completo", event_type: "wedding", main_date: Date.current + 1.month,
+      estimated_guests: 80, start_time: "20:00", end_time: "23:00", extra_hours: 2,
+      contract_total_value: 5000, contract_extra_hour_rate: 250,
+      contract_payment_due_date: Date.current + 2.weeks, contract_receptionists_count: 3
+    )
+    event.event_owners.create!(name: "João", cpf: "12345678901", phone_number: "11999999999", email: "joao@example.com")
+    event
   end
 end

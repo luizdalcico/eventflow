@@ -22,7 +22,17 @@
     <div class="flex gap-2 shrink-0">
       <%= link_to "Editar", edit_event_path(@event), class: "px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-medium text-sm" %>
       <%= link_to "Exportar PDF", event_path(@event, format: :pdf), class: "px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm" %>
-      <%= link_to "Gerar Contrato", contract_event_path(@event, format: :pdf), class: "px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm" %>
+      <% if @event.contract_ready? %>
+        <%= link_to "Gerar Contrato", contract_event_path(@event, format: :pdf), class: "px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm" %>
+      <% else %>
+        <div data-controller="contract-modal" class="inline-flex">
+          <button type="button" data-action="contract-modal#open"
+                  class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm">
+            Gerar Contrato
+          </button>
+          <%= render "events/contract_modal", missing: @event.missing_contract_fields %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>

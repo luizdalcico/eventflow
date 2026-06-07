@@ -43,6 +43,12 @@ class EventsController < ApplicationController
   end
 
   def contract
+    unless @event.contract_ready?
+      missing = @event.missing_contract_fields.to_sentence
+      redirect_to @event, alert: "Não foi possível gerar o contrato. Preencha: #{missing}."
+      return
+    end
+
     pdf_content = TemplateService.generate_contract(@event, :pdf)
     send_data pdf_content,
               filename: "contrato_#{@event.id}_#{Date.current.strftime('%Y%m%d')}.pdf",

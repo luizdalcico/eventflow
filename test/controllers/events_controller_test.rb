@@ -112,9 +112,8 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: "Lista de Padrinhos", count: 0
   end
 
-  test "contract returns a PDF attachment" do
-    event = Event.create!(title: "Contrato", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 80, contract_total_value: 5000, contract_receptionists_count: 3)
-    event.event_owners.create!(name: "João", cpf: "12345678901", phone_number: "11999999999", email: "joao@example.com")
+  test "contract returns a PDF attachment when every dynamic field is filled" do
+    event = contract_ready_event
 
     get contract_event_url(event, format: :pdf)
 
@@ -123,6 +122,18 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/attachment/, response.headers["Content-Disposition"])
     assert_match(/contrato_#{event.id}_/, response.headers["Content-Disposition"])
     assert_equal "%PDF-", response.body[0, 5]
+  end
+
+  test "contract is blocked and lists the missing fields when incomplete" do
+    event = Event.create!(title: "Incompleto", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 80)
+
+    get contract_event_url(event, format: :pdf)
+
+    assert_redirected_to event_url(event)
+    assert_match(/Não foi possível gerar o contrato/, flash[:alert])
+    assert_match(/Valor total/, flash[:alert])
+    assert_match(/Nº de recepcionistas/, flash[:alert])
+    assert_match(/Nome do contratante/, flash[:alert])
   end
 
   test "create persists contract fields" do
@@ -241,5 +252,19 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     event.reload
     assert_equal 1200.0, event.contract_total_value.to_f
     assert_equal 2, event.contract_receptionists_count
+  end
+
+  private
+
+  # Event with every dynamic contract field (and a complete contratante) filled.
+  def contract_ready_event
+    event = Event.create!(
+      title: "Contrato", event_type: "wedding", main_date: 1.month.from_now.to_date,
+      estimated_guests: 80, start_time: "20:00", end_time: "23:00", extra_hours: 2,
+      contract_total_value: 5000, contract_extra_hour_rate: 250,
+      contract_payment_due_date: 2.weeks.from_now.to_date, contract_receptionists_count: 3
+    )
+    event.event_owners.create!(name: "João", cpf: "12345678901", phone_number: "11999999999", email: "joao@example.com")
+    event
   end
 end

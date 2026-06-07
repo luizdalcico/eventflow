@@ -106,6 +106,33 @@ class Event < ApplicationRecord
     providers_total_cost - providers_paid_total
   end
 
+  # Dynamic fields merged into the contract PDF, paired with their human label.
+  # Order mirrors the event form so the "missing fields" list reads top-down.
+  CONTRACT_REQUIRED_FIELDS = [
+    [ :start_time, "Horário de início" ],
+    [ :end_time, "Horário de término" ],
+    [ :extra_hours, "Horas extras" ],
+    [ :contract_total_value, "Valor total" ],
+    [ :contract_extra_hour_rate, "Valor da hora extra" ],
+    [ :contract_payment_due_date, "Data limite de pagamento" ],
+    [ :contract_receptionists_count, "Nº de recepcionistas" ]
+  ].freeze
+
+  # Labels of the contract fields still blank, so the contract cannot be generated.
+  # Includes the contratante (first event owner) name + CPF, which feed the preamble.
+  def missing_contract_fields
+    missing = CONTRACT_REQUIRED_FIELDS.filter_map { |attr, label| label if self[attr].blank? }
+    contratante = event_owners.first
+    missing << "Nome do contratante" if contratante&.name.blank?
+    missing << "CPF do contratante" if contratante&.cpf.blank?
+    missing
+  end
+
+  # True when every dynamic contract field is filled in.
+  def contract_ready?
+    missing_contract_fields.empty?
+  end
+
   private
 
   # Every wedding gets a godparent list ready to be filled in from the start.
