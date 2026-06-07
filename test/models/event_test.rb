@@ -238,6 +238,24 @@ class EventTest < ActiveSupport::TestCase
     assert_not_includes results, outside
   end
 
+  test "in_date_range last_year keeps only events within the previous year" do
+    inside = Event.create!(title: "Dentro Ano Passado", event_type: "corporate_event", main_date: Date.current.last_year.beginning_of_year, estimated_guests: 10)
+    outside = Event.create!(title: "Fora Ano Passado", event_type: "corporate_event", main_date: Date.current.beginning_of_year, estimated_guests: 10)
+
+    results = Event.in_date_range("last_year")
+    assert_includes results, inside
+    assert_not_includes results, outside
+  end
+
+  test "in_date_range next_year keeps only events within the following year" do
+    inside = Event.create!(title: "Dentro Próx Ano", event_type: "corporate_event", main_date: Date.current.next_year.beginning_of_year, estimated_guests: 10)
+    outside = Event.create!(title: "Fora Próx Ano", event_type: "corporate_event", main_date: Date.current.beginning_of_year, estimated_guests: 10)
+
+    results = Event.in_date_range("next_year")
+    assert_includes results, inside
+    assert_not_includes results, outside
+  end
+
   test "in_date_range is a no-op for blank or unknown periods" do
     assert_equal Event.count, Event.in_date_range("").count
     assert_equal Event.count, Event.in_date_range(nil).count

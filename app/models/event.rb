@@ -2,7 +2,7 @@ class Event < ApplicationRecord
   EVENT_TYPES = %w[wedding quinze_anos formatura bodas adult_birthday children_birthday corporate_event].freeze
 
   # Whitelisted keys for the home date filter. Order mirrors the UI options.
-  DATE_FILTERS = %w[this_week this_month next_month this_year].freeze
+  DATE_FILTERS = %w[this_week this_month next_month this_year last_year next_year].freeze
 
   has_many :event_owners, dependent: :destroy
   has_many :event_dates, dependent: :destroy
@@ -63,6 +63,12 @@ class Event < ApplicationRecord
       next_month = today.next_month
       next_month.beginning_of_month..next_month.end_of_month
     when "this_year"  then today.beginning_of_year..today.end_of_year
+    when "last_year"
+      last_year = today.last_year
+      last_year.beginning_of_year..last_year.end_of_year
+    when "next_year"
+      next_year = today.next_year
+      next_year.beginning_of_year..next_year.end_of_year
     end
   end
 

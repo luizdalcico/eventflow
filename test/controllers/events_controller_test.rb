@@ -153,6 +153,34 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_select "body", text: /#{b.title}/
   end
 
+  test "index wires the filter form to auto-submit via Stimulus" do
+    get events_url
+
+    assert_response :success
+    # The form auto-applies filters through the autosave controller (no manual button).
+    assert_select "form[data-controller=?][data-action*=?]", "autosave", "autosave#save"
+  end
+
+  test "index offers the year-based date filter options" do
+    get events_url
+
+    assert_response :success
+    assert_select "select[name=period] option[value=last_year]", text: "Ano passado"
+    assert_select "select[name=period] option[value=next_year]", text: "Próximo ano"
+  end
+
+  test "index filters by last_year period" do
+    last_year = Event.create!(title: "Evento Ano Passado", event_type: "wedding", main_date: Date.current.last_year.beginning_of_year, estimated_guests: 50)
+    this_year = Event.create!(title: "Evento Este Ano", event_type: "wedding", main_date: Date.current.beginning_of_year, estimated_guests: 50)
+
+    # last_year events are in the past, so view them through the "all" card filter.
+    get events_url, params: { period: "last_year", filter: "all" }
+
+    assert_response :success
+    assert_select "body", text: /#{last_year.title}/
+    assert_select "body", { text: /#{this_year.title}/, count: 0 }
+  end
+
   test "index filters by search query across title and owner name" do
     by_title = Event.create!(title: "Casório Tabajara", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
     by_owner = Event.create!(title: "Evento Genérico", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
