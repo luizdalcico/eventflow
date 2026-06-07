@@ -29,6 +29,8 @@ class Event < ApplicationRecord
 
   validate :end_time_after_start_time
 
+  after_create :ensure_godparent_list
+
   scope :by_type, ->(type) { where(event_type: type) }
   scope :upcoming, -> { where("main_date >= ?", Date.current) }
   scope :past, -> { where("main_date < ?", Date.current) }
@@ -105,6 +107,11 @@ class Event < ApplicationRecord
   end
 
   private
+
+  # Every wedding gets a godparent list ready to be filled in from the start.
+  def ensure_godparent_list
+    create_godparent_list! if wedding? && godparent_list.nil?
+  end
 
   def end_time_after_start_time
     return unless start_time && end_time

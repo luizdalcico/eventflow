@@ -65,7 +65,7 @@ class BreadcrumbsTest < ActionDispatch::IntegrationTest
     get event_cortejo_url(@event)
     assert_response :success
     assert_select "nav[aria-label=?]", "Breadcrumb" do
-      assert_select "span[aria-current=?]", "page", text: "Cortejo & Familiares"
+      assert_select "span[aria-current=?]", "page", text: "Cortejo"
     end
   end
 

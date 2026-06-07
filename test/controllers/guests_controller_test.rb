@@ -19,6 +19,27 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     assert_match "crianças", @response.body
   end
 
+  test "index renders convidados, padrinhos and familiares tabs for weddings" do
+    get event_guests_path(@event)
+    assert_response :success
+    assert_select "[data-testid=?]", "tab-convidados"
+    assert_select "[data-testid=?]", "tab-padrinhos"
+    assert_select "[data-testid=?]", "tab-familiares"
+  end
+
+  test "index has no padrinhos or familiares tabs for non-wedding events" do
+    party = Event.create!(title: "Aniversário", event_type: "adult_birthday",
+                          main_date: Date.current + 1.month, estimated_guests: 50)
+    party.guests.create!(name: "Ana", guest_type: "adult", party_size: 1)
+
+    get event_guests_path(party)
+    assert_response :success
+    assert_select "[data-testid=?]", "tab-padrinhos", count: 0
+    assert_select "[data-testid=?]", "tab-familiares", count: 0
+    # A lista geral continua visível.
+    assert_select "th", text: "Tipo"
+  end
+
   test "update persists guest_type" do
     patch event_guest_path(@event, @guest), params: { guest: { guest_type: "child" } }
     assert_response :ok

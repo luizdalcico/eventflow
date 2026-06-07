@@ -1,0 +1,30 @@
+<%# Aba "Padrinhos": painel de geração do link + lista somente-leitura dos pares. Locals: event, anchors. %>
+
+<%= render "events/godparent_list" %>
+
+<div class="mt-6">
+  <h2 class="text-lg font-semibold text-gray-900 mb-3">Pares preenchidos</h2>
+  <% if anchors.any? %>
+    <div class="overflow-x-auto bg-white rounded-xl ring-1 ring-gray-200 shadow-sm">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <% th = "px-3 py-2 text-left text-xs font-semibold text-gray-600" %>
+            <th class="<%= th %> w-10 text-center">#</th>
+            <th class="<%= th %>">Lado</th>
+            <th class="<%= th %>">Madrinha</th>
+            <th class="<%= th %>">Padrinho</th>
+            <th class="<%= th %>">Os padrinhos são</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= render partial: "guests/padrinho_pair", collection: anchors, as: :madrinha %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-12 text-gray-500 text-sm">
+      Nenhum par preenchido ainda. Compartilhe o link acima com os noivos.
+    </div>
+  <% end %>
+</div>

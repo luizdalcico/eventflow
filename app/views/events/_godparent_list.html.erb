@@ -41,6 +41,15 @@
           <p class="font-medium"><%= list.expires_at ? l(list.expires_at, format: :long) : "Sem expiração" %></p>
         </div>
       </div>
+
+      <%= form_with url: event_godparent_list_path(@event), method: :post, class: "flex flex-wrap items-end gap-3 pt-2 border-t border-gray-100" do %>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Alterar expiração</label>
+          <%= datetime_field_tag "godparent_list[expires_at]", list.expires_at,
+                class: "border border-gray-300 rounded px-3 py-2 text-sm" %>
+        </div>
+        <%= submit_tag "Salvar", class: "px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 cursor-pointer text-sm" %>
+      <% end %>
     </div>
   <% else %>
     <p class="text-gray-500 text-sm mb-4">

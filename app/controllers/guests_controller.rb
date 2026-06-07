@@ -3,6 +3,14 @@ class GuestsController < ApplicationController
 
   def index
     @guests = @event.guests.order(:name)
+    # Wedding-only tabs: godparents (paired) and family members.
+    if @event.wedding?
+      @godparent_list = @event.godparent_list
+      # Preload the paired padrinho to avoid an N+1 when rendering each pair row.
+      @anchors = @event.godparents.anchors.includes(:pair)
+      @family_members = @event.family_members.ordered
+      @family_member = @event.family_members.new
+    end
   end
 
   # Lista pronta para impressão (Imprimir / Salvar em PDF pelo navegador).

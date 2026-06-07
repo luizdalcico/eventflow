@@ -43,12 +43,6 @@
         <dt class="text-gray-500">RSVP confirmados</dt>
         <dd class="font-bold text-green-700"><%= @event.guests.rsvp_confirmed.count %></dd>
       </div>
-      <% if @event.wedding? %>
-        <div class="flex justify-between">
-          <dt class="text-gray-500">Padrinhos</dt>
-          <dd class="font-bold text-gray-900"><%= @godparents.count %></dd>
-        </div>
-      <% end %>
     </dl>
   <% end %>
 
@@ -73,18 +67,14 @@
     <div class="text-xs text-gray-500 mt-1">pendentes</div>
   <% end %>
 
-  <!-- Card 5 — Cortejo & Familiares (só casamento) -->
+  <!-- Card 5 — Cortejo (só casamento) -->
   <% if @event.wedding? %>
     <%= link_to event_cortejo_path(@event), class: summary_card do %>
-      <div class="text-sm font-semibold text-gray-900 mb-3">💍 Cortejo &amp; Familiares</div>
+      <div class="text-sm font-semibold text-gray-900 mb-3">💍 Cortejo</div>
       <dl class="space-y-1.5 text-sm">
         <div class="flex justify-between">
           <dt class="text-gray-500">Momentos</dt>
           <dd class="font-bold text-gray-900"><%= @procession_steps_count %></dd>
-        </div>
-        <div class="flex justify-between">
-          <dt class="text-gray-500">Familiares</dt>
-          <dd class="font-bold text-gray-900"><%= @family_members_count %></dd>
         </div>
       </dl>
     <% end %>
@@ -164,11 +154,6 @@
         <p class="text-gray-500 text-sm">Nenhuma data adicional cadastrada</p>
       <% end %>
     </div>
-
-    <!-- Lista de Padrinhos (só casamento) -->
-    <% if @event.wedding? %>
-      <%= render "godparent_list" %>
-    <% end %>
   </div>
 
   <!-- Sidebar -->

@@ -1,0 +1,13 @@
+<%# Aba "Familiares": cadastro inline de familiares com papel. Locals: event, family_members, family_member. %>
+
+<%= render "family_members/form", event: event, family_member: family_member %>
+<div class="mt-4 space-y-2">
+  <div id="family_members" class="space-y-2">
+    <%= render partial: "family_members/family_member", collection: family_members, as: :family_member, locals: { event: event } %>
+  </div>
+  <% if family_members.empty? %>
+    <div id="family_members_empty" class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-12 text-gray-500 text-sm">
+      Nenhum familiar cadastrado ainda. Adicione o primeiro acima.
+    </div>
+  <% end %>
+</div>

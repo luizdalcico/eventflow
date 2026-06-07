@@ -272,4 +272,17 @@ class EventTest < ActiveSupport::TestCase
     assert_not_includes results, wrong_date
     assert_not_includes results, wrong_name
   end
+
+  test "creating a wedding generates a godparent list automatically" do
+    event = Event.create!(title: "Casamento", event_type: "wedding",
+                          main_date: Date.current + 1.month, estimated_guests: 100)
+    assert event.godparent_list.present?
+    assert event.godparent_list.token.present?
+  end
+
+  test "creating a non-wedding does not generate a godparent list" do
+    event = Event.create!(title: "Festa", event_type: "adult_birthday",
+                          main_date: Date.current + 1.month, estimated_guests: 50)
+    assert_nil event.godparent_list
+  end
 end

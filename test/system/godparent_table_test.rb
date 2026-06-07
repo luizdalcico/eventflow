@@ -4,7 +4,9 @@ class GodparentTableTest < ApplicationSystemTestCase
   def setup
     @event = Event.create!(title: "Casamento Teste", event_type: "wedding",
                            main_date: Date.current + 1.month, estimated_guests: 100)
-    @list = @event.create_godparent_list!(expires_at: 1.week.from_now)
+    # Weddings auto-generate the list on create; just set its expiry here.
+    @list = @event.godparent_list
+    @list.update!(expires_at: 1.week.from_now)
     m1 = @event.godparents.create!(role: "madrinha", position: 1,
                                    name: "Marina", phone_number: "85999990000", side: "noivo",
                                    relationship: "casados", relation: "irmao")

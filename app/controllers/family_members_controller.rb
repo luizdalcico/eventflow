@@ -16,12 +16,12 @@ class FamilyMembersController < ApplicationController
             turbo_stream.replace("new_family_member", partial: "family_members/form", locals: { event: @event, family_member: @event.family_members.new })
           ]
         end
-        format.html { redirect_to event_cortejo_path(@event) }
+        format.html { redirect_to event_guests_path(@event) }
       end
     else
       respond_to do |format|
         format.turbo_stream { render turbo_stream: turbo_stream.replace("new_family_member", partial: "family_members/form", locals: { event: @event, family_member: @family_member }) }
-        format.html { redirect_to event_cortejo_path(@event), alert: @family_member.errors.full_messages.to_sentence }
+        format.html { redirect_to event_guests_path(@event), alert: @family_member.errors.full_messages.to_sentence }
       end
     end
   end
@@ -35,7 +35,7 @@ class FamilyMembersController < ApplicationController
     @family_member.destroy
     respond_to do |format|
       format.turbo_stream { render turbo_stream: turbo_stream.remove(dom_id(@family_member)) }
-      format.html { redirect_to event_cortejo_path(@event) }
+      format.html { redirect_to event_guests_path(@event) }
     end
   end
 
