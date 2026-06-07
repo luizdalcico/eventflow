@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_07_170000) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_07_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -76,6 +76,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_07_170000) do
     t.index ["main_date"], name: "index_events_on_main_date"
   end
 
+  create_table "family_member_lists", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.string "token", null: false
+    t.datetime "expires_at"
+    t.string "status", default: "draft", null: false
+    t.datetime "submitted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_family_member_lists_on_event_id", unique: true
+    t.index ["token"], name: "index_family_member_lists_on_token", unique: true
+  end
+
   create_table "family_members", force: :cascade do |t|
     t.bigint "event_id", null: false
     t.string "name", null: false
@@ -115,6 +127,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_07_170000) do
     t.index ["event_id", "position"], name: "index_godparents_on_event_id_and_position"
     t.index ["event_id"], name: "index_godparents_on_event_id"
     t.index ["pair_id"], name: "index_godparents_on_pair_id"
+  end
+
+  create_table "guest_lists", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.string "token", null: false
+    t.datetime "expires_at"
+    t.string "status", default: "draft", null: false
+    t.datetime "submitted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_guest_lists_on_event_id", unique: true
+    t.index ["token"], name: "index_guest_lists_on_token", unique: true
   end
 
   create_table "guests", force: :cascade do |t|
@@ -190,10 +214,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_07_170000) do
   add_foreign_key "event_owners", "events"
   add_foreign_key "event_providers", "events"
   add_foreign_key "event_providers", "providers"
+  add_foreign_key "family_member_lists", "events"
   add_foreign_key "family_members", "events"
   add_foreign_key "godparent_lists", "events"
   add_foreign_key "godparents", "events"
   add_foreign_key "godparents", "godparents", column: "pair_id"
+  add_foreign_key "guest_lists", "events"
   add_foreign_key "guests", "events"
   add_foreign_key "manager_checklists", "events"
   add_foreign_key "owner_checklists", "events"

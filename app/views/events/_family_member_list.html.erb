@@ -1,0 +1,50 @@
+<div class="bg-white rounded-lg shadow p-6">
+  <h2 class="text-xl font-semibold text-gray-900 mb-4">Link público de familiares</h2>
+  <p class="text-sm text-gray-500 mb-4">Compartilhe este link para que os próprios familiares se cadastrem na lista.</p>
+
+  <% list = @family_member_list %>
+  <% url = family_member_list_url(list.token) %>
+
+  <div class="space-y-3" data-controller="clipboard">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Link de preenchimento</label>
+      <div class="flex gap-2">
+        <input type="text" readonly value="<%= url %>"
+               data-clipboard-target="source"
+               class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50">
+        <button type="button" data-action="clipboard#copy"
+                class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm whitespace-nowrap">
+          <span data-clipboard-target="label">Copiar</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 text-sm">
+      <div>
+        <span class="text-gray-500">Status</span>
+        <p class="font-medium">
+          <% if list.expired? %>
+            <span class="text-red-600">Expirado</span>
+          <% elsif list.submitted? %>
+            <span class="text-green-700">Finalizado<%= " em #{l(list.submitted_at, format: :long)}" if list.submitted_at %></span>
+          <% else %>
+            <span class="text-yellow-700">Rascunho (aguardando preenchimento)</span>
+          <% end %>
+        </p>
+      </div>
+      <div>
+        <span class="text-gray-500">Expira em</span>
+        <p class="font-medium"><%= list.expires_at ? l(list.expires_at, format: :long) : "Sem expiração" %></p>
+      </div>
+    </div>
+
+    <%= form_with url: event_family_member_list_path(@event), method: :post, class: "flex flex-wrap items-end gap-3 pt-2 border-t border-gray-100" do %>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Alterar expiração</label>
+        <%= datetime_field_tag "family_member_list[expires_at]", list.expires_at,
+              class: "border border-gray-300 rounded px-3 py-2 text-sm" %>
+      </div>
+      <%= submit_tag "Salvar", class: "px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 cursor-pointer text-sm" %>
+    <% end %>
+  </div>
+</div>

@@ -27,5 +27,15 @@ module Public
       Turbo::StreamsChannel.broadcast_refresh_to(@list)
       redirect_to godparent_list_path(@list.token), notice: "Lista finalizada! O cerimonial foi avisado."
     end
+
+    private
+
+    def find_list(token)
+      GodparentList.find_by(token: token)
+    end
+
+    def editable_redirect_path
+      godparent_list_path(@list.token)
+    end
   end
 end

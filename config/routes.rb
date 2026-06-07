@@ -13,8 +13,10 @@ Rails.application.routes.draw do
     member do
       get :contract
     end
-    # Admin: gera o link de preenchimento da lista de padrinhos
+    # Admin: gera o link de preenchimento das listas públicas
     resource :godparent_list, only: [ :create ], module: :admin
+    resource :guest_list, only: [ :create ], module: :admin
+    resource :family_member_list, only: [ :create ], module: :admin
     resources :event_owners, path: "owners"
     resources :event_dates, path: "dates"
     resources :guests, only: [ :index, :create, :update, :destroy ] do
@@ -63,4 +65,18 @@ Rails.application.routes.draw do
   post   "padrinhos/:token/pairs",     to: "public/godparent_pairs#create",   as: :godparent_list_pairs
   patch  "padrinhos/:token/pairs/:id", to: "public/godparent_pairs#update",   as: :godparent_list_pair
   delete "padrinhos/:token/pairs/:id", to: "public/godparent_pairs#destroy"
+
+  # Página pública de preenchimento da lista de convidados (protegida por token)
+  get    "convidados/:token",            to: "public/guest_lists#show",        as: :guest_list
+  patch  "convidados/:token/finalize",   to: "public/guest_lists#finalize",    as: :finalize_guest_list
+  post   "convidados/:token/guests",     to: "public/public_guests#create",    as: :guest_list_guests
+  patch  "convidados/:token/guests/:id", to: "public/public_guests#update",    as: :guest_list_guest
+  delete "convidados/:token/guests/:id", to: "public/public_guests#destroy"
+
+  # Página pública de preenchimento da lista de familiares (protegida por token)
+  get    "familiares/:token",             to: "public/family_member_lists#show",     as: :family_member_list
+  patch  "familiares/:token/finalize",    to: "public/family_member_lists#finalize", as: :finalize_family_member_list
+  post   "familiares/:token/members",     to: "public/public_family_members#create", as: :family_member_list_members
+  patch  "familiares/:token/members/:id", to: "public/public_family_members#update", as: :family_member_list_member
+  delete "familiares/:token/members/:id", to: "public/public_family_members#destroy"
 end

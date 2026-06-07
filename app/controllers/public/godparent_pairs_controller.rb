@@ -45,6 +45,14 @@ module Public
 
     private
 
+    def find_list(token)
+      GodparentList.find_by(token: token)
+    end
+
+    def editable_redirect_path
+      godparent_list_path(@list.token)
+    end
+
     def pair_anchor
       @list.event.godparents.find(params[:id])
     end

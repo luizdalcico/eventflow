@@ -1,0 +1,7 @@
+<%= turbo_stream.remove "public_family_members_empty" %>
+<%= turbo_stream.append "public_family_members" do %>
+  <%= render partial: "public/public_family_members/row", locals: { family_member: @family_member, list: @list } %>
+<% end %>
+<%= turbo_stream.replace "new_public_family_member" do %>
+  <%= render "public/family_member_lists/form", list: @list, family_member: @event.family_members.new %>
+<% end %>

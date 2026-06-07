@@ -15,6 +15,8 @@ class Event < ApplicationRecord
   has_many :manager_checklists, dependent: :destroy
   has_many :owner_checklists, dependent: :destroy
   has_one :godparent_list, dependent: :destroy
+  has_one :guest_list, dependent: :destroy
+  has_one :family_member_list, dependent: :destroy
 
   accepts_nested_attributes_for :event_owners, allow_destroy: true, reject_if: :all_blank
 
@@ -30,6 +32,8 @@ class Event < ApplicationRecord
   validate :end_time_after_start_time
 
   after_create :ensure_godparent_list
+  after_create :ensure_guest_list
+  after_create :ensure_family_member_list
 
   scope :by_type, ->(type) { where(event_type: type) }
   scope :upcoming, -> { where("main_date >= ?", Date.current) }
@@ -92,6 +96,18 @@ class Event < ApplicationRecord
     godparent_list || (create_godparent_list! if wedding?)
   end
 
+  # Returns the guest list, creating it on demand for events that predate
+  # automatic generation. Available for every event type. Idempotent.
+  def find_or_create_guest_list!
+    guest_list || create_guest_list!
+  end
+
+  # Returns the family-member list, creating it on demand for weddings that
+  # predate automatic generation. Weddings only. Idempotent.
+  def find_or_create_family_member_list!
+    family_member_list || (create_family_member_list! if wedding?)
+  end
+
   # Sum of every contracted provider value for this event (nil values count as zero).
   def providers_total_cost
     event_providers.sum(:value)
@@ -144,6 +160,16 @@ class Event < ApplicationRecord
   # Every wedding gets a godparent list ready to be filled in from the start.
   def ensure_godparent_list
     find_or_create_godparent_list!
+  end
+
+  # Every event gets a guest list ready to be filled in from the start.
+  def ensure_guest_list
+    find_or_create_guest_list!
+  end
+
+  # Every wedding gets a family-member list ready to be filled in from the start.
+  def ensure_family_member_list
+    find_or_create_family_member_list!
   end
 
   def end_time_after_start_time

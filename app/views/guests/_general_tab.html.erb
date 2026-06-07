@@ -1,5 +1,10 @@
 <%# Aba "Convidados": resumo RSVP, importação e tabela editável. Locals: event, guests. %>
 
+<%# Link público para os convidados se cadastrarem %>
+<div class="mb-6">
+  <%= render "events/guest_list" %>
+</div>
+
 <%# Resumo RSVP %>
 <% confirmed = guests.count { |g| g.rsvp_status == "confirmed" } %>
 <% declined  = guests.count { |g| g.rsvp_status == "declined" } %>

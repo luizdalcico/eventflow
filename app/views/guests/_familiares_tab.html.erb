@@ -1,5 +1,10 @@
 <%# Aba "Familiares": cadastro inline de familiares com papel. Locals: event, family_members, family_member. %>
 
+<%# Link público para os familiares se cadastrarem %>
+<div class="mb-6">
+  <%= render "events/family_member_list" %>
+</div>
+
 <%= render "family_members/form", event: event, family_member: family_member %>
 <div class="mt-4 space-y-2">
   <div id="family_members" class="space-y-2">

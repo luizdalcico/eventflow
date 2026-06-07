@@ -1,0 +1,38 @@
+<%#
+  Linha editável de convidado na página pública (auto-save).
+  Cada linha é um form próprio (div), salvo automaticamente ao editar.
+  Locals: guest, list.
+%>
+<% editable = list.editable? %>
+<%= form_with url: guest_list_guest_path(list.token, guest), method: :patch, id: dom_id(guest),
+      data: { controller: "autosave" },
+      class: "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-3 flex flex-col sm:flex-row sm:items-center gap-3" do |f| %>
+  <%
+    field = "bg-transparent border-0 px-2 py-1 text-sm text-gray-800 placeholder-gray-400 " \
+            "focus:bg-blue-50 focus:outline-none rounded disabled:text-gray-500"
+    act   = { action: "input->autosave#save change->autosave#save" }
+  %>
+
+  <%= f.text_field :name, value: guest.name, placeholder: "Nome do convidado", disabled: !editable,
+        data: act, class: "#{field} flex-1 min-w-0 font-medium" %>
+
+  <%= f.number_field :party_size, value: guest.party_size, min: 1, disabled: !editable,
+        data: act, class: "#{field} shrink-0 w-20", title: "Pessoas" %>
+
+  <%= f.select :guest_type,
+        options_for_select([["Adulto", "adult"], ["Criança", "child"]], guest.guest_type),
+        {}, disabled: !editable, data: act, class: "#{field} shrink-0 w-28" %>
+
+  <%= f.text_field :phone_number, value: guest.phone_number, placeholder: "(00) 00000-0000", disabled: !editable,
+        data: act.merge(controller: "simple-mask", simple_mask_pattern_value: "(00) 00000-0000"),
+        class: "#{field} flex-1 min-w-0" %>
+
+  <%= f.text_field :notes, value: guest.notes, placeholder: "Observações", disabled: !editable,
+        data: act, class: "#{field} flex-1 min-w-0" %>
+
+  <% if editable %>
+    <%= link_to "×", guest_list_guest_path(list.token, guest), title: "Remover",
+          data: { turbo_method: :delete, turbo_confirm: "Remover este convidado?" },
+          class: "shrink-0 text-gray-400 hover:text-red-600 text-lg leading-none px-1" %>
+  <% end %>
+<% end %>

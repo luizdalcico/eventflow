@@ -346,6 +346,74 @@ class EventTest < ActiveSupport::TestCase
     assert_nil event.reload.godparent_list
   end
 
+  # --- Guest list (every event type) ---
+
+  test "creating any event generates a guest list automatically" do
+    Event::EVENT_TYPES.each do |type|
+      event = Event.create!(title: "Evento #{type}", event_type: type,
+                            main_date: Date.current + 1.month, estimated_guests: 10)
+      assert event.guest_list.present?, "#{type} should have a guest list"
+      assert event.guest_list.token.present?
+    end
+  end
+
+  test "find_or_create_guest_list! returns the existing list without creating another" do
+    event = Event.create!(title: "Festa", event_type: "adult_birthday",
+                          main_date: Date.current + 1.month, estimated_guests: 50)
+    existing = event.guest_list
+
+    assert_no_difference -> { GuestList.count } do
+      assert_equal existing, event.find_or_create_guest_list!
+    end
+  end
+
+  test "find_or_create_guest_list! builds a list for an event that lacks one" do
+    event = Event.create!(title: "Festa", event_type: "adult_birthday",
+                          main_date: Date.current + 1.month, estimated_guests: 50)
+    # Simulate an event created before automatic generation existed.
+    event.guest_list.destroy!
+    event.reload
+
+    assert_difference -> { GuestList.count }, 1 do
+      list = event.find_or_create_guest_list!
+      assert list.token.present?
+    end
+  end
+
+  # --- Family-member list (weddings only) ---
+
+  test "creating a wedding generates a family-member list automatically" do
+    event = Event.create!(title: "Casamento", event_type: "wedding",
+                          main_date: Date.current + 1.month, estimated_guests: 100)
+    assert event.family_member_list.present?
+    assert event.family_member_list.token.present?
+  end
+
+  test "creating a non-wedding does not generate a family-member list" do
+    event = Event.create!(title: "Festa", event_type: "adult_birthday",
+                          main_date: Date.current + 1.month, estimated_guests: 50)
+    assert_nil event.family_member_list
+  end
+
+  test "find_or_create_family_member_list! builds a list for a wedding that lacks one" do
+    event = Event.create!(title: "Casamento", event_type: "wedding",
+                          main_date: Date.current + 1.month, estimated_guests: 100)
+    event.family_member_list.destroy!
+    event.reload
+
+    assert_difference -> { FamilyMemberList.count }, 1 do
+      list = event.find_or_create_family_member_list!
+      assert list.token.present?
+    end
+  end
+
+  test "find_or_create_family_member_list! is a no-op for non-weddings" do
+    event = Event.create!(title: "Festa", event_type: "adult_birthday",
+                          main_date: Date.current + 1.month, estimated_guests: 50)
+    assert_nil event.find_or_create_family_member_list!
+    assert_nil event.reload.family_member_list
+  end
+
   private
 
   # Event with every dynamic contract field (and a complete contratante) filled.

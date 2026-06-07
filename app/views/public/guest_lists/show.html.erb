@@ -1,0 +1,55 @@
+<% content_for :title, "Lista de Convidados - #{@event.title}" %>
+
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-800"><%= @event.title %></h1>
+  <p class="text-gray-500">Preenchimento da lista de convidados</p>
+</div>
+
+<% unless @list.editable? %>
+  <div id="list_status_banner" class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-6 text-sm">
+    <% if @list.submitted? %>
+      ✅ Lista finalizada em <%= l(@list.submitted_at, format: :long) if @list.submitted_at %>. A edição está encerrada.
+    <% else %>
+      Este link não está mais disponível para edição.
+    <% end %>
+  </div>
+<% end %>
+
+<details open class="group mb-5 text-sm">
+  <summary class="cursor-pointer text-gray-500 hover:text-gray-700 select-none">Como preencher</summary>
+  <ul class="mt-2 list-disc list-inside space-y-1 text-gray-500">
+    <li>Adicione um convidado por linha.</li>
+    <li>Em "Pessoas", informe quantas pessoas aquela linha representa (ex.: casal = 2).</li>
+    <li>Em "Tipo", diga se é adulto ou criança.</li>
+  </ul>
+</details>
+
+<div class="space-y-2">
+  <div id="guests_list" class="space-y-2">
+    <%= render partial: "public/public_guests/row", collection: @guests, as: :guest, locals: { list: @list } %>
+  </div>
+
+  <% if @guests.empty? %>
+    <div id="guests_empty" class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-12 text-gray-500 text-sm">
+      Nenhum convidado cadastrado ainda. Adicione o primeiro abaixo.
+    </div>
+  <% end %>
+
+  <% if @list.editable? %>
+    <%= button_to guest_list_guests_path(@list.token),
+          class: "flex items-center gap-2 w-full text-left px-4 py-3 text-sm font-medium text-gray-500 " \
+                 "hover:text-blue-600 hover:bg-gray-50 rounded-xl bg-white ring-1 ring-gray-200" do %>
+      <span class="text-lg leading-none">＋</span> Adicionar convidado
+    <% end %>
+  <% end %>
+</div>
+
+<% if @list.editable? %>
+  <div class="static md:sticky md:bottom-0 bg-gray-50/90 backdrop-blur border-t border-gray-200 py-4 mt-8 flex flex-wrap gap-3 justify-end items-center">
+    <span class="text-sm text-gray-400 mr-auto">As alterações são salvas automaticamente.</span>
+    <%= button_to "Finalizar e avisar o cerimonial",
+          finalize_guest_list_path(@list.token), method: :patch,
+          form: { data: { turbo_confirm: "Tem certeza? Após finalizar não será mais possível editar a lista." } },
+          class: "px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700" %>
+  </div>
+<% end %>

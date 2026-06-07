@@ -3,10 +3,13 @@ class GuestsController < ApplicationController
 
   def index
     @guests = @event.guests.order(:name)
+    # Public guest link is available for every event type.
+    @guest_list = @event.find_or_create_guest_list!
     # Wedding-only tabs: godparents (paired) and family members.
     if @event.wedding?
-      # Weddings predating auto-generation get their list created on first view.
+      # Weddings predating auto-generation get their lists created on first view.
       @godparent_list = @event.find_or_create_godparent_list!
+      @family_member_list = @event.find_or_create_family_member_list!
       # Preload the paired padrinho to avoid an N+1 when rendering each pair row.
       @anchors = @event.godparents.anchors.includes(:pair)
       @family_members = @event.family_members.ordered
