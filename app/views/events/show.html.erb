@@ -96,7 +96,10 @@
   <div class="lg:col-span-2 space-y-6">
     <!-- Informações -->
     <div class="<%= card %>">
-      <h2 class="text-base font-semibold text-gray-900 mb-4">Informações do evento</h2>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-base font-semibold text-gray-900">Informações do evento</h2>
+        <%= link_to "Gerenciar", edit_event_path(@event), class: "text-sm text-blue-600 hover:text-blue-800" %>
+      </div>
       <dl class="grid sm:grid-cols-2 gap-4 text-sm">
         <div>
           <dt class="text-gray-500">Local</dt>
@@ -106,18 +109,14 @@
           <dt class="text-gray-500">Convidados (estimativa)</dt>
           <dd class="text-gray-900 font-medium"><%= @event.estimated_guests || "—" %></dd>
         </div>
-        <% if @event.address.present? %>
-          <div class="sm:col-span-2">
-            <dt class="text-gray-500">Endereço</dt>
-            <dd class="text-gray-900"><%= @event.address %></dd>
-          </div>
-        <% end %>
-        <% if @event.extra_hours.present? && @event.extra_hours > 0 %>
-          <div>
-            <dt class="text-gray-500">Horas extras</dt>
-            <dd class="text-gray-900 font-medium"><%= @event.extra_hours %> h</dd>
-          </div>
-        <% end %>
+        <div class="sm:col-span-2">
+          <dt class="text-gray-500">Endereço</dt>
+          <dd class="text-gray-900"><%= @event.address.presence || "Não definido" %></dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Horas extras</dt>
+          <dd class="text-gray-900 font-medium"><%= @event.extra_hours.to_i > 0 ? "#{@event.extra_hours} h" : "—" %></dd>
+        </div>
       </dl>
     </div>
 

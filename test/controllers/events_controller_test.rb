@@ -14,14 +14,25 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", edit_event_path(event)
   end
 
-  test "index event card exposes a Gerenciar shortcut to the event details page" do
+  test "show exposes a Gerenciar shortcut to edit on the event info card" do
     event = Event.create!(title: "Festa", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 70)
 
-    get events_url
+    get event_url(event)
 
     assert_response :success
-    # The footer "Gerenciar" link is a shortcut into the event details/management page.
-    assert_select "a[href=?]", event_path(event), text: "Gerenciar"
+    # The "Informações do evento" card carries a "Gerenciar" shortcut into the edit page.
+    assert_select "a[href=?]", edit_event_path(event), text: "Gerenciar"
+  end
+
+  test "show always lists every event info field, even the empty ones" do
+    event = Event.create!(title: "Festa", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 70)
+
+    get event_url(event)
+
+    assert_response :success
+    # Address and extra hours are blank, but their rows still render with a fallback.
+    assert_select "dt", text: "Endereço"
+    assert_select "dt", text: "Horas extras"
   end
 
   test "index defaults to upcoming events and hides past events" do
