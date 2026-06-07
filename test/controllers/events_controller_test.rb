@@ -1,6 +1,19 @@
 require "test_helper"
 
 class EventsControllerTest < ActionDispatch::IntegrationTest
+  test "index makes the whole event card clickable via a stretched link to the event" do
+    event = Event.create!(title: "Festa", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 70)
+
+    get events_url
+
+    assert_response :success
+    # The title anchor stretches over the whole card (after:inset-0), so the entire
+    # card navigates to the event while staying a single navigation anchor.
+    assert_select "a[href=?].after\\:inset-0", event_path(event)
+    # Footer actions stay reachable as their own links.
+    assert_select "a[href=?]", edit_event_path(event)
+  end
+
   test "show renders the four clickable summary cards for a wedding" do
     event = Event.create!(title: "Casamento Teste", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 100)
     event.guests.create!(name: "Convidado A", rsvp_status: "confirmed")

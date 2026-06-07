@@ -1,9 +1,11 @@
 <% upcoming = event.main_date.present? && event.main_date >= Date.current %>
-<div class="bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-4 hover:shadow-md transition flex flex-col">
+<div class="relative bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-4 hover:shadow-md transition flex flex-col">
   <div class="flex items-start justify-between gap-3">
     <div class="min-w-0">
+      <%# Stretched link: the title anchor covers the whole card via after:inset-0,
+          making the entire card clickable while keeping a single navigation anchor. %>
       <%= link_to event.title.presence || "Evento sem título", event,
-            class: "block font-semibold text-gray-900 hover:text-blue-600 truncate" %>
+            class: "block font-semibold text-gray-900 hover:text-blue-600 truncate after:absolute after:inset-0 after:rounded-xl after:content-['']" %>
       <% if event.event_owners.first&.name.present? %>
         <p class="text-sm text-gray-500 truncate"><%= event.event_owners.first.name %></p>
       <% end %>
@@ -21,7 +23,8 @@
     <span>👥 <%= event.estimated_guests || 0 %> convidados</span>
   </div>
 
-  <div class="mt-4 flex items-center gap-4 text-sm border-t border-gray-100 pt-3">
+  <%# relative z-10 keeps these action links above the stretched title overlay. %>
+  <div class="relative z-10 mt-4 flex items-center gap-4 text-sm border-t border-gray-100 pt-3">
     <%= link_to "Ver", event, class: "font-medium text-blue-600 hover:text-blue-800" %>
     <%= link_to "Editar", edit_event_path(event), class: "text-gray-600 hover:text-gray-900" %>
     <%= link_to "Excluir", event,
