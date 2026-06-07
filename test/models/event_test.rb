@@ -51,17 +51,29 @@ class EventTest < ActiveSupport::TestCase
     assert_includes @event.errors[:estimated_guests], "deve ser maior que zero"
   end
 
-  test "should validate end_time is after start_time" do
+  test "should reject end_time equal to start_time" do
     @event.start_time = "20:00"
-    @event.end_time = "18:00"
+    @event.end_time = "20:00"
     assert_not @event.valid?
-    assert_includes @event.errors[:end_time], "deve ser após o horário de início"
+    assert_includes @event.errors[:end_time], "deve ser diferente do horário de início"
   end
 
   test "should be valid when end_time is after start_time" do
     @event.start_time = "18:00"
     @event.end_time = "22:00"
     assert @event.valid?
+  end
+
+  test "should be valid when event ends at midnight the next day" do
+    @event.start_time = "20:00"
+    @event.end_time = "00:00"
+    assert @event.valid?, @event.errors.full_messages.to_sentence
+  end
+
+  test "should be valid when event ends in the early hours of the next day" do
+    @event.start_time = "20:00"
+    @event.end_time = "02:00"
+    assert @event.valid?, @event.errors.full_messages.to_sentence
   end
 
   test "upcoming scope should return future events" do

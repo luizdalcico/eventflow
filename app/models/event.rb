@@ -185,11 +185,14 @@ class Event < ApplicationRecord
     find_or_create_family_member_list!
   end
 
+  # start_time/end_time are time-of-day only (no date), so an end earlier on the
+  # clock than the start is a valid event that runs past midnight into the next day.
+  # The only degenerate case left to reject is start == end (zero-length).
   def end_time_after_start_time
     return unless start_time && end_time
 
-    if end_time <= start_time
-      errors.add(:end_time, "deve ser após o horário de início")
+    if end_time == start_time
+      errors.add(:end_time, "deve ser diferente do horário de início")
     end
   end
 end
