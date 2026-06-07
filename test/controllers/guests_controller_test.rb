@@ -50,6 +50,10 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     # No expiration UI anymore.
     assert_no_match "Alterar expiração", @response.body
     assert_no_match "Expira em", @response.body
+    # Each panel offers an "Abrir" link that opens the public page in a new tab.
+    assert_select "a[target=_blank][href=?]", guest_list_url(@event.guest_list.token), text: "Abrir"
+    assert_select "a[target=_blank][href=?]", family_member_list_url(@event.family_member_list.token), text: "Abrir"
+    assert_select "a[target=_blank][href=?]", godparent_list_url(@event.godparent_list.token), text: "Abrir"
   end
 
   test "non-wedding events get a guest link panel but no family link panel" do

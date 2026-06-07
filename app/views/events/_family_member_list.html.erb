@@ -17,5 +17,7 @@
             class="shrink-0 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm whitespace-nowrap">
       <span data-clipboard-target="label">Copiar</span>
     </button>
+    <%= link_to "Abrir", family_member_list_url(list.token), target: "_blank", rel: "noopener",
+          class: "shrink-0 px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm whitespace-nowrap" %>
   </div>
 </div>
