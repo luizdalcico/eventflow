@@ -5,6 +5,8 @@ class TemplateService
     case format.to_sym
     when :pdf
       generate_pdf_report(event)
+    when :xlsx
+      generate_xlsx_cost_sheet(event)
     else
       raise ArgumentError, "Formato não suportado: #{format}"
     end
@@ -95,27 +97,41 @@ class TemplateService
 
       pdf.move_down 20
 
-      # Providers
-      if event.providers.any?
+      # Providers cost sheet
+      event_providers = event.event_providers.includes(:provider)
+      if event_providers.any?
         pdf.font_size 16
-        pdf.text "Fornecedores", style: :bold
+        pdf.text "Fornecedores - Planilha de custos", style: :bold
         pdf.move_down 10
 
-        pdf.font_size 12
-        providers_data = [ [ "Tipo", "Nome", "Contato", "Telefone" ] ]
-        event.providers.includes(:event_providers).each do |provider|
+        pdf.font_size 10
+        providers_data = [ [ "Tipo", "Fornecedor", "Contato", "Status", "Profissionais", "Valor" ] ]
+        event_providers.each do |ep|
+          provider = ep.provider
           providers_data << [
             translate_provider_type(provider.provider_type),
             provider.name,
             provider.contact_name,
-            provider.phone_number
+            translate_provider_status(ep.status),
+            ep.professionals_count.to_s,
+            format_brl(ep.value)
           ]
         end
+        providers_data << [
+          "Totais", "", "", "",
+          event.providers_total_professionals.to_s,
+          format_brl(event.providers_total_cost)
+        ]
 
         pdf.table(providers_data, header: true, width: pdf.bounds.width) do
           row(0).font_style = :bold
+          row(-1).font_style = :bold
           self.header = true
         end
+
+        pdf.move_down 6
+        pdf.font_size 11
+        pdf.text "Total pago: #{format_brl(event.providers_paid_total)}  •  Saldo a pagar: #{format_brl(event.providers_balance)}", style: :bold
 
         pdf.move_down 20
       end
@@ -277,5 +293,45 @@ class TemplateService
     return "—" unless digits.length == 11
 
     "#{digits[0, 3]}.#{digits[3, 3]}.#{digits[6, 3]}-#{digits[9, 2]}"
+  end
+
+  # Build the provider cost-sheet workbook (one "Planilha de custos" sheet) and
+  # return the serialized xlsx bytes.
+  def self.generate_xlsx_cost_sheet(event)
+    package = Axlsx::Package.new
+    workbook = package.workbook
+
+    workbook.add_worksheet(name: "Planilha de custos") do |sheet|
+      header = sheet.styles.add_style(b: true, bg_color: "F2F2F2")
+      money = sheet.styles.add_style(format_code: '"R$" #,##0.00')
+      total = sheet.styles.add_style(b: true)
+
+      sheet.add_row [ "Tipo", "Fornecedor", "Contato", "Telefone", "Status", "Profissionais", "Valor", "Observações" ], style: header
+
+      event.event_providers.includes(:provider).each do |ep|
+        provider = ep.provider
+        sheet.add_row [
+          translate_provider_type(provider.provider_type),
+          provider.name,
+          provider.contact_name,
+          format_phone(provider.phone_number),
+          translate_provider_status(ep.status),
+          ep.professionals_count,
+          ep.value,
+          ep.custom_detail(:notes)
+        ], style: [ nil, nil, nil, nil, nil, nil, money, nil ]
+      end
+
+      sheet.add_row [
+        "Totais", "", "", "", "",
+        event.providers_total_professionals,
+        event.providers_total_cost,
+        ""
+      ], style: [ total, nil, nil, nil, nil, total, money, nil ]
+      sheet.add_row [ "Total pago", "", "", "", "", "", event.providers_paid_total, "" ], style: [ total, nil, nil, nil, nil, nil, money, nil ]
+      sheet.add_row [ "Saldo a pagar", "", "", "", "", "", event.providers_balance, "" ], style: [ total, nil, nil, nil, nil, nil, money, nil ]
+    end
+
+    package.to_stream.read
   end
 end

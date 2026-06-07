@@ -20,6 +20,10 @@ class TemplateServiceTest < ActiveSupport::TestCase
       name: "Maria Silva", cpf: "12345678901",
       phone_number: "11999999999", email: "maria@example.com"
     )
+    provider = Provider.create!(provider_type: "buffet", name: "Buffet A",
+                                document: "11111111000111", contact_name: "Ana",
+                                phone_number: "11999990000")
+    @event.event_providers.create!(provider: provider, value: 1500, status: "pago", professionals_count: 4)
   end
 
   test "generate_contract returns a non-empty PDF byte string" do
@@ -55,5 +59,24 @@ class TemplateServiceTest < ActiveSupport::TestCase
     assert_equal "123.456.789-01", TemplateService.send(:format_cpf, "12345678901")
     assert_equal "—", TemplateService.send(:format_cpf, "123")
     assert_equal "—", TemplateService.send(:format_cpf, nil)
+  end
+
+  test "generates a non-empty pdf report" do
+    bytes = TemplateService.generate_event_report(@event, :pdf)
+    assert bytes.bytesize.positive?
+    assert bytes.start_with?("%PDF")
+  end
+
+  test "generates a non-empty xlsx cost sheet" do
+    bytes = TemplateService.generate_event_report(@event, :xlsx)
+    assert bytes.bytesize.positive?
+    # XLSX files are zip archives — they start with the PK signature.
+    assert_equal "PK".b, bytes[0, 2].b
+  end
+
+  test "generate_event_report raises for an unsupported format" do
+    assert_raises(ArgumentError) do
+      TemplateService.generate_event_report(@event, :csv)
+    end
   end
 end

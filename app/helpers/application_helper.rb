@@ -24,6 +24,24 @@ module ApplicationHelper
     EVENT_TYPE_LABELS[event_type] || event_type.to_s.humanize
   end
 
+  PROVIDER_STATUS_LABELS = {
+    "pendente" => "Pendente",
+    "orcado" => "Orçado",
+    "contratado" => "Contratado",
+    "pago" => "Pago"
+  }.freeze
+
+  def translate_provider_status(status)
+    PROVIDER_STATUS_LABELS[status.to_s] || status.to_s.humanize
+  end
+
+  # Format a numeric amount as Brazilian currency: R$ 1.234,56.
+  def format_brl(amount)
+    integer, decimals = format("%.2f", amount.to_f).split(".")
+    grouped = integer.reverse.gsub(/(\d{3})(?=\d)/, '\1.').reverse
+    "R$ #{grouped},#{decimals}"
+  end
+
   def translate_provider_type(provider_type)
     case provider_type
     when "photographer"

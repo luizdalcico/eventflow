@@ -19,6 +19,8 @@ class EventProvidersControllerTest < ActionDispatch::IntegrationTest
     assert_select "th", text: "Tipo"
     assert_select "th", text: "Fornecedor"
     assert_select "th", text: "Contato"
+    assert_select "th", text: "Status"
+    assert_select "th", text: "Profissionais"
     assert_select "th", text: "Valor contratado"
     assert_select "th", text: "Observações"
 
@@ -41,16 +43,35 @@ class EventProvidersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to event_event_providers_url(@event)
   end
 
-  test "update_details persists value and notes into custom_details" do
+  test "update_details persists value, status and professionals into columns and notes into custom_details" do
     ep = @event.event_providers.create!(provider: @provider)
 
     patch update_details_event_event_provider_url(@event, ep),
-          params: { event_provider: { value: "R$ 5.000", notes: "Pago 50%" } }
+          params: { event_provider: { value: "R$ 5.000,00", status: "contratado", professionals_count: "3", notes: "Pago 50%" } }
     assert_response :no_content
 
     ep.reload
-    assert_equal "R$ 5.000", ep.custom_detail("value")
+    assert_equal BigDecimal("5000.00"), ep.value
+    assert_equal "contratado", ep.status
+    assert_equal 3, ep.professionals_count
     assert_equal "Pago 50%", ep.custom_detail("notes")
+  end
+
+  test "export returns an xlsx attachment" do
+    @event.event_providers.create!(provider: @provider, value: 1000, status: "pago")
+
+    get export_event_event_providers_url(@event, format: :xlsx)
+    assert_response :success
+    assert_equal "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.media_type
+    assert response.body.bytesize.positive?
+  end
+
+  test "index renders the totals footer" do
+    @event.event_providers.create!(provider: @provider, value: 1000, status: "pago", professionals_count: 2)
+
+    get event_event_providers_url(@event)
+    assert_response :success
+    assert_select "#providers_totals"
   end
 
   test "destroy removes the association" do

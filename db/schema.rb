@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_19_000010) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_19_000011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -33,6 +33,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_19_000010) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "email"
+    t.string "address"
+    t.string "mother_name"
+    t.string "father_name"
+    t.date "birth_date"
+    t.string "instagram"
     t.index ["event_id", "role"], name: "index_event_owners_on_event_id_and_role"
     t.index ["event_id"], name: "index_event_owners_on_event_id"
   end
@@ -43,6 +48,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_19_000010) do
     t.json "custom_details"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "value", precision: 12, scale: 2
+    t.string "status", default: "pendente", null: false
+    t.integer "professionals_count", default: 1, null: false
     t.index ["event_id", "provider_id"], name: "index_event_providers_on_event_id_and_provider_id", unique: true
     t.index ["event_id"], name: "index_event_providers_on_event_id"
     t.index ["provider_id"], name: "index_event_providers_on_provider_id"
@@ -66,6 +74,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_19_000010) do
     t.integer "contract_receptionists_count"
     t.index ["event_type"], name: "index_events_on_event_type"
     t.index ["main_date"], name: "index_events_on_main_date"
+  end
+
+  create_table "family_members", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.string "name", null: false
+    t.string "role"
+    t.string "notes"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "position"], name: "index_family_members_on_event_id_and_position"
+    t.index ["event_id"], name: "index_family_members_on_event_id"
   end
 
   create_table "godparent_lists", force: :cascade do |t|
@@ -110,6 +130,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_19_000010) do
     t.string "rsvp_message_sid"
     t.integer "party_size", default: 1, null: false
     t.string "notes"
+    t.string "guest_type", default: "adult", null: false
+    t.index ["event_id", "guest_type"], name: "index_guests_on_event_id_and_guest_type"
     t.index ["event_id", "name"], name: "index_guests_on_event_id_and_name"
     t.index ["event_id", "rsvp_status"], name: "index_guests_on_event_id_and_rsvp_status"
     t.index ["event_id"], name: "index_guests_on_event_id"
@@ -141,6 +163,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_19_000010) do
     t.index ["event_id"], name: "index_owner_checklists_on_event_id"
   end
 
+  create_table "procession_steps", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.string "description", null: false
+    t.string "kind"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "position"], name: "index_procession_steps_on_event_id_and_position"
+    t.index ["event_id"], name: "index_procession_steps_on_event_id"
+  end
+
   create_table "providers", force: :cascade do |t|
     t.string "provider_type", null: false
     t.string "name", null: false
@@ -157,10 +190,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_19_000010) do
   add_foreign_key "event_owners", "events"
   add_foreign_key "event_providers", "events"
   add_foreign_key "event_providers", "providers"
+  add_foreign_key "family_members", "events"
   add_foreign_key "godparent_lists", "events"
   add_foreign_key "godparents", "events"
   add_foreign_key "godparents", "godparents", column: "pair_id"
   add_foreign_key "guests", "events"
   add_foreign_key "manager_checklists", "events"
   add_foreign_key "owner_checklists", "events"
+  add_foreign_key "procession_steps", "events"
 end

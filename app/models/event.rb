@@ -40,6 +40,26 @@ class Event < ApplicationRecord
     event_type == "corporate_event"
   end
 
+  # Sum of every contracted provider value for this event (nil values count as zero).
+  def providers_total_cost
+    event_providers.sum(:value)
+  end
+
+  # Sum of the professional headcount across all providers of this event.
+  def providers_total_professionals
+    event_providers.sum(:professionals_count)
+  end
+
+  # Total already settled (providers marked "pago").
+  def providers_paid_total
+    event_providers.where(status: "pago").sum(:value)
+  end
+
+  # Outstanding balance still owed (total cost minus what is already paid).
+  def providers_balance
+    providers_total_cost - providers_paid_total
+  end
+
   private
 
   def end_time_after_start_time

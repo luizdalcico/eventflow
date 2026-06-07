@@ -25,6 +25,9 @@ Rails.application.routes.draw do
       end
     end
     resources :event_providers, path: "providers" do
+      collection do
+        get :export
+      end
       member do
         patch :update_details
       end
