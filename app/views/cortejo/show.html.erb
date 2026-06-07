@@ -1,0 +1,67 @@
+<% content_for :title, "Cortejo & Familiares - Cerimonial.app" %>
+
+<div class="max-w-3xl mx-auto">
+  <div class="mb-6">
+    <%= link_to "← Voltar ao evento", @event, class: "text-sm text-blue-600 hover:text-blue-800" %>
+    <div class="flex items-center justify-between mt-1">
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Cortejo &amp; Familiares</h1>
+      <%= link_to "Exportar PDF", event_path(@event, format: :pdf),
+            class: "px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm" %>
+    </div>
+    <p class="text-gray-500 mt-1">Ordem do cortejo, momentos da cerimônia e familiares com papel.</p>
+  </div>
+
+  <!-- Cortejo / momentos da cerimônia -->
+  <section class="mb-10">
+    <h2 class="text-lg font-semibold text-gray-900 mb-3">Cortejo &amp; momentos</h2>
+    <%= render "procession_steps/form", event: @event, procession_step: @procession_step %>
+    <div class="mt-4 space-y-2">
+      <div id="procession_steps" class="space-y-2">
+        <%= render partial: "procession_steps/procession_step", collection: @procession_steps, as: :procession_step, locals: { event: @event } %>
+      </div>
+      <% if @procession_steps.empty? %>
+        <div id="procession_steps_empty" class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-12 text-gray-500 text-sm">
+          Nenhum momento do cortejo ainda. Adicione o primeiro acima.
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- Familiares -->
+  <section class="mb-10">
+    <h2 class="text-lg font-semibold text-gray-900 mb-3">Familiares</h2>
+    <%= render "family_members/form", event: @event, family_member: @family_member %>
+    <div class="mt-4 space-y-2">
+      <div id="family_members" class="space-y-2">
+        <%= render partial: "family_members/family_member", collection: @family_members, as: :family_member, locals: { event: @event } %>
+      </div>
+      <% if @family_members.empty? %>
+        <div id="family_members_empty" class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-12 text-gray-500 text-sm">
+          Nenhum familiar cadastrado ainda. Adicione o primeiro acima.
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- Padrinhos (gerenciados na lista de padrinhos) -->
+  <section>
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold text-gray-900">Padrinhos</h2>
+      <%= link_to "Gerenciar lista", @event, class: "text-sm text-blue-600 hover:text-blue-800" %>
+    </div>
+    <% if @godparents.any? %>
+      <div class="bg-white rounded-xl ring-1 ring-gray-200 shadow-sm divide-y divide-gray-100">
+        <% @godparents.each do |godparent| %>
+          <div class="flex items-center justify-between px-4 py-2.5 text-sm">
+            <span class="font-medium text-gray-800"><%= godparent.name.presence || "—" %></span>
+            <span class="text-gray-500"><%= godparent.role.presence || "—" %></span>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-8 text-gray-500 text-sm">
+        Nenhum padrinho cadastrado. Use a lista de padrinhos no evento.
+      </div>
+    <% end %>
+  </section>
+</div>

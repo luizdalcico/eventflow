@@ -80,6 +80,57 @@ class TemplateService
         pdf.move_down 20
       end
 
+      # Cortejo (momentos da cerimônia, em ordem)
+      steps = event.procession_steps.ordered
+      if steps.any?
+        pdf.font_size 16
+        pdf.text "Cortejo", style: :bold
+        pdf.move_down 10
+
+        pdf.font_size 12
+        steps_data = [ [ "Ordem", "Momento", "Tipo" ] ]
+        steps.each_with_index do |step, index|
+          steps_data << [
+            (index + 1).to_s,
+            step.description,
+            step.kind.present? ? I18n.t("procession_step.kinds.#{step.kind}") : "-"
+          ]
+        end
+
+        pdf.table(steps_data, header: true, width: pdf.bounds.width) do
+          row(0).font_style = :bold
+          self.header = true
+        end
+
+        pdf.move_down 20
+      end
+
+      # Padrinhos & Familiares
+      godparents = event.godparents.ordered
+      family = event.family_members.ordered
+      if godparents.any? || family.any?
+        pdf.font_size 16
+        pdf.text "Padrinhos & Familiares", style: :bold
+        pdf.move_down 10
+
+        pdf.font_size 12
+        people_data = [ [ "Nome", "Papel" ] ]
+        godparents.each do |godparent|
+          people_data << [ godparent.name.presence || "-", godparent.role.presence || "-" ]
+        end
+        family.each do |member|
+          role = member.role.present? ? I18n.t("family_member.roles.#{member.role}") : "-"
+          people_data << [ member.name, role ]
+        end
+
+        pdf.table(people_data, header: true, width: pdf.bounds.width) do
+          row(0).font_style = :bold
+          self.header = true
+        end
+
+        pdf.move_down 20
+      end
+
       # Guests Summary
       pdf.font_size 16
       pdf.text "Resumo de Convidados", style: :bold

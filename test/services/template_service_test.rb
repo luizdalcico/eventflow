@@ -74,6 +74,16 @@ class TemplateServiceTest < ActiveSupport::TestCase
     assert_equal "PK".b, bytes[0, 2].b
   end
 
+  test "cortejo and family sections add content to the PDF report" do
+    baseline = TemplateService.generate_event_report(@event, :pdf).bytesize
+
+    @event.procession_steps.create!(description: "Entrada da noiva", kind: "entrada", position: 1)
+    @event.family_members.create!(name: "Dona Maria", role: "mae_noiva", position: 1)
+
+    with_data = TemplateService.generate_event_report(@event, :pdf).bytesize
+    assert with_data > baseline
+  end
+
   test "generate_event_report raises for an unsupported format" do
     assert_raises(ArgumentError) do
       TemplateService.generate_event_report(@event, :csv)

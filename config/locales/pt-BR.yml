@@ -130,6 +130,17 @@ pt-BR:
         expires_at: "Expira em"
         status: "Status"
 
+      procession_step:
+        description: "Momento"
+        kind: "Tipo"
+        position: "Ordem"
+
+      family_member:
+        name: "Nome"
+        role: "Papel"
+        notes: "Observações"
+        position: "Ordem"
+
   date:
     formats:
       long: "%d/%m/%Y"
@@ -147,4 +158,26 @@ pt-BR:
       irmaos: "Irmãos"
       mae_filho: "Mãe e filho"
       pai_filho: "Pai e filho"
+      outro: "Outro"
+
+  procession_step:
+    kinds:
+      entrada: "Entrada"
+      leitura: "Leitura"
+      salmo: "Salmo"
+      aliancas: "Alianças"
+      saida: "Saída"
+      outro: "Outro"
+
+  family_member:
+    roles:
+      pai_noiva: "Pai da noiva"
+      mae_noiva: "Mãe da noiva"
+      pai_noivo: "Pai do noivo"
+      mae_noivo: "Mãe do noivo"
+      avo_noiva: "Avó/Avô da noiva"
+      avo_noivo: "Avó/Avô do noivo"
+      dama: "Dama de honra"
+      pajem: "Pajem"
+      testemunha: "Testemunha"
       outro: "Outro"

@@ -5,6 +5,8 @@ class Event < ApplicationRecord
   has_many :event_dates, dependent: :destroy
   has_many :guests, dependent: :destroy
   has_many :godparents, dependent: :destroy
+  has_many :procession_steps, dependent: :destroy
+  has_many :family_members, dependent: :destroy
   has_many :event_providers, dependent: :destroy
   has_many :providers, through: :event_providers
   has_many :manager_checklists, dependent: :destroy

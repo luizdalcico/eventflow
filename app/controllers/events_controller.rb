@@ -11,6 +11,8 @@ class EventsController < ApplicationController
     @event_dates = @event.event_dates.order(:date)
     @guests = @event.guests.order(:name)
     @godparents = @event.godparents.order(:name)
+    @procession_steps_count = @event.procession_steps.count
+    @family_members_count = @event.family_members.count
     @providers = @event.providers.includes(:event_providers)
     @manager_tasks = @event.manager_checklists.order(:due_date)
     @owner_tasks = @event.owner_checklists.order(:due_date)

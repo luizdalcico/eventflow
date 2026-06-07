@@ -29,7 +29,8 @@
 
 <!-- Cards de resumo (clicáveis) -->
 <% summary_card = "block bg-white rounded-xl ring-1 ring-gray-200 hover:ring-blue-300 hover:bg-blue-50/40 p-4 md:p-5 transition" %>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+<% cards_grid = @event.wedding? ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6" %>
+<div class="<%= cards_grid %>">
   <!-- Card 1 — Convidados -->
   <%= link_to event_guests_path(@event), class: summary_card do %>
     <div class="text-sm font-semibold text-gray-900 mb-3">👥 Convidados</div>
@@ -70,6 +71,23 @@
     <div class="text-sm font-semibold text-gray-900 mb-3">📋 Checklist responsáveis</div>
     <div class="text-2xl font-bold text-gray-900"><%= @owner_tasks.pending.count %><span class="text-base font-medium text-gray-400">/<%= @owner_tasks.count %></span></div>
     <div class="text-xs text-gray-500 mt-1">pendentes</div>
+  <% end %>
+
+  <!-- Card 5 — Cortejo & Familiares (só casamento) -->
+  <% if @event.wedding? %>
+    <%= link_to event_cortejo_path(@event), class: summary_card do %>
+      <div class="text-sm font-semibold text-gray-900 mb-3">💍 Cortejo &amp; Familiares</div>
+      <dl class="space-y-1.5 text-sm">
+        <div class="flex justify-between">
+          <dt class="text-gray-500">Momentos</dt>
+          <dd class="font-bold text-gray-900"><%= @procession_steps_count %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-gray-500">Familiares</dt>
+          <dd class="font-bold text-gray-900"><%= @family_members_count %></dd>
+        </div>
+      </dl>
+    <% end %>
   <% end %>
 </div>
 
