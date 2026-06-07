@@ -19,9 +19,9 @@ module Public
         respond_to do |format|
           format.turbo_stream do
             render turbo_stream: turbo_stream.replace(
-              "new_public_family_member",
-              partial: "public/family_member_lists/form",
-              locals: { list: @list, family_member: @family_member }
+              "new_family_member",
+              partial: "family_members/form",
+              locals: { create_url: family_member_list_members_path(@list.token), family_member: @family_member }
             )
           end
           format.html { redirect_to family_member_list_path(@list.token), alert: @family_member.errors.full_messages.to_sentence }
@@ -55,6 +55,12 @@ module Public
     def set_member
       @family_member = @event.family_members.find(params[:id])
     end
+
+    # PATCH/DELETE URL for a member row (shared partials are URL-driven).
+    def member_url(family_member)
+      family_member_list_member_path(@list.token, family_member)
+    end
+    helper_method :member_url
 
     def member_params
       params.require(:family_member).permit(:name, :role, :notes)

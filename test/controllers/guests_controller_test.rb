@@ -40,6 +40,24 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type=submit][value=?]", "Gerar link de preenchimento", count: 0
   end
 
+  test "padrinhos tab reuses the public editable pairs table" do
+    @event.godparent_list.add_pair!
+    get event_guests_path(@event)
+    assert_response :success
+    # Mesma tabela editável da página pública (não mais somente leitura).
+    assert_select "tbody#pairs_body"
+    assert_select "input[name=?]", "pair[madrinha][name]"
+    assert_select "button", text: /Adicionar par/
+  end
+
+  test "familiares tab reuses the shared add form and member rows" do
+    @event.family_members.create!(name: "Maria", role: "mae_noiva", position: 1)
+    get event_guests_path(@event)
+    assert_response :success
+    assert_select "form#new_family_member"
+    assert_select "#family_members input[name=?]", "family_member[name]"
+  end
+
   test "index shows the compact public link panels without expiration controls" do
     get event_guests_path(@event)
     assert_response :success

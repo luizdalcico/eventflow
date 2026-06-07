@@ -7,37 +7,26 @@
 
 <% unless @list.editable? %>
   <div id="list_status_banner" class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-6 text-sm">
-    <% if @list.submitted? %>
-      ✅ Lista finalizada em <%= l(@list.submitted_at, format: :long) if @list.submitted_at %>. A edição está encerrada.
-    <% else %>
-      Este link não está mais disponível para edição.
-    <% end %>
+    ✅ Lista finalizada<%= " em #{l(@list.submitted_at, format: :long)}" if @list.submitted_at %>. A edição está encerrada.
   </div>
 <% end %>
-
-<details open class="group mb-5 text-sm">
-  <summary class="cursor-pointer text-gray-500 hover:text-gray-700 select-none">Como preencher</summary>
-  <ul class="mt-2 list-disc list-inside space-y-1 text-gray-500">
-    <li>Adicione cada familiar com papel na cerimônia.</li>
-    <li>Em "Papel", informe a função (pai da noiva, dama, testemunha…).</li>
-  </ul>
-</details>
 
 <% if @list.editable? %>
-  <%= render "public/family_member_lists/form", list: @list, family_member: @family_member %>
+  <details open class="group mb-4 text-sm">
+    <summary class="cursor-pointer text-gray-500 hover:text-gray-700 select-none">Como preencher</summary>
+    <ul class="mt-2 list-disc list-inside space-y-1 text-gray-500">
+      <li>Adicione cada familiar com papel na cerimônia.</li>
+      <li>Em "Papel", informe a função (pai da noiva, dama, testemunha…).</li>
+    </ul>
+  </details>
 <% end %>
 
-<div class="mt-4 space-y-2">
-  <div id="public_family_members" class="space-y-2">
-    <%= render partial: "public/public_family_members/row", collection: @family_members, as: :family_member, locals: { list: @list } %>
-  </div>
-
-  <% if @family_members.empty? %>
-    <div id="public_family_members_empty" class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-12 text-gray-500 text-sm">
-      Nenhum familiar cadastrado ainda<%= @list.editable? ? ". Adicione o primeiro acima." : "." %>
-    </div>
-  <% end %>
-</div>
+<%# Mesma lista do painel do cerimonial (form + linhas inline) %>
+<%= render "family_members/list",
+      family_members: @family_members, family_member: @family_member,
+      create_url: family_member_list_members_path(@list.token),
+      member_url: ->(fm) { family_member_list_member_path(@list.token, fm) },
+      editable: @list.editable? %>
 
 <% if @list.editable? %>
   <div class="static md:sticky md:bottom-0 bg-gray-50/90 backdrop-blur border-t border-gray-200 py-4 mt-8 flex flex-wrap gap-3 justify-end items-center">

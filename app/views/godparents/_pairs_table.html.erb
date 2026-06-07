@@ -1,0 +1,37 @@
+<%#
+  Tabela editável de pares de padrinhos (planilha no desktop, cards no mobile).
+  Reutilizada na página pública e no painel do cerimonial.
+  Locals:
+    list    — GodparentList (token usado nas URLs/auto-save)
+    anchors — madrinhas (âncoras dos pares)
+%>
+<div class="overflow-x-auto bg-white rounded-xl ring-1 ring-gray-200 shadow-sm">
+  <table class="block md:table w-full border-collapse text-sm">
+    <thead class="hidden md:table-header-group bg-gray-100">
+      <tr>
+        <% th = "border border-gray-300 px-2 py-2 text-left text-xs font-semibold text-gray-600" %>
+        <th class="<%= th %> w-10 text-center">#</th>
+        <th class="<%= th %>">Lado</th>
+        <th class="<%= th %>">Madrinha</th>
+        <th class="<%= th %>">Celular</th>
+        <th class="<%= th %>">Ela é:</th>
+        <th class="<%= th %>">Padrinho</th>
+        <th class="<%= th %>">Celular</th>
+        <th class="<%= th %>">Ele é:</th>
+        <th class="<%= th %>">Os padrinhos são:</th>
+        <th class="border border-gray-300 w-8"></th>
+      </tr>
+    </thead>
+    <tbody id="pairs_body" class="block md:table-row-group p-3 md:p-0">
+      <%= render partial: "public/godparent_pairs/row", collection: anchors, as: :madrinha, locals: { list: list } %>
+    </tbody>
+  </table>
+
+  <% if list.editable? %>
+    <%= button_to godparent_list_pairs_path(list.token),
+          class: "flex items-center gap-2 w-full text-left px-4 py-3 text-sm font-medium text-gray-500 " \
+                 "hover:text-blue-600 hover:bg-gray-50 border-t border-gray-200" do %>
+      <span class="text-lg leading-none">＋</span> Adicionar par
+    <% end %>
+  <% end %>
+</div>

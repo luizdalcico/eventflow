@@ -1,18 +1,11 @@
-<%# Aba "Familiares": cadastro inline de familiares com papel. Locals: event, family_members, family_member. %>
+<%# Aba "Familiares": link público + cadastro inline. Locals: event, family_members, family_member. %>
 
 <%# Link público para os familiares se cadastrarem %>
-<div class="mb-6">
+<div class="mb-4">
   <%= render "events/family_member_list" %>
 </div>
 
-<%= render "family_members/form", event: event, family_member: family_member %>
-<div class="mt-4 space-y-2">
-  <div id="family_members" class="space-y-2">
-    <%= render partial: "family_members/family_member", collection: family_members, as: :family_member, locals: { event: event } %>
-  </div>
-  <% if family_members.empty? %>
-    <div id="family_members_empty" class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-12 text-gray-500 text-sm">
-      Nenhum familiar cadastrado ainda. Adicione o primeiro acima.
-    </div>
-  <% end %>
-</div>
+<%= render "family_members/list",
+      family_members: family_members, family_member: family_member,
+      create_url: event_family_members_path(event),
+      member_url: ->(fm) { event_family_member_path(event, fm) } %>

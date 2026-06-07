@@ -1,19 +1,30 @@
-<%# Um familiar (edição inline + remover). Locals: event, family_member. %>
-<%= form_with model: [event, family_member], id: dom_id(family_member),
+<%#
+  Um familiar (edição inline + remover) — admin + público.
+  Locals:
+    family_member — o familiar
+    update_url    — URL de PATCH (auto-save)
+    delete_url    — URL de DELETE
+    editable      — quando false, campos ficam desabilitados (default true)
+%>
+<% editable = local_assigns.fetch(:editable, true) %>
+<% field = "bg-transparent border-0 px-2 py-1 text-sm focus:bg-blue-50 focus:outline-none rounded disabled:text-gray-500" %>
+<%= form_with url: update_url, method: :patch, id: dom_id(family_member),
       data: { controller: "autosave" },
-      class: "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-3 flex items-center gap-3" do |f| %>
-  <%= f.text_field :name,
+      class: "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-3 flex items-center gap-3" do %>
+  <%= text_field_tag "family_member[name]", family_member.name, disabled: !editable,
         data: { action: "input->autosave#save" },
-        class: "flex-1 min-w-0 bg-transparent border-0 px-2 py-1 text-sm text-gray-800 focus:bg-blue-50 focus:outline-none rounded" %>
-  <%= f.select :role,
+        class: "#{field} flex-1 min-w-0 text-gray-800" %>
+  <%= select_tag "family_member[role]",
         options_for_select(FamilyMember::ROLES.map { |r| [t("family_member.roles.#{r}"), r] }, family_member.role),
-        { include_blank: "—" },
+        include_blank: "—", disabled: !editable,
         data: { action: "change->autosave#save" },
-        class: "shrink-0 w-40 bg-transparent border-0 px-2 py-1 text-sm text-gray-600 focus:bg-blue-50 focus:outline-none rounded" %>
-  <%= f.text_field :notes, placeholder: "Observações",
+        class: "#{field} shrink-0 w-40 text-gray-600" %>
+  <%= text_field_tag "family_member[notes]", family_member.notes, placeholder: "Observações", disabled: !editable,
         data: { action: "input->autosave#save" },
-        class: "flex-1 min-w-0 bg-transparent border-0 px-2 py-1 text-sm text-gray-600 focus:bg-blue-50 focus:outline-none rounded" %>
-  <%= link_to "×", [event, family_member], title: "Remover",
-        data: { turbo_method: :delete, turbo_confirm: "Remover este familiar?", confirm_label: "Remover" },
-        class: "shrink-0 text-gray-400 hover:text-red-600 text-lg leading-none px-1" %>
+        class: "#{field} flex-1 min-w-0 text-gray-600" %>
+  <% if editable %>
+    <%= link_to "×", delete_url, title: "Remover",
+          data: { turbo_method: :delete, turbo_confirm: "Remover este familiar?", confirm_label: "Remover" },
+          class: "shrink-0 text-gray-400 hover:text-red-600 text-lg leading-none px-1" %>
+  <% end %>
 <% end %>

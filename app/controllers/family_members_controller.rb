@@ -12,15 +12,18 @@ class FamilyMembersController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.remove("family_members_empty"),
-            turbo_stream.append("family_members", partial: "family_members/family_member", locals: { event: @event, family_member: @family_member }),
-            turbo_stream.replace("new_family_member", partial: "family_members/form", locals: { event: @event, family_member: @event.family_members.new })
+            turbo_stream.append("family_members", partial: "family_members/family_member",
+              locals: { family_member: @family_member, update_url: member_url(@family_member), delete_url: member_url(@family_member) }),
+            turbo_stream.replace("new_family_member", partial: "family_members/form",
+              locals: { create_url: event_family_members_path(@event), family_member: @event.family_members.new })
           ]
         end
         format.html { redirect_to event_guests_path(@event) }
       end
     else
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("new_family_member", partial: "family_members/form", locals: { event: @event, family_member: @family_member }) }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("new_family_member", partial: "family_members/form",
+          locals: { create_url: event_family_members_path(@event), family_member: @family_member }) }
         format.html { redirect_to event_guests_path(@event), alert: @family_member.errors.full_messages.to_sentence }
       end
     end
@@ -48,6 +51,12 @@ class FamilyMembersController < ApplicationController
   def set_member
     @family_member = @event.family_members.find(params[:id])
   end
+
+  # PATCH/DELETE URL for a member row (shared partials are URL-driven).
+  def member_url(family_member)
+    event_family_member_path(@event, family_member)
+  end
+  helper_method :member_url
 
   def member_params
     params.require(:family_member).permit(:name, :role, :notes)

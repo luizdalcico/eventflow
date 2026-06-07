@@ -1,0 +1,29 @@
+<%#
+  Lista de familiares (form + linhas inline) — admin + público.
+  Locals:
+    family_members — coleção
+    family_member  — instância nova (para o form)
+    create_url     — POST (adicionar)
+    member_url     — lambda/proc que recebe um familiar e devolve a URL de PATCH/DELETE
+    editable       — quando false, só leitura (sem form/remover) (default true)
+%>
+<% editable = local_assigns.fetch(:editable, true) %>
+
+<% if editable %>
+  <%= render "family_members/form", create_url: create_url, family_member: family_member %>
+<% end %>
+
+<div class="mt-4 space-y-2">
+  <div id="family_members" class="space-y-2">
+    <% family_members.each do |fm| %>
+      <%= render "family_members/family_member",
+            family_member: fm, editable: editable,
+            update_url: member_url.call(fm), delete_url: member_url.call(fm) %>
+    <% end %>
+  </div>
+  <% if family_members.empty? %>
+    <div id="family_members_empty" class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-12 text-gray-500 text-sm">
+      Nenhum familiar cadastrado ainda<%= editable ? ". Adicione o primeiro acima." : "." %>
+    </div>
+  <% end %>
+</div>
