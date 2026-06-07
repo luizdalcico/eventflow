@@ -10,7 +10,7 @@ class CreateManagerChecklists < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :manager_checklists, [:event_id, :due_date]
+    add_index :manager_checklists, [ :event_id, :due_date ]
     add_index :manager_checklists, :completed
   end
 end

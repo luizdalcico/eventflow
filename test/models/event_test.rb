@@ -66,7 +66,7 @@ class EventTest < ActiveSupport::TestCase
   test "upcoming scope should return future events" do
     past_event = events(:past_event) if events(:past_event)
     future_event = events(:future_event) if events(:future_event)
-    
+
     upcoming = Event.upcoming
     assert_not_includes upcoming, past_event if past_event
     assert_includes upcoming, future_event if future_event
@@ -80,7 +80,7 @@ class EventTest < ActiveSupport::TestCase
   test "birthday? should return true for birthday events" do
     @event.event_type = "adult_birthday"
     assert @event.birthday?
-    
+
     @event.event_type = "children_birthday"
     assert @event.birthday?
   end
@@ -88,5 +88,61 @@ class EventTest < ActiveSupport::TestCase
   test "corporate? should return true for corporate events" do
     @event.event_type = "corporate_event"
     assert @event.corporate?
+  end
+
+  test "persists contract fields" do
+    event = Event.create!(
+      title: "Casamento Contrato",
+      event_type: "wedding",
+      main_date: Date.current + 1.month,
+      estimated_guests: 100,
+      contract_total_value: 12_345.67,
+      contract_extra_hour_rate: 250.0,
+      contract_payment_due_date: Date.new(2026, 8, 1),
+      contract_receptionists_count: 4
+    )
+
+    event.reload
+    assert_equal 12_345.67, event.contract_total_value.to_f
+    assert_equal 250.0, event.contract_extra_hour_rate.to_f
+    assert_equal Date.new(2026, 8, 1), event.contract_payment_due_date
+    assert_equal 4, event.contract_receptionists_count
+  end
+
+  test "contract fields are optional" do
+    @event.title = "Sem Contrato"
+    assert @event.valid?, @event.errors.full_messages.to_sentence
+  end
+
+  test "rejects negative contract_total_value" do
+    @event.contract_total_value = -1
+    assert_not @event.valid?
+    assert_includes @event.errors[:contract_total_value], "deve ser maior ou igual a 0"
+  end
+
+  test "rejects negative contract_extra_hour_rate" do
+    @event.contract_extra_hour_rate = -1
+    assert_not @event.valid?
+    assert_includes @event.errors[:contract_extra_hour_rate], "deve ser maior ou igual a 0"
+  end
+
+  test "rejects negative contract_receptionists_count" do
+    @event.contract_receptionists_count = -1
+    assert_not @event.valid?
+    assert_includes @event.errors[:contract_receptionists_count], "deve ser maior ou igual a 0"
+  end
+
+  test "rejects non-integer contract_receptionists_count" do
+    @event.contract_receptionists_count = 2.5
+    assert_not @event.valid?
+    assert_includes @event.errors[:contract_receptionists_count], "deve ser um número inteiro"
+  end
+
+  test "accepts blank contract numeric fields" do
+    @event.title = "Sem Valores"
+    @event.contract_total_value = nil
+    @event.contract_extra_hour_rate = nil
+    @event.contract_receptionists_count = nil
+    assert @event.valid?, @event.errors.full_messages.to_sentence
   end
 end

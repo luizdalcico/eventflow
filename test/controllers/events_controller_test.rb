@@ -33,4 +33,46 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     # Card 1 omits the godparents line outside weddings.
     assert_select "dt", text: "Padrinhos", count: 0
   end
+
+  test "contract returns a PDF attachment" do
+    event = Event.create!(title: "Contrato", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 80, contract_total_value: 5000, contract_receptionists_count: 3)
+    event.event_owners.create!(name: "João", cpf: "12345678901", phone_number: "11999999999", email: "joao@example.com")
+
+    get contract_event_url(event, format: :pdf)
+
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+    assert_match(/attachment/, response.headers["Content-Disposition"])
+    assert_match(/contrato_#{event.id}_/, response.headers["Content-Disposition"])
+    assert_equal "%PDF-", response.body[0, 5]
+  end
+
+  test "create persists contract fields" do
+    assert_difference "Event.count", 1 do
+      post events_url, params: { event: {
+        title: "Novo Contrato", event_type: "wedding", main_date: 1.month.from_now.to_date,
+        estimated_guests: 90,
+        contract_total_value: "7500.50", contract_extra_hour_rate: "300.0",
+        contract_payment_due_date: "2026-08-15", contract_receptionists_count: "5"
+      } }
+    end
+
+    event = Event.order(:created_at).last
+    assert_equal 7500.50, event.contract_total_value.to_f
+    assert_equal 300.0, event.contract_extra_hour_rate.to_f
+    assert_equal Date.new(2026, 8, 15), event.contract_payment_due_date
+    assert_equal 5, event.contract_receptionists_count
+  end
+
+  test "update persists contract fields" do
+    event = Event.create!(title: "Editar", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 60)
+
+    patch event_url(event), params: { event: {
+      contract_total_value: "1200.00", contract_receptionists_count: "2"
+    } }
+
+    event.reload
+    assert_equal 1200.0, event.contract_total_value.to_f
+    assert_equal 2, event.contract_receptionists_count
+  end
 end

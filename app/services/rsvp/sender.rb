@@ -44,8 +44,8 @@ module Rsvp
     # (Poucas variáveis pra passar na validação da Meta de proporção texto/variável.)
     def content_variables
       event = @guest.event
-      when_text = [event.main_date&.strftime("%d/%m/%Y"), event.start_time&.strftime("%Hh%M")].compact.join(" às ")
-      details = [event.title.presence, when_text.presence].compact.join(" - ")
+      when_text = [ event.main_date&.strftime("%d/%m/%Y"), event.start_time&.strftime("%Hh%M") ].compact.join(" às ")
+      details = [ event.title.presence, when_text.presence ].compact.join(" - ")
 
       {
         "1" => @guest.name.to_s,

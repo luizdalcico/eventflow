@@ -91,7 +91,7 @@ class RsvpFlowTest < ActionDispatch::IntegrationTest
   test "send_rsvp to a single guest enqueues one job" do
     guest = @event.guests.create!(name: "João", phone_number: "85999990000")
     assert_enqueued_jobs 1, only: SendRsvpJob do
-      post send_rsvp_event_guests_path(@event), params: { guest_ids: [guest.id] }
+      post send_rsvp_event_guests_path(@event), params: { guest_ids: [ guest.id ] }
     end
     assert_redirected_to event_guests_path(@event)
   end
@@ -121,7 +121,7 @@ class RsvpFlowTest < ActionDispatch::IntegrationTest
     g2 = @event.guests.create!(name: "Sem fone") # not invitable
 
     assert_enqueued_jobs 1, only: SendRsvpJob do
-      post send_rsvp_event_guests_path(@event), params: { guest_ids: [g1.id, g2.id] }
+      post send_rsvp_event_guests_path(@event), params: { guest_ids: [ g1.id, g2.id ] }
     end
     assert_redirected_to event_guests_path(@event)
   end

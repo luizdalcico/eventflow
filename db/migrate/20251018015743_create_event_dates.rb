@@ -8,6 +8,6 @@ class CreateEventDates < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :event_dates, [:event_id, :date]
+    add_index :event_dates, [ :event_id, :date ]
   end
 end

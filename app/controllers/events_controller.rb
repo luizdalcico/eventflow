@@ -1,5 +1,5 @@
 class EventsController < ApplicationController
-  before_action :set_event, only: [:show, :edit, :update, :destroy]
+  before_action :set_event, only: [ :show, :edit, :update, :destroy, :contract ]
 
   def index
     @upcoming_events = Event.includes(:event_owners).upcoming.order(:main_date)
@@ -19,12 +19,20 @@ class EventsController < ApplicationController
       format.html
       format.pdf do
         pdf_content = TemplateService.generate_event_report(@event, :pdf)
-        send_data pdf_content, 
+        send_data pdf_content,
                   filename: "evento_#{@event.id}_#{Date.current.strftime('%Y%m%d')}.pdf",
-                  type: 'application/pdf',
-                  disposition: 'attachment'
+                  type: "application/pdf",
+                  disposition: "attachment"
       end
     end
+  end
+
+  def contract
+    pdf_content = TemplateService.generate_contract(@event, :pdf)
+    send_data pdf_content,
+              filename: "contrato_#{@event.id}_#{Date.current.strftime('%Y%m%d')}.pdf",
+              type: "application/pdf",
+              disposition: "attachment"
   end
 
   def new
@@ -34,9 +42,9 @@ class EventsController < ApplicationController
 
   def create
     @event = Event.new(event_params)
-    
+
     if @event.save
-      redirect_to @event, notice: 'Evento criado com sucesso!'
+      redirect_to @event, notice: "Evento criado com sucesso!"
     else
       render :new, status: :unprocessable_entity
     end
@@ -47,7 +55,7 @@ class EventsController < ApplicationController
 
   def update
     if @event.update(event_params)
-      redirect_to @event, notice: 'Evento atualizado com sucesso!'
+      redirect_to @event, notice: "Evento atualizado com sucesso!"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -55,7 +63,7 @@ class EventsController < ApplicationController
 
   def destroy
     @event.destroy!
-    redirect_to events_path, notice: 'Evento removido com sucesso!'
+    redirect_to events_path, notice: "Evento removido com sucesso!"
   end
 
   private
@@ -66,9 +74,10 @@ class EventsController < ApplicationController
 
   def event_params
     params.require(:event).permit(
-      :title, :event_type, :main_date, :start_time, :end_time, :place, :address, 
+      :title, :event_type, :main_date, :start_time, :end_time, :place, :address,
       :estimated_guests, :extra_hours,
-      event_owners_attributes: [:id, :name, :email, :cpf, :phone_number, :role, :_destroy]
+      :contract_total_value, :contract_extra_hour_rate, :contract_payment_due_date, :contract_receptionists_count,
+      event_owners_attributes: [ :id, :name, :email, :cpf, :phone_number, :role, :_destroy ]
     )
   end
 end

@@ -11,6 +11,6 @@ class CreateProviders < ActiveRecord::Migration[8.0]
     end
 
     add_index :providers, :provider_type
-    add_index :providers, [:provider_type, :name]
+    add_index :providers, [ :provider_type, :name ]
   end
 end

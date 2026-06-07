@@ -3,13 +3,13 @@ class Guest < ApplicationRecord
 
   belongs_to :event
 
-  validates :cpf, format: { with: /\A\d{3}\.\d{3}\.\d{3}-\d{2}\z/, message: 'deve estar no formato XXX.XXX.XXX-XX' }, allow_blank: true
+  validates :cpf, format: { with: /\A\d{3}\.\d{3}\.\d{3}-\d{2}\z/, message: "deve estar no formato XXX.XXX.XXX-XX" }, allow_blank: true
   validates :rsvp_status, inclusion: { in: RSVP_STATUSES }
   validates :party_size, numericality: { greater_than_or_equal_to: 1 }
 
   before_validation :ensure_party_size
 
-  scope :with_phone, -> { where.not(phone_number: [nil, ""]) }
+  scope :with_phone, -> { where.not(phone_number: [ nil, "" ]) }
   scope :rsvp_confirmed, -> { where(rsvp_status: "confirmed") }
   scope :rsvp_declined, -> { where(rsvp_status: "declined") }
   scope :rsvp_pending, -> { where(rsvp_status: %w[pending sent]) }

@@ -4,6 +4,6 @@ class EventDate < ApplicationRecord
   validates :date, presence: true
   validates :description, presence: true
 
-  scope :upcoming, -> { where('date >= ?', Date.current) }
-  scope :past, -> { where('date < ?', Date.current) }
+  scope :upcoming, -> { where("date >= ?", Date.current) }
+  scope :past, -> { where("date < ?", Date.current) }
 end

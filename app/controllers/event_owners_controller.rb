@@ -1,6 +1,6 @@
 class EventOwnersController < ApplicationController
   before_action :set_event
-  before_action :set_event_owner, only: [:show, :edit, :update, :destroy]
+  before_action :set_event_owner, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @event_owners = @event.event_owners.order(:name)
@@ -15,9 +15,9 @@ class EventOwnersController < ApplicationController
 
   def create
     @event_owner = @event.event_owners.build(event_owner_params)
-    
+
     if @event_owner.save
-      redirect_to [@event, @event_owner], notice: 'Responsável adicionado com sucesso!'
+      redirect_to [ @event, @event_owner ], notice: "Responsável adicionado com sucesso!"
     else
       render :new, status: :unprocessable_entity
     end
@@ -28,7 +28,7 @@ class EventOwnersController < ApplicationController
 
   def update
     if @event_owner.update(event_owner_params)
-      redirect_to [@event, @event_owner], notice: 'Responsável atualizado com sucesso!'
+      redirect_to [ @event, @event_owner ], notice: "Responsável atualizado com sucesso!"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -36,7 +36,7 @@ class EventOwnersController < ApplicationController
 
   def destroy
     @event_owner.destroy!
-    redirect_to event_event_owners_path(@event), notice: 'Responsável removido com sucesso!'
+    redirect_to event_event_owners_path(@event), notice: "Responsável removido com sucesso!"
   end
 
   private

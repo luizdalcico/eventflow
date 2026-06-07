@@ -10,6 +10,6 @@ class CreateEventOwners < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :event_owners, [:event_id, :role]
+    add_index :event_owners, [ :event_id, :role ]
   end
 end

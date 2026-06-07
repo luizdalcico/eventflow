@@ -8,6 +8,6 @@ class CreateEventProviders < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :event_providers, [:event_id, :provider_id], unique: true
+    add_index :event_providers, [ :event_id, :provider_id ], unique: true
   end
 end

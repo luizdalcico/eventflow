@@ -18,23 +18,26 @@ class Event < ApplicationRecord
   validates :main_date, presence: true
   validates :estimated_guests, presence: true, numericality: { greater_than: 0 }
   validates :extra_hours, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :contract_total_value, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :contract_extra_hour_rate, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :contract_receptionists_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
 
   validate :end_time_after_start_time
 
   scope :by_type, ->(type) { where(event_type: type) }
-  scope :upcoming, -> { where('main_date >= ?', Date.current) }
-  scope :past, -> { where('main_date < ?', Date.current) }
+  scope :upcoming, -> { where("main_date >= ?", Date.current) }
+  scope :past, -> { where("main_date < ?", Date.current) }
 
   def wedding?
-    event_type == 'wedding'
+    event_type == "wedding"
   end
 
   def birthday?
-    event_type.include?('birthday')
+    event_type.include?("birthday")
   end
 
   def corporate?
-    event_type == 'corporate_event'
+    event_type == "corporate_event"
   end
 
   private
@@ -43,7 +46,7 @@ class Event < ApplicationRecord
     return unless start_time && end_time
 
     if end_time <= start_time
-      errors.add(:end_time, 'deve ser após o horário de início')
+      errors.add(:end_time, "deve ser após o horário de início")
     end
   end
 end

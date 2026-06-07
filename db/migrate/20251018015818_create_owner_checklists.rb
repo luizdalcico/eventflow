@@ -10,7 +10,7 @@ class CreateOwnerChecklists < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :owner_checklists, [:event_id, :due_date]
+    add_index :owner_checklists, [ :event_id, :due_date ]
     add_index :owner_checklists, :completed
   end
 end

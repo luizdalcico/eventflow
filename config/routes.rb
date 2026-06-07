@@ -10,11 +10,14 @@ Rails.application.routes.draw do
 
   # Events with nested resources
   resources :events do
+    member do
+      get :contract
+    end
     # Admin: gera o link de preenchimento da lista de padrinhos
-    resource :godparent_list, only: [:create], module: :admin
+    resource :godparent_list, only: [ :create ], module: :admin
     resources :event_owners, path: "owners"
-    resources :event_dates, path: "dates"  
-    resources :guests, only: [:index, :create, :update, :destroy] do
+    resources :event_dates, path: "dates"
+    resources :guests, only: [ :index, :create, :update, :destroy ] do
       collection do
         post :import
         post :send_rsvp

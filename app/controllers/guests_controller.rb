@@ -36,9 +36,9 @@ class GuestsController < ApplicationController
     package = Axlsx::Package.new
     package.workbook.add_worksheet(name: "Convidados") do |sheet|
       header = sheet.styles.add_style(b: true, bg_color: "EEEEEE", border: { style: :thin, color: "BBBBBB" })
-      sheet.add_row ["Nome", "Quantidade de convidados", "Telefone", "Observações"], style: header
-      sheet.add_row ["João Silva", 2, "(85) 99999-0000", ""]
-      sheet.add_row ["Maria Souza", 1, "(85) 98888-0000", "Mesa 3"]
+      sheet.add_row [ "Nome", "Quantidade de convidados", "Telefone", "Observações" ], style: header
+      sheet.add_row [ "João Silva", 2, "(85) 99999-0000", "" ]
+      sheet.add_row [ "Maria Souza", 1, "(85) 98888-0000", "Mesa 3" ]
       sheet.column_widths 28, 22, 20, 24
     end
 

@@ -11,7 +11,7 @@ class Provider < ApplicationRecord
   validates :name, presence: true
   validates :contact_name, presence: true
   validates :phone_number, presence: true
-  validates :document, format: { with: /\A(\d{11}|\d{14})\z/, message: 'deve conter 11 dígitos (CPF) ou 14 dígitos (CNPJ)' }, allow_blank: true
+  validates :document, format: { with: /\A(\d{11}|\d{14})\z/, message: "deve conter 11 dígitos (CPF) ou 14 dígitos (CNPJ)" }, allow_blank: true
 
   before_validation :sanitize_phone_number, :sanitize_document
 
@@ -20,10 +20,10 @@ class Provider < ApplicationRecord
   private
 
   def sanitize_phone_number
-    self.phone_number = phone_number.gsub(/\D/, '') if phone_number.present?
+    self.phone_number = phone_number.gsub(/\D/, "") if phone_number.present?
   end
 
   def sanitize_document
-    self.document = document.gsub(/\D/, '') if document.present?
+    self.document = document.gsub(/\D/, "") if document.present?
   end
 end

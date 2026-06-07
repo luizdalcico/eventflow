@@ -5,6 +5,6 @@ class AddRsvpToGuests < ActiveRecord::Migration[8.0]
     add_column :guests, :rsvp_responded_at, :datetime
     add_column :guests, :rsvp_message_sid, :string
 
-    add_index :guests, [:event_id, :rsvp_status]
+    add_index :guests, [ :event_id, :rsvp_status ]
   end
 end

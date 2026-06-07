@@ -6,6 +6,6 @@ class AddGodparentFieldsToGuests < ActiveRecord::Migration[8.0]
     add_column :guests, :relationship, :string
     add_column :guests, :couple_sibling, :boolean, default: false, null: false
 
-    add_index :guests, [:event_id, :side, :position]
+    add_index :guests, [ :event_id, :side, :position ]
   end
 end

@@ -23,9 +23,9 @@ module Eventflow
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-    
+
     # Set default locale to Portuguese (Brazil)
     config.i18n.default_locale = :'pt-BR'
-    config.i18n.available_locales = [:'pt-BR', :en]
+    config.i18n.available_locales = [ :'pt-BR', :en ]
   end
 end

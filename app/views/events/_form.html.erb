@@ -80,6 +80,29 @@
     </div>
   </section>
 
+  <%# Contrato %>
+  <section class="<%= card %>">
+    <h2 class="text-base font-semibold text-gray-900 mb-5">Contrato</h2>
+    <div class="grid grid-cols-2 gap-5">
+      <div>
+        <%= form.label :contract_total_value, "Valor total (R$)", class: lbl %>
+        <%= form.number_field :contract_total_value, step: 0.01, min: 0, class: input %>
+      </div>
+      <div>
+        <%= form.label :contract_extra_hour_rate, "Valor da hora extra (R$)", class: lbl %>
+        <%= form.number_field :contract_extra_hour_rate, step: 0.01, min: 0, class: input %>
+      </div>
+      <div>
+        <%= form.label :contract_payment_due_date, "Data limite de pagamento", class: lbl %>
+        <%= form.date_field :contract_payment_due_date, class: input %>
+      </div>
+      <div>
+        <%= form.label :contract_receptionists_count, "Nº de recepcionistas", class: lbl %>
+        <%= form.number_field :contract_receptionists_count, min: 0, step: 1, class: input %>
+      </div>
+    </div>
+  </section>
+
   <%# Responsáveis pelo evento %>
   <section class="<%= card %>" data-controller="nested-owners" data-nested-owners-index-value="<%= @event.event_owners.size %>">
     <div class="flex items-center justify-between mb-4">

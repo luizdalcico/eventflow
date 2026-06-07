@@ -5,11 +5,11 @@ class GuestImport
   Result = Struct.new(:imported, :skipped, :errors, keyword_init: true)
 
   HEADER_ALIASES = {
-    name:         ["nome", "nomes", "name", "convidado", "convidada"],
-    party_size:   ["quant", "quantidade", "quantidade de convidados", "quantidade convidados", "qntd", "qntd pessoas", "pessoas", "qtd"],
-    phone_number: ["telefone", "celular", "whatsapp", "fone", "phone", "tel"],
-    confirmation: ["presenca", "confirmado", "confirmacao", "confirmacao de presenca", "std", "status", "retorno convite"],
-    notes:        ["observacoes", "observacao", "obs", "observacoees", "comentarios"]
+    name:         [ "nome", "nomes", "name", "convidado", "convidada" ],
+    party_size:   [ "quant", "quantidade", "quantidade de convidados", "quantidade convidados", "qntd", "qntd pessoas", "pessoas", "qtd" ],
+    phone_number: [ "telefone", "celular", "whatsapp", "fone", "phone", "tel" ],
+    confirmation: [ "presenca", "confirmado", "confirmacao", "confirmacao de presenca", "std", "status", "retorno convite" ],
+    notes:        [ "observacoes", "observacao", "obs", "observacoees", "comentarios" ]
   }.freeze
 
   EXTENSIONS = { ".xlsx" => :xlsx, ".csv" => :csv }.freeze
@@ -62,7 +62,7 @@ class GuestImport
   private
 
   def error(message)
-    Result.new(imported: 0, skipped: 0, errors: [message])
+    Result.new(imported: 0, skipped: 0, errors: [ message ])
   end
 
   def column_map(header_row)

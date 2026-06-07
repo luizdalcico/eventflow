@@ -54,7 +54,7 @@ class ProviderTest < ActiveSupport::TestCase
       contact_name: "Jane Doe",
       phone_number: "(11) 88888-8888"
     )
-    
+
     buffet = Provider.create!(
       provider_type: "buffet",
       name: "Catering Co",

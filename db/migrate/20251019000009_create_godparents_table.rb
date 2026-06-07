@@ -21,7 +21,7 @@ class CreateGodparentsTable < ActiveRecord::Migration[8.0]
       t.timestamps
     end
     add_index :godparents, :pair_id
-    add_index :godparents, [:event_id, :position]
+    add_index :godparents, [ :event_id, :position ]
     add_foreign_key :godparents, :godparents, column: :pair_id
 
     Godparent.reset_column_information

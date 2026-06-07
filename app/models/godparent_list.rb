@@ -52,7 +52,7 @@ class GodparentList < ApplicationRecord
     return false if padrinho.nil?
     return false if madrinha.side.blank? || madrinha.relationship.blank?
 
-    [madrinha, padrinho].all? do |g|
+    [ madrinha, padrinho ].all? do |g|
       g.name.present? && g.phone_number.present? && g.relation.present?
     end
   end

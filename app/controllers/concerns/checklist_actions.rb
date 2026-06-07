@@ -68,6 +68,6 @@ module ChecklistActions
   end
 
   def index_path
-    polymorphic_path([@event, model_class])
+    polymorphic_path([ @event, model_class ])
   end
 end

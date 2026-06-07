@@ -11,7 +11,7 @@ class CreateGuests < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :guests, [:event_id, :name]
+    add_index :guests, [ :event_id, :name ]
     add_index :guests, :is_godparent
   end
 end
