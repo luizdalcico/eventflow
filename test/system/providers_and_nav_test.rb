@@ -7,11 +7,23 @@ class ProvidersAndNavTest < ApplicationSystemTestCase
                                  document: "12345678000190")
   end
 
-  test "providers index renders as responsive cards" do
+  test "providers index renders as a table with type, name and contact" do
     page.driver.browser.manage.window.resize_to(1400, 900)
     visit providers_path
     assert_selector "h1", text: "Fornecedores"
-    assert_link "Foto & Arte"
+
+    assert_selector "table"
+    # Headers use text-transform: uppercase, so match case-insensitively.
+    assert_selector "th", text: /Tipo/i
+    assert_selector "th", text: /Fornecedor/i
+    assert_selector "th", text: /Contato/i
+
+    within "table" do
+      assert_selector "tbody tr", count: 1
+      assert_text "Fotógrafo"
+      assert_link "Foto & Arte"
+      assert_text "Paulo"
+    end
     page.save_screenshot(Rails.root.join("tmp/providers_desktop.png").to_s)
 
     page.driver.browser.manage.window.resize_to(390, 850)

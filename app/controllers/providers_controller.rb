@@ -3,7 +3,6 @@ class ProvidersController < ApplicationController
 
   def index
     @providers = Provider.all.order(:provider_type, :name)
-    @providers_by_type = @providers.group_by(&:provider_type)
   end
 
   def show

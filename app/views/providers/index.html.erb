@@ -8,32 +8,44 @@
   <% end %>
 </div>
 
-<% if @providers_by_type.any? %>
-  <div class="space-y-8">
-    <% @providers_by_type.each do |provider_type, providers| %>
-      <section>
-        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3"><%= translate_provider_type(provider_type) %></h2>
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <% providers.each do |provider| %>
-            <div class="bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-4 flex flex-col">
-              <%= link_to provider.name, provider, class: "font-semibold text-gray-900 hover:text-blue-600 truncate" %>
-              <div class="mt-2 space-y-1 text-sm text-gray-600">
-                <% if provider.contact_name.present? %><div>👤 <%= provider.contact_name %></div><% end %>
-                <% if provider.phone_number.present? %><div>📞 <%= format_phone(provider.phone_number) %></div><% end %>
-                <% if provider.document.present? %><div class="text-gray-400 text-xs"><%= provider.document %></div><% end %>
-              </div>
-              <div class="mt-4 flex items-center gap-4 text-sm border-t border-gray-100 pt-3">
+<% if @providers.any? %>
+  <div class="bg-white rounded-xl ring-1 ring-gray-200 shadow-sm overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide text-xs">Tipo</th>
+          <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide text-xs">Fornecedor</th>
+          <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide text-xs">Contato</th>
+          <th scope="col" class="px-4 py-3 text-right font-semibold text-gray-500 uppercase tracking-wide text-xs">Ações</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% @providers.each do |provider| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"><%= translate_provider_type(provider.provider_type) %></span>
+            </td>
+            <td class="px-4 py-3">
+              <%= link_to provider.name, provider, class: "font-semibold text-gray-900 hover:text-blue-600" %>
+              <% if provider.document.present? %><div class="text-gray-400 text-xs mt-0.5"><%= provider.document %></div><% end %>
+            </td>
+            <td class="px-4 py-3 text-gray-600">
+              <% if provider.contact_name.present? %><div>👤 <%= provider.contact_name %></div><% end %>
+              <% if provider.phone_number.present? %><div>📞 <%= format_phone(provider.phone_number) %></div><% end %>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              <span class="inline-flex items-center gap-3">
                 <%= link_to "Ver", provider, class: "font-medium text-blue-600 hover:text-blue-800" %>
                 <%= link_to "Editar", edit_provider_path(provider), class: "text-gray-600 hover:text-gray-900" %>
                 <%= link_to "Excluir", provider,
                       data: { turbo_method: :delete, turbo_confirm: "Excluir este fornecedor?", confirm_label: "Excluir" },
-                      class: "text-red-600 hover:text-red-800 ml-auto" %>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      </section>
-    <% end %>
+                      class: "text-red-600 hover:text-red-800" %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
 <% else %>
   <div class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-16 px-4">

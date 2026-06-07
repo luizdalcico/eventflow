@@ -21,6 +21,17 @@ class EventProvidersTest < ApplicationSystemTestCase
     assert_link "Foto & Arte"
     assert_equal 1, @event.event_providers.count
 
+    # The listing is a table with type, provider and contact.
+    # Headers use text-transform: uppercase, so match case-insensitively.
+    assert_selector "th", text: /Tipo/i
+    assert_selector "th", text: /Fornecedor/i
+    assert_selector "th", text: /Contato/i
+    within "#event_providers" do
+      assert_selector "tr", count: 1
+      assert_text "Fotógrafo"
+      assert_text "Paulo"
+    end
+
     fill_in "event_provider[value]", with: "R$ 5.000"
     find("h1").click # blur para disparar o auto-save
 
