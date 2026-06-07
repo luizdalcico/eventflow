@@ -1,10 +1,12 @@
 class Guest < ApplicationRecord
   RSVP_STATUSES = %w[pending sent confirmed declined].freeze
+  GUEST_TYPES = %w[adult child].freeze
 
   belongs_to :event
 
   validates :cpf, format: { with: /\A\d{3}\.\d{3}\.\d{3}-\d{2}\z/, message: "deve estar no formato XXX.XXX.XXX-XX" }, allow_blank: true
   validates :rsvp_status, inclusion: { in: RSVP_STATUSES }
+  validates :guest_type, inclusion: { in: GUEST_TYPES }
   validates :party_size, numericality: { greater_than_or_equal_to: 1 }
 
   before_validation :ensure_party_size
@@ -13,6 +15,8 @@ class Guest < ApplicationRecord
   scope :rsvp_confirmed, -> { where(rsvp_status: "confirmed") }
   scope :rsvp_declined, -> { where(rsvp_status: "declined") }
   scope :rsvp_pending, -> { where(rsvp_status: %w[pending sent]) }
+  scope :adults, -> { where(guest_type: "adult") }
+  scope :children, -> { where(guest_type: "child") }
 
   # --- RSVP ---
 
@@ -60,6 +64,16 @@ class Guest < ApplicationRecord
   # Soma de pessoas (considerando party_size) numa relação de convidados.
   def self.total_people
     sum(:party_size)
+  end
+
+  # Soma de pessoas adultas (considerando party_size).
+  def self.total_adults
+    adults.sum(:party_size)
+  end
+
+  # Soma de crianças (considerando party_size).
+  def self.total_children
+    children.sum(:party_size)
   end
 
   private

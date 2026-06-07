@@ -1,0 +1,47 @@
+<% content_for :title, "Lista de convidados - #{@event.title}" %>
+
+<% adults_people   = @guests.select { |g| g.guest_type == "adult" }.sum(&:party_size) %>
+<% children_people = @guests.select { |g| g.guest_type == "child" }.sum(&:party_size) %>
+<% people_total    = adults_people + children_people %>
+
+<div class="flex justify-between items-start mb-6 print:hidden">
+  <%= link_to "← Voltar", event_guests_path(@event), class: "text-blue-600 hover:text-blue-800 text-sm" %>
+  <button type="button" onclick="window.print()"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+    🖨 Imprimir
+  </button>
+</div>
+
+<header class="mb-6">
+  <h1 class="text-2xl font-bold">Lista de convidados</h1>
+  <p class="text-gray-600"><%= @event.title %></p>
+</header>
+
+<div class="flex gap-6 mb-6 text-sm">
+  <span><strong><%= people_total %></strong> pessoas no total</span>
+  <span><strong><%= adults_people %></strong> adultos</span>
+  <span><strong><%= children_people %></strong> crianças</span>
+</div>
+
+<table class="w-full border-collapse text-sm">
+  <thead>
+    <tr class="border-b-2 border-gray-400 text-left">
+      <th class="py-2 pr-4">Nome</th>
+      <th class="py-2 pr-4">Tipo</th>
+      <th class="py-2 pr-4">Pessoas</th>
+      <th class="py-2 pr-4">Telefone</th>
+      <th class="py-2">Observações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @guests.each do |guest| %>
+      <tr class="border-b border-gray-200">
+        <td class="py-2 pr-4 font-medium"><%= guest.name.presence || "—" %></td>
+        <td class="py-2 pr-4"><%= guest_type_label(guest.guest_type) %></td>
+        <td class="py-2 pr-4"><%= guest.party_size %></td>
+        <td class="py-2 pr-4"><%= guest.phone_number.presence || "—" %></td>
+        <td class="py-2"><%= guest.notes.presence || "" %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

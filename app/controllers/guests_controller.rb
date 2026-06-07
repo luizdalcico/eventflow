@@ -5,6 +5,38 @@ class GuestsController < ApplicationController
     @guests = @event.guests.order(:name)
   end
 
+  # Lista pronta para impressão (Imprimir / Salvar em PDF pelo navegador).
+  def print
+    @guests = @event.guests.order(:guest_type, :name)
+    render layout: "print"
+  end
+
+  # Exporta a lista de convidados como planilha .xlsx.
+  def export
+    guests = @event.guests.order(:guest_type, :name)
+    package = Axlsx::Package.new
+    package.workbook.add_worksheet(name: "Convidados") do |sheet|
+      header = sheet.styles.add_style(b: true, bg_color: "EEEEEE", border: { style: :thin, color: "BBBBBB" })
+      sheet.add_row [ "Nome", "Tipo", "Pessoas", "Telefone", "RSVP", "Observações" ], style: header
+      guests.each do |guest|
+        sheet.add_row [
+          guest.name,
+          helpers.guest_type_label(guest.guest_type),
+          guest.party_size,
+          guest.phone_number,
+          helpers.rsvp_label(guest.rsvp_status),
+          guest.notes
+        ]
+      end
+      sheet.column_widths 28, 12, 10, 20, 14, 24
+    end
+
+    send_data package.to_stream.read,
+              filename: "convidados_#{@event.id}.xlsx",
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              disposition: "attachment"
+  end
+
   def create
     @guest = @event.guests.create!
     respond_to do |format|
@@ -36,10 +68,11 @@ class GuestsController < ApplicationController
     package = Axlsx::Package.new
     package.workbook.add_worksheet(name: "Convidados") do |sheet|
       header = sheet.styles.add_style(b: true, bg_color: "EEEEEE", border: { style: :thin, color: "BBBBBB" })
-      sheet.add_row [ "Nome", "Quantidade de convidados", "Telefone", "Observações" ], style: header
-      sheet.add_row [ "João Silva", 2, "(85) 99999-0000", "" ]
-      sheet.add_row [ "Maria Souza", 1, "(85) 98888-0000", "Mesa 3" ]
-      sheet.column_widths 28, 22, 20, 24
+      sheet.add_row [ "Nome", "Quantidade de convidados", "Tipo", "Telefone", "Observações" ], style: header
+      sheet.add_row [ "João Silva", 2, "Adulto", "(85) 99999-0000", "" ]
+      sheet.add_row [ "Maria Souza", 1, "Adulto", "(85) 98888-0000", "Mesa 3" ]
+      sheet.add_row [ "Lucas Souza", 1, "Criança", "", "" ]
+      sheet.column_widths 28, 22, 12, 20, 24
     end
 
     send_data package.to_stream.read,
@@ -100,7 +133,7 @@ class GuestsController < ApplicationController
   end
 
   def guest_params
-    permitted = params.require(:guest).permit(:name, :phone_number, :party_size, :notes, :rsvp_status)
+    permitted = params.require(:guest).permit(:name, :phone_number, :party_size, :notes, :rsvp_status, :guest_type)
     permitted[:phone_number] = permitted[:phone_number].gsub(/\D/, "") if permitted[:phone_number].present?
     permitted
   end

@@ -57,6 +57,14 @@
     <%= number_field_tag "guest[party_size]", guest.party_size, min: 1, class: field, data: act %>
   </td>
 
+  <%# Tipo (Adulto/Criança) %>
+  <td class="<%= detail %> md:w-32" data-pair-collapse-target="detail">
+    <span class="<%= label %>">Tipo</span>
+    <%= select_tag "guest[guest_type]",
+          options_for_select([["Adulto", "adult"], ["Criança", "child"]], guest.guest_type),
+          class: field, data: act %>
+  </td>
+
   <%# Telefone %>
   <td class="<%= detail %>" data-pair-collapse-target="detail">
     <span class="<%= label %>">Telefone</span>

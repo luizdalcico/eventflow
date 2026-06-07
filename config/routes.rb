@@ -22,6 +22,8 @@ Rails.application.routes.draw do
         post :import
         post :send_rsvp
         get :template
+        get :export
+        get :print
       end
     end
     resources :event_providers, path: "providers" do

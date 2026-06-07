@@ -1,43 +1,40 @@
 require "test_helper"
 
 class GuestsControllerTest < ActionDispatch::IntegrationTest
-  test "should get index" do
-    get guests_index_url
-    assert_response :success
+  XLSX_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".freeze
+
+  def setup
+    @event = Event.create!(title: "Casamento", event_type: "wedding",
+                           main_date: Date.current + 1.month, estimated_guests: 100)
+    @guest = @event.guests.create!(name: "João", guest_type: "adult", party_size: 2)
   end
 
-  test "should get show" do
-    get guests_show_url
+  test "index renders the adult and child counts" do
+    @event.guests.create!(name: "Lucas", guest_type: "child", party_size: 1)
+
+    get event_guests_path(@event)
     assert_response :success
+    assert_select "th", text: "Tipo"
+    assert_match "adultos", @response.body
+    assert_match "crianças", @response.body
   end
 
-  test "should get new" do
-    get guests_new_url
-    assert_response :success
+  test "update persists guest_type" do
+    patch event_guest_path(@event, @guest), params: { guest: { guest_type: "child" } }
+    assert_response :ok
+    assert_equal "child", @guest.reload.guest_type
   end
 
-  test "should get create" do
-    get guests_create_url
+  test "export returns an xlsx file" do
+    get export_event_guests_path(@event)
     assert_response :success
+    assert_equal XLSX_TYPE, @response.media_type
   end
 
-  test "should get edit" do
-    get guests_edit_url
+  test "print renders the printable list" do
+    get print_event_guests_path(@event)
     assert_response :success
-  end
-
-  test "should get update" do
-    get guests_update_url
-    assert_response :success
-  end
-
-  test "should get destroy" do
-    get guests_destroy_url
-    assert_response :success
-  end
-
-  test "should get toggle_godparent" do
-    get guests_toggle_godparent_url
-    assert_response :success
+    assert_match "Lista de convidados", @response.body
+    assert_match @guest.name, @response.body
   end
 end

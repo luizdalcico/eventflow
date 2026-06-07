@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <title><%= content_for(:title) || "Lista de convidados" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+  </head>
+
+  <body class="bg-white text-gray-900">
+    <main class="max-w-3xl mx-auto p-8 print:p-0">
+      <%= yield %>
+    </main>
+  </body>
+</html>

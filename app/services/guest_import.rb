@@ -1,6 +1,6 @@
 # Importa convidados de uma planilha (Excel .xlsx ou .csv) para um evento.
 # Reconhece colunas por cabeçalho (sem acento/caixa): nome, quantidade de
-# pessoas, telefone, confirmação (SIM/NÃO) e observações.
+# pessoas, telefone, tipo (adulto/criança), confirmação (SIM/NÃO) e observações.
 class GuestImport
   Result = Struct.new(:imported, :skipped, :errors, keyword_init: true)
 
@@ -8,6 +8,7 @@ class GuestImport
     name:         [ "nome", "nomes", "name", "convidado", "convidada" ],
     party_size:   [ "quant", "quantidade", "quantidade de convidados", "quantidade convidados", "qntd", "qntd pessoas", "pessoas", "qtd" ],
     phone_number: [ "telefone", "celular", "whatsapp", "fone", "phone", "tel" ],
+    guest_type:   [ "tipo", "adulto/crianca", "adulto crianca", "adulto/criança", "categoria", "faixa" ],
     confirmation: [ "presenca", "confirmado", "confirmacao", "confirmacao de presenca", "std", "status", "retorno convite" ],
     notes:        [ "observacoes", "observacao", "obs", "observacoees", "comentarios" ]
   }.freeze
@@ -15,6 +16,7 @@ class GuestImport
   EXTENSIONS = { ".xlsx" => :xlsx, ".csv" => :csv }.freeze
   CONFIRMED_WORDS = %w[sim yes confirmado s y].freeze
   DECLINED_WORDS  = %w[nao no n].freeze
+  CHILD_WORDS     = %w[crianca infantil kid child].freeze
 
   def initialize(event, file)
     @event = event
@@ -78,8 +80,18 @@ class GuestImport
       name: cell(row, cols[:name]),
       phone_number: cell(row, cols[:phone_number])&.gsub(/\D/, "").presence,
       party_size: cell(row, cols[:party_size])&.to_i,
+      guest_type: guest_type_from(cell(row, cols[:guest_type])),
       notes: cell(row, cols[:notes])
     }.compact
+  end
+
+  # Traduz a coluna de tipo da planilha (Adulto/Criança) para o enum interno.
+  # Sem valor reconhecido → nil, deixando o default "adult" do banco assumir.
+  def guest_type_from(value)
+    word = normalize(value)
+    return nil if word.blank?
+
+    CHILD_WORDS.include?(word) ? "child" : "adult"
   end
 
   # Pré-marca o RSVP a partir da coluna de confirmação da planilha (SIM/NÃO).
