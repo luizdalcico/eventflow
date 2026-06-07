@@ -1,5 +1,4 @@
 <% content_for :title, "#{@event.title} - Cerimonial.app" %>
-<% upcoming = @event.main_date.present? && @event.main_date >= Date.current %>
 <% card = "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-5 md:p-6" %>
 
 <!-- Header -->
@@ -9,14 +8,11 @@
     <div class="min-w-0">
       <h1 class="text-2xl md:text-3xl font-bold text-gray-900"><%= @event.title.presence || "Evento sem título" %></h1>
       <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-gray-600">
-        <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full <%= upcoming ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600" %>">
-          <%= translate_event_type(@event.event_type) %>
-        </span>
         <% if @event.main_date %><span>📅 <%= @event.main_date.strftime("%d/%m/%Y") %></span><% end %>
         <% if @event.start_time && @event.end_time %>
           <span>🕐 <%= @event.start_time.strftime("%H:%M") %> – <%= @event.end_time.strftime("%H:%M") %></span>
         <% end %>
-        <% if @event_owners.first&.name.present? %><span>· <%= @event_owners.first.name %></span><% end %>
+        <% if @event.place.present? %><span>📍 <%= @event.place %></span><% end %>
       </div>
     </div>
     <div class="flex gap-2 shrink-0">
@@ -203,30 +199,54 @@
         <p class="text-gray-500 text-sm">Nenhum responsável cadastrado</p>
       <% end %>
     </div>
-
-    <!-- Outras datas -->
-    <div class="<%= card %>">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-base font-semibold text-gray-900">Outras datas</h2>
-        <%= link_to "Gerenciar", event_event_dates_path(@event), class: "text-sm text-blue-600 hover:text-blue-800" %>
-      </div>
-      <% if @event_dates.any? %>
-        <div class="divide-y divide-gray-100">
-          <% @event_dates.each do |event_date| %>
-            <div class="flex justify-between items-center py-2 text-sm">
-              <span class="font-medium text-gray-800"><%= event_date.description %></span>
-              <span class="text-gray-500"><%= event_date.date.strftime("%d/%m/%Y") %></span>
-            </div>
-          <% end %>
-        </div>
-      <% else %>
-        <p class="text-gray-500 text-sm">Nenhuma data adicional cadastrada</p>
-      <% end %>
-    </div>
   </div>
 
   <!-- Sidebar -->
   <div class="space-y-6">
+    <!-- Próximas datas (próximos 30 dias) -->
+    <div class="<%= card %>">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-base font-semibold text-gray-900">Próximas datas <span class="text-xs font-normal text-gray-400">(30 dias)</span></h3>
+        <%= link_to "Gerenciar", event_event_dates_path(@event), class: "text-sm text-blue-600 hover:text-blue-800" %>
+      </div>
+      <% if @upcoming_dates.any? %>
+        <div class="divide-y divide-gray-100">
+          <% @upcoming_dates.each do |event_date| %>
+            <div class="flex justify-between items-center gap-3 py-2 text-sm">
+              <span class="font-medium text-gray-800 min-w-0 truncate"><%= event_date.description %></span>
+              <span class="shrink-0 text-gray-500"><%= event_date.date.strftime("%d/%m") %></span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-sm">Nenhuma data nos próximos 30 dias</p>
+      <% end %>
+    </div>
+
+    <!-- Reuniões & pendências -->
+    <div class="<%= card %>">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-base font-semibold text-gray-900">Reuniões & pendências</h3>
+        <%= link_to "Gerenciar", event_meetings_path(@event), class: "text-sm text-blue-600 hover:text-blue-800" %>
+      </div>
+      <% if @pending_pendencies.any? %>
+        <div class="space-y-3">
+          <% @pending_pendencies.each do |pendency| %>
+            <div class="text-sm">
+              <div class="font-medium text-gray-800"><%= pendency.description %></div>
+              <div class="text-gray-500 text-xs flex flex-wrap gap-x-2">
+                <% if pendency.due_date %><span><%= pendency.due_date.strftime("%d/%m") %></span><span>·</span><% end %>
+                <% if pendency.assignee.present? %><span><%= pendency.assignee %></span><span>·</span><% end %>
+                <span><%= translate_pendency_status(pendency.status) %></span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-sm">Nenhuma pendência aberta 🎉</p>
+      <% end %>
+    </div>
+
     <!-- Próximas tarefas -->
     <% pending_tasks = @manager_tasks.pending.sort_by { |t| t.due_date || Date.new(9999) } %>
     <div class="<%= card %>">

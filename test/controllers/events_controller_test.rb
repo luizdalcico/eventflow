@@ -171,6 +171,73 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: "Lista de Padrinhos", count: 0
   end
 
+  test "show header shows only date, time and place" do
+    event = Event.create!(title: "Festa", event_type: "wedding", main_date: Date.new(2026, 12, 1),
+                          estimated_guests: 70, start_time: "20:00", end_time: "23:30", place: "Salão Cristal")
+    event.event_owners.create!(name: "Mariana", phone_number: "11988887777", email: "m@example.com")
+
+    get event_url(event)
+
+    assert_response :success
+    # The header meta row carries only date, time and place.
+    assert_select "h1 + div" do
+      assert_select "span", text: /01\/12\/2026/
+      assert_select "span", text: /20:00.*23:30/
+      assert_select "span", text: /Salão Cristal/
+      # No event-type badge and no owner name in the header anymore.
+      assert_select "span", text: "Casamento", count: 0
+      assert_select "span", text: /Mariana/, count: 0
+    end
+  end
+
+  test "show no longer renders the full Outras datas card in the main column" do
+    event = Event.create!(title: "Festa", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 70)
+
+    get event_url(event)
+
+    assert_response :success
+    # The full list moved out of the main column; only the sidebar summary remains.
+    assert_select "h2", text: "Outras datas", count: 0
+  end
+
+  test "show lists upcoming dates within 30 days in the sidebar and skips later ones" do
+    event = Event.create!(title: "Festa", event_type: "wedding", main_date: 3.months.from_now.to_date, estimated_guests: 70)
+    event.event_dates.create!(description: "Prova do vestido", date: 10.days.from_now.to_date)
+    event.event_dates.create!(description: "Degustação distante", date: 60.days.from_now.to_date)
+
+    get event_url(event)
+
+    assert_response :success
+    assert_select "h3", text: /Próximas datas/
+    assert_select "a[href=?]", event_event_dates_path(event), text: "Gerenciar"
+    assert_match "Prova do vestido", @response.body
+    assert_no_match(/Degustação distante/, @response.body)
+  end
+
+  test "show shows the empty state when no date falls within the next 30 days" do
+    event = Event.create!(title: "Festa", event_type: "wedding", main_date: 3.months.from_now.to_date, estimated_guests: 70)
+    event.event_dates.create!(description: "Degustação distante", date: 60.days.from_now.to_date)
+
+    get event_url(event)
+
+    assert_response :success
+    assert_select "p", text: "Nenhuma data nos próximos 30 dias"
+  end
+
+  test "show renders open pendencies in the meetings and pendencies sidebar card" do
+    event = Event.create!(title: "Festa", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 70)
+    event.pendencies.create!(description: "Confirmar buffet", status: "pendente", due_date: 5.days.from_now.to_date)
+    event.pendencies.create!(description: "Item concluído", status: "concluida")
+
+    get event_url(event)
+
+    assert_response :success
+    assert_select "h3", text: "Reuniões & pendências"
+    assert_match "Confirmar buffet", @response.body
+    # Concluded pendencies are not "open" and stay out of the card.
+    assert_no_match(/Item concluído/, @response.body)
+  end
+
   test "contract returns a PDF attachment when every dynamic field is filled" do
     event = contract_ready_event
 

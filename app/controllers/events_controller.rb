@@ -23,13 +23,17 @@ class EventsController < ApplicationController
 
   def show
     @event_owners = @event.event_owners
-    @event_dates = @event.event_dates.order(:date)
     @guests = @event.guests.order(:name)
     @procession_steps_count = @event.procession_steps.count
     @providers = @event.providers.includes(:event_providers)
     @manager_tasks = @event.manager_checklists.order(:due_date)
     @meetings_count = @event.meetings.count
     @pendencies_pending_count = @event.pendencies.pending.count
+
+    # Marcos de data dentro dos próximos 30 dias, para o card da sidebar.
+    @upcoming_dates = @event.event_dates.where(date: Date.current..30.days.from_now.to_date).order(:date)
+    # Pendências em aberto (mais urgentes primeiro) para o card vizinho.
+    @pending_pendencies = @event.pendencies.pending.ordered.limit(6)
 
     respond_to do |format|
       format.html

@@ -30,6 +30,18 @@ class EventDatesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert @event.event_dates.exists?(description: "Entrega/envio dos convites")
+    # Os marcos são semeados sem data, para o usuário preencher depois.
+    assert @event.event_dates.all? { |event_date| event_date.date.nil? }
+  end
+
+  test "create persists a date milestone without a date" do
+    assert_difference -> { @event.event_dates.count }, 1 do
+      post event_event_dates_url(@event), as: :turbo_stream,
+           params: { event_date: { description: "Ensaio", date: "" } }
+    end
+
+    assert_response :success
+    assert_nil @event.event_dates.find_by!(description: "Ensaio").date
   end
 
   test "apply_template is idempotent on re-post" do

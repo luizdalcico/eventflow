@@ -2,16 +2,15 @@ require "test_helper"
 
 class DateTemplateTest < ActiveSupport::TestCase
   def setup
-    @main_date = Date.new(2026, 12, 1)
     @event = Event.create!(title: "Casamento X", event_type: "wedding",
-                           main_date: @main_date, estimated_guests: 100)
+                           main_date: Date.new(2026, 12, 1), estimated_guests: 100)
   end
 
-  test "items_for returns the catalog for a known event type" do
+  test "items_for returns the catalog descriptions for a known event type" do
     items = DateTemplate.items_for("wedding")
 
     assert_equal 10, items.size
-    assert items.all? { |item| item[:description].present? }
+    assert items.all? { |description| description.is_a?(String) && description.present? }
   end
 
   test "items_for returns an empty array for an unknown event type" do
@@ -23,21 +22,13 @@ class DateTemplateTest < ActiveSupport::TestCase
     assert_not DateTemplate.available_for?("bodas")
   end
 
-  test "apply resolves relative offsets against the main date" do
+  test "apply seeds every milestone without a date" do
     DateTemplate.apply(@event)
 
-    convites = @event.event_dates.find_by!(description: "Entrega/envio dos convites")
-    assert_equal @main_date - 45.days, convites.date
-
-    lista = @event.event_dates.find_by!(description: "Prazo final da lista de convidados")
-    assert_equal @main_date - 10.days, lista.date
-  end
-
-  test "apply seeds contract items with the main date as placeholder" do
-    DateTemplate.apply(@event)
-
-    pagamento = @event.event_dates.find_by!(description: "Pagamento final (conforme contrato)")
-    assert_equal @main_date, pagamento.date
+    seeded = @event.event_dates
+    assert_equal DateTemplate.items_for("wedding").size, seeded.count
+    assert seeded.all? { |event_date| event_date.date.nil? }
+    assert @event.event_dates.exists?(description: "Entrega/envio dos convites")
   end
 
   test "apply persists every catalog item for the event type" do
@@ -62,7 +53,7 @@ class DateTemplateTest < ActiveSupport::TestCase
   end
 
   test "apply only adds the missing descriptions when some already exist" do
-    @event.event_dates.create!(description: "Curso de noivos", date: @main_date)
+    @event.event_dates.create!(description: "Curso de noivos")
 
     expected = DateTemplate.items_for("wedding").size - 1
     assert_difference -> { @event.event_dates.count }, expected do
@@ -72,18 +63,10 @@ class DateTemplateTest < ActiveSupport::TestCase
 
   test "apply does nothing for an event type without a template" do
     event = Event.create!(title: "Bodas", event_type: "bodas",
-                          main_date: @main_date, estimated_guests: 30)
+                          main_date: Date.new(2026, 12, 1), estimated_guests: 30)
 
     assert_no_difference -> { event.event_dates.count } do
       assert_equal [], DateTemplate.apply(event)
-    end
-  end
-
-  test "apply returns an empty array and seeds nothing when the main date is blank" do
-    @event.main_date = nil
-
-    assert_no_difference -> { @event.event_dates.count } do
-      assert_equal [], DateTemplate.apply(@event)
     end
   end
 end
