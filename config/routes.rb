@@ -17,7 +17,11 @@ Rails.application.routes.draw do
     resource :godparent_list, only: [ :create ], module: :admin
     resource :guest_list, only: [ :create ], module: :admin
     resource :family_member_list, only: [ :create ], module: :admin
-    resources :event_owners, path: "owners"
+    resources :event_owners, path: "owners" do
+      collection do
+        get :lookup
+      end
+    end
     resources :event_dates, path: "dates"
     resources :guests, only: [ :index, :create, :update, :destroy ] do
       collection do

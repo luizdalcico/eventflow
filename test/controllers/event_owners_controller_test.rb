@@ -58,4 +58,46 @@ class EventOwnersControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name=?]", "event_owner[birth_date]"
     assert_select "input[name=?]", "event_owner[instagram]"
   end
+
+  test "lookup returns the reusable identity fields for a known CPF" do
+    other_event = Event.create!(title: "Evento Anterior", event_type: "wedding", main_date: 3.months.from_now.to_date, estimated_guests: 80)
+    other_event.event_owners.create!(
+      name: "Maria Noiva",
+      email: "maria@example.com",
+      phone_number: "11999999999",
+      cpf: "12345678901",
+      address: "Rua das Flores, 100",
+      mother_name: "Joana",
+      father_name: "José",
+      birth_date: Date.new(1990, 5, 20),
+      instagram: "maria.noiva",
+      role: "Noiva"
+    )
+
+    get lookup_event_event_owners_url(@event), params: { cpf: "123.456.789-01" }
+
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert body["found"]
+    assert_equal "Maria Noiva", body["owner"]["name"]
+    assert_equal "11999999999", body["owner"]["phone_number"]
+    assert_equal "1990-05-20", body["owner"]["birth_date"]
+    # Role is event-specific and the CPF is already typed — neither is echoed back.
+    assert_not body["owner"].key?("role")
+    assert_not body["owner"].key?("cpf")
+  end
+
+  test "lookup reports not found for an unknown CPF" do
+    get lookup_event_event_owners_url(@event), params: { cpf: "00000000000" }
+
+    assert_response :success
+    assert_equal({ "found" => false }, JSON.parse(response.body))
+  end
+
+  test "lookup reports not found for a partial CPF without querying" do
+    get lookup_event_event_owners_url(@event), params: { cpf: "123" }
+
+    assert_response :success
+    assert_equal({ "found" => false }, JSON.parse(response.body))
+  end
 end

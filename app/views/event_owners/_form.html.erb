@@ -1,4 +1,5 @@
-<%= form_with model: [@event, @event_owner], local: true, class: "space-y-6" do |form| %>
+<%= form_with model: [@event, @event_owner], local: true, class: "space-y-6",
+    data: { controller: "cpf-lookup", "cpf-lookup-url-value": lookup_event_event_owners_path(@event) } do |form| %>
   <% if @event_owner.errors.any? %>
     <div class="bg-red-50 border border-red-200 rounded-lg p-4">
       <h3 class="text-sm font-medium text-red-800 mb-2">
@@ -15,12 +16,16 @@
   <div class="grid md:grid-cols-2 gap-6">
     <div>
       <%= form.label :name, "Nome Completo", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.text_field :name, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <%= form.text_field :name,
+          data: { "cpf-lookup-target": "field", "cpf-lookup-field": "name" },
+          class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
     </div>
 
     <div>
       <%= form.label :email, "Email", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.email_field :email, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <%= form.email_field :email,
+          data: { "cpf-lookup-target": "field", "cpf-lookup-field": "email" },
+          class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
     </div>
   </div>
 
@@ -29,7 +34,8 @@
       <%= form.label :phone_number, "Telefone", class: "block text-sm font-medium text-gray-700 mb-1" %>
       <%= form.text_field :phone_number,
           placeholder: "(11) 99999-9999",
-          data: { controller: "simple-mask", "simple-mask-pattern-value": "(00) 00000-0000" },
+          data: { controller: "simple-mask", "simple-mask-pattern-value": "(00) 00000-0000",
+                  "cpf-lookup-target": "field", "cpf-lookup-field": "phone_number" },
           class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
     </div>
 
@@ -37,37 +43,48 @@
       <%= form.label :cpf, "CPF", class: "block text-sm font-medium text-gray-700 mb-1" %>
       <%= form.text_field :cpf,
           placeholder: "000.000.000-00",
-          data: { controller: "simple-mask", "simple-mask-pattern-value": "000.000.000-00" },
+          data: { controller: "simple-mask", "simple-mask-pattern-value": "000.000.000-00",
+                  "cpf-lookup-target": "cpf", action: "input->cpf-lookup#lookup blur->cpf-lookup#lookup" },
           class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
     </div>
   </div>
 
   <div>
     <%= form.label :address, "Endereço", class: "block text-sm font-medium text-gray-700 mb-1" %>
-    <%= form.text_field :address, placeholder: "Rua, número, bairro, cidade", class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    <%= form.text_field :address, placeholder: "Rua, número, bairro, cidade",
+        data: { "cpf-lookup-target": "field", "cpf-lookup-field": "address" },
+        class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
   </div>
 
   <div class="grid md:grid-cols-2 gap-6">
     <div>
       <%= form.label :mother_name, "Nome da Mãe", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.text_field :mother_name, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <%= form.text_field :mother_name,
+          data: { "cpf-lookup-target": "field", "cpf-lookup-field": "mother_name" },
+          class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
     </div>
 
     <div>
       <%= form.label :father_name, "Nome do Pai", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.text_field :father_name, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <%= form.text_field :father_name,
+          data: { "cpf-lookup-target": "field", "cpf-lookup-field": "father_name" },
+          class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
     </div>
   </div>
 
   <div class="grid md:grid-cols-2 gap-6">
     <div>
       <%= form.label :birth_date, "Data de Aniversário", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.date_field :birth_date, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <%= form.date_field :birth_date,
+          data: { "cpf-lookup-target": "field", "cpf-lookup-field": "birth_date" },
+          class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
     </div>
 
     <div>
       <%= form.label :instagram, "Instagram", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.text_field :instagram, placeholder: "@usuario", class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <%= form.text_field :instagram, placeholder: "@usuario",
+          data: { "cpf-lookup-target": "field", "cpf-lookup-field": "instagram" },
+          class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
     </div>
   </div>
 

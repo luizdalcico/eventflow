@@ -9,6 +9,17 @@ class EventOwner < ApplicationRecord
   before_validation :sanitize_phone_number, :sanitize_cpf, :sanitize_instagram
 
   scope :by_role, ->(role) { where(role: role) }
+  scope :by_cpf, ->(cpf) { where(cpf: cpf) }
+
+  # Looks up a reusable responsible person by CPF across every event.
+  # Sanitizes the raw (possibly masked) input and only queries on a full
+  # 11-digit CPF — returns the most recently created match, or nil.
+  def self.find_reusable_by_cpf(raw)
+    digits = raw.to_s.gsub(/\D/, "")
+    return nil unless digits.length == 11
+
+    by_cpf(digits).order(created_at: :desc).first
+  end
 
   private
 

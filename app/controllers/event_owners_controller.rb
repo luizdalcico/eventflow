@@ -1,9 +1,25 @@
 class EventOwnersController < ApplicationController
+  # Identity fields reused when prefilling from an existing CPF.
+  # Excludes role (event-specific) and cpf (already typed by the user).
+  REUSABLE_FIELDS = %w[name email phone_number address mother_name father_name birth_date instagram].freeze
+
   before_action :set_event
   before_action :set_event_owner, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @event_owners = @event.event_owners.order(:name)
+  end
+
+  # Looks up an existing responsible person by CPF so their reusable identity
+  # fields can prefill the form. Returns the latest match across all events.
+  def lookup
+    owner = EventOwner.find_reusable_by_cpf(params[:cpf])
+
+    if owner
+      render json: { found: true, owner: owner.slice(*REUSABLE_FIELDS) }
+    else
+      render json: { found: false }
+    end
   end
 
   def show
