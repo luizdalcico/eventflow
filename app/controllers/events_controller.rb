@@ -1,5 +1,5 @@
 class EventsController < ApplicationController
-  before_action :set_event, only: [ :show, :edit, :update, :destroy, :contract ]
+  before_action :set_event, only: [ :show, :edit, :update, :destroy, :contract, :briefing ]
 
   FILTERS = %w[upcoming past all].freeze
 
@@ -29,6 +29,8 @@ class EventsController < ApplicationController
     @providers = @event.providers.includes(:event_providers)
     @manager_tasks = @event.manager_checklists.order(:due_date)
     @owner_tasks = @event.owner_checklists.order(:due_date)
+    @meetings_count = @event.meetings.count
+    @pendencies_pending_count = @event.pendencies.pending.count
 
     respond_to do |format|
       format.html
@@ -52,6 +54,14 @@ class EventsController < ApplicationController
     pdf_content = TemplateService.generate_contract(@event, :pdf)
     send_data pdf_content,
               filename: "contrato_#{@event.id}_#{Date.current.strftime('%Y%m%d')}.pdf",
+              type: "application/pdf",
+              disposition: "attachment"
+  end
+
+  def briefing
+    pdf_content = TemplateService.generate_briefing(@event, :pdf)
+    send_data pdf_content,
+              filename: "briefing_#{@event.id}_#{Date.current.strftime('%Y%m%d')}.pdf",
               type: "application/pdf",
               disposition: "attachment"
   end

@@ -315,6 +315,19 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, event.contract_receptionists_count
   end
 
+  test "briefing returns a PDF document" do
+    event = Event.create!(title: "Festa", event_type: "wedding",
+                          main_date: 1.month.from_now.to_date, estimated_guests: 70)
+    event.meetings.create!(date: Date.current, participants: "Marina")
+    event.pendencies.create!(description: "Enviar contrato")
+
+    get briefing_event_url(event, format: :pdf)
+
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+    assert response.body.start_with?("%PDF")
+  end
+
   private
 
   # Event with every dynamic contract field (and a complete contratante) filled.

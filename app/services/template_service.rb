@@ -33,6 +33,17 @@ class TemplateService
     end
   end
 
+  # Renders the general meeting briefing (meetings + action items grouped by
+  # provider) as a PDF byte string.
+  def self.generate_briefing(event, format = :pdf)
+    case format.to_sym
+    when :pdf
+      generate_briefing_pdf(event)
+    else
+      raise ArgumentError, "Formato não suportado: #{format}"
+    end
+  end
+
   private
 
   def self.generate_pdf_report(event)
@@ -229,6 +240,107 @@ class TemplateService
       pdf.text "Gerado por Cerimonial.app em #{Time.current.strftime('%d/%m/%Y às %H:%M')}",
                align: :center, style: :italic
     end.render
+  end
+
+  # Builds the "Briefing Reunião Geral": meetings log, action items grouped by
+  # provider, and the remaining general action items.
+  def self.generate_briefing_pdf(event)
+    meetings = event.meetings.ordered
+    event_providers = event.event_providers.includes(:provider).order(:id)
+    pendencies = event.pendencies.includes(:event_provider).ordered
+
+    Prawn::Document.new do |pdf|
+      pdf.font_size 24
+      pdf.text "Cerimonial.app - Briefing Reunião Geral", align: :center, style: :bold
+      pdf.move_down 6
+      pdf.font_size 14
+      pdf.text event.title.presence || "Evento sem título", align: :center
+      pdf.font_size 11
+      pdf.text "Data do evento: #{event.main_date.strftime('%d/%m/%Y')}", align: :center
+      pdf.move_down 20
+
+      # Reuniões
+      pdf.font_size 16
+      pdf.text "Reuniões", style: :bold
+      pdf.move_down 10
+      if meetings.any?
+        pdf.font_size 10
+        meetings_data = [ [ "Data", "Participantes", "Resumo / Decisões" ] ]
+        meetings.each do |meeting|
+          meetings_data << [
+            meeting.date.strftime("%d/%m/%Y"),
+            meeting.participants.presence || "-",
+            meeting.summary.presence || "-"
+          ]
+        end
+        pdf.table(meetings_data, header: true, width: pdf.bounds.width) do
+          row(0).font_style = :bold
+          self.header = true
+        end
+      else
+        pdf.font_size 11
+        pdf.text "Nenhuma reunião registrada.", style: :italic
+      end
+      pdf.move_down 20
+
+      # Pendências agrupadas por fornecedor
+      pdf.font_size 16
+      pdf.text "Pendências por fornecedor", style: :bold
+      pdf.move_down 10
+
+      provider_items = event_providers.map { |ep| [ ep, pendencies.select { |p| p.event_provider_id == ep.id } ] }
+                                      .select { |_ep, items| items.any? }
+      if provider_items.any?
+        provider_items.each do |ep, items|
+          pdf.font_size 12
+          pdf.text "#{translate_provider_type(ep.provider.provider_type)} — #{ep.provider.name} (#{ep.provider.contact_name})", style: :bold
+          pdf.move_down 4
+          pdf.font_size 10
+          pdf.table(pendency_rows(items), header: true, width: pdf.bounds.width) do
+            row(0).font_style = :bold
+            self.header = true
+          end
+          pdf.move_down 14
+        end
+      else
+        pdf.font_size 11
+        pdf.text "Nenhuma pendência vinculada a fornecedores.", style: :italic
+        pdf.move_down 14
+      end
+
+      # Pendências gerais (sem fornecedor)
+      general = pendencies.select { |p| p.event_provider_id.nil? }
+      if general.any?
+        pdf.font_size 16
+        pdf.text "Pendências gerais", style: :bold
+        pdf.move_down 10
+        pdf.font_size 10
+        pdf.table(pendency_rows(general), header: true, width: pdf.bounds.width) do
+          row(0).font_style = :bold
+          self.header = true
+        end
+        pdf.move_down 20
+      end
+
+      pdf.move_down 10
+      pdf.font_size 10
+      pdf.text "Gerado por Cerimonial.app em #{Time.current.strftime('%d/%m/%Y às %H:%M')}",
+               align: :center, style: :italic
+    end.render
+  end
+
+  # Table rows (header + items) for a list of pendencies.
+  def self.pendency_rows(items)
+    rows = [ [ "Descrição", "Responsável", "Status", "Prazo" ] ]
+    items.each do |pendency|
+      rows << [
+        pendency.description,
+        pendency.assignee.presence || "-",
+        translate_pendency_status(pendency.status),
+        pendency.due_date&.strftime("%d/%m/%Y") || "-"
+      ]
+    end
+    rows
   end
 
   # Termination penalty owed by the CONTRATANTE (clause 7ª).

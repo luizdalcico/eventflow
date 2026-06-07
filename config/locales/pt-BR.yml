@@ -141,6 +141,18 @@ pt-BR:
         notes: "Observações"
         position: "Ordem"
 
+      meeting:
+        date: "Data"
+        participants: "Participantes"
+        summary: "Resumo / Decisões"
+
+      pendency:
+        description: "Descrição"
+        assignee: "Responsável"
+        status: "Status"
+        due_date: "Prazo"
+        event_provider: "Fornecedor"
+
   date:
     formats:
       long: "%d/%m/%Y"
@@ -159,6 +171,12 @@ pt-BR:
       mae_filho: "Mãe e filho"
       pai_filho: "Pai e filho"
       outro: "Outro"
+
+  pendency:
+    statuses:
+      pendente: "Pendente"
+      em_andamento: "Em andamento"
+      concluida: "Concluída"
 
   procession_step:
     kinds:

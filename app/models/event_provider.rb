@@ -4,6 +4,7 @@ class EventProvider < ApplicationRecord
 
   belongs_to :event
   belongs_to :provider
+  has_many :pendencies, dependent: :nullify
 
   validates :event_id, uniqueness: { scope: :provider_id }
   validates :status, inclusion: { in: STATUSES }

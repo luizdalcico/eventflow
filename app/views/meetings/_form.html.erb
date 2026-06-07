@@ -1,0 +1,16 @@
+<%# Form de nova reunião. Locals: event, meeting (novo). %>
+<%= form_with model: [event, meeting], id: "new_meeting",
+      class: "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-4 space-y-3" do |f| %>
+  <div class="flex flex-col sm:flex-row gap-3">
+    <%= f.date_field :date, required: true,
+          class: "border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    <%= f.text_field :participants, placeholder: "Participantes (ex: Marina, João, Fotógrafo)",
+          class: "flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+  </div>
+  <%= f.text_area :summary, rows: 2, placeholder: "Resumo / decisões da reunião",
+        class: "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+  <div class="flex justify-end">
+    <%= f.submit "Adicionar reunião",
+          class: "px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm cursor-pointer whitespace-nowrap" %>
+  </div>
+<% end %>

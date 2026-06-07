@@ -1,0 +1,16 @@
+<%# Card-resumo de uma reunião (link para o detalhe + remover). Locals: event, meeting. %>
+<div id="<%= dom_id(meeting) %>" class="bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-4 flex items-center gap-3">
+  <%= link_to event_meeting_path(event, meeting), class: "flex-1 min-w-0" do %>
+    <div class="flex items-center gap-2 text-sm">
+      <span class="font-semibold text-gray-900"><%= meeting.date.strftime("%d/%m/%Y") %></span>
+      <span class="text-gray-400">·</span>
+      <span class="text-gray-600 truncate"><%= meeting.participants.presence || "Sem participantes" %></span>
+    </div>
+    <div class="text-xs text-gray-500 mt-1">
+      <%= pluralize(meeting.pendencies.size, "pendência", "pendências") %>
+    </div>
+  <% end %>
+  <%= link_to "×", [event, meeting], title: "Remover",
+        data: { turbo_method: :delete, turbo_confirm: "Remover esta reunião?", confirm_label: "Remover" },
+        class: "shrink-0 text-gray-400 hover:text-red-600 text-lg leading-none px-1" %>
+</div>

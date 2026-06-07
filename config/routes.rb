@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   resources :events do
     member do
       get :contract
+      get :briefing
     end
     # Admin: gera o link de preenchimento das listas públicas
     resource :godparent_list, only: [ :create ], module: :admin
@@ -56,6 +57,9 @@ Rails.application.routes.draw do
         patch :toggle_completed
       end
     end
+    # Reuniões + itens de ação/pendências (gerais ou vinculados a uma reunião).
+    resources :meetings, path: "reunioes"
+    resources :pendencies, only: [ :create, :update, :destroy ], path: "pendencias"
     # Cortejo + padrinhos & familiares (só faz sentido para casamentos).
     resource :cortejo, only: [ :show ], controller: "cortejo"
     resources :procession_steps, only: [ :create, :update, :destroy ], path: "cortejo/steps"

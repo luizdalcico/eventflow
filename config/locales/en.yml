@@ -29,3 +29,9 @@
 
 en:
   hello: "Hello world"
+
+  pendency:
+    statuses:
+      pendente: "Pending"
+      em_andamento: "In progress"
+      concluida: "Done"

@@ -82,6 +82,28 @@ module ApplicationHelper
     PAYMENT_METHOD_LABELS[method.to_s] || method.to_s.humanize
   end
 
+  PENDENCY_STATUS_LABELS = {
+    "pendente" => "Pendente",
+    "em_andamento" => "Em andamento",
+    "concluida" => "Concluída"
+  }.freeze
+
+  def translate_pendency_status(status)
+    PENDENCY_STATUS_LABELS[status.to_s] || status.to_s.humanize
+  end
+
+  # [label, value] pairs for the pendency status select.
+  def pendency_status_options
+    Pendency::STATUSES.map { |status| [ translate_pendency_status(status), status ] }
+  end
+
+  # [label, id] pairs of the event's providers for the pendency provider select.
+  def event_providers_for_select(event)
+    event.event_providers.includes(:provider).map do |ep|
+      [ "#{translate_provider_type(ep.provider.provider_type)} — #{ep.provider.name}", ep.id ]
+    end
+  end
+
   # Format a numeric amount as Brazilian currency: R$ 1.234,56.
   def format_brl(amount)
     integer, decimals = format("%.2f", amount.to_f).split(".")

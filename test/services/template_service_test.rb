@@ -145,4 +145,29 @@ class TemplateServiceTest < ActiveSupport::TestCase
     assert_equal "duzentos e cinquenta reais", TemplateService.amount_in_words(250)
     assert_equal "um milhão reais", TemplateService.amount_in_words(1_000_000)
   end
+
+  test "generate_briefing returns a non-empty PDF with meetings and grouped pendencies" do
+    meeting = @event.meetings.create!(date: Date.new(2026, 5, 1), participants: "Maria, Ana", summary: "Cronograma")
+    @event.pendencies.create!(description: "Confirmar cardápio", status: "pendente",
+                              event_provider: @event.event_providers.first, meeting: meeting)
+    @event.pendencies.create!(description: "Reservar transporte", status: "em_andamento")
+
+    pdf = TemplateService.generate_briefing(@event, :pdf)
+
+    assert pdf.is_a?(String)
+    assert pdf.start_with?("%PDF")
+    assert_operator pdf.bytesize, :>, 0
+  end
+
+  test "generate_briefing renders the empty-state PDF without meetings or pendencies" do
+    pdf = TemplateService.generate_briefing(@event, :pdf)
+
+    assert pdf.start_with?("%PDF")
+  end
+
+  test "generate_briefing raises for an unsupported format" do
+    assert_raises(ArgumentError) do
+      TemplateService.generate_briefing(@event, :csv)
+    end
+  end
 end

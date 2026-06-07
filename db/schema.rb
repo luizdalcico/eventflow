@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_07_180001) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_07_180003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -175,6 +175,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_07_180001) do
     t.index ["event_id"], name: "index_manager_checklists_on_event_id"
   end
 
+  create_table "meetings", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.date "date", null: false
+    t.string "participants"
+    t.text "summary"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "date"], name: "index_meetings_on_event_id_and_date"
+    t.index ["event_id"], name: "index_meetings_on_event_id"
+  end
+
   create_table "owner_checklists", force: :cascade do |t|
     t.bigint "event_id", null: false
     t.string "task", null: false
@@ -198,6 +209,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_07_180001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_id"], name: "index_payments_on_event_id"
+  end
+
+  create_table "pendencies", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "meeting_id"
+    t.bigint "event_provider_id"
+    t.string "description", null: false
+    t.string "assignee"
+    t.string "status", default: "pendente", null: false
+    t.date "due_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "status"], name: "index_pendencies_on_event_id_and_status"
+    t.index ["event_id"], name: "index_pendencies_on_event_id"
+    t.index ["event_provider_id"], name: "index_pendencies_on_event_provider_id"
+    t.index ["meeting_id"], name: "index_pendencies_on_meeting_id"
   end
 
   create_table "procession_steps", force: :cascade do |t|
@@ -235,7 +262,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_07_180001) do
   add_foreign_key "guest_lists", "events"
   add_foreign_key "guests", "events"
   add_foreign_key "manager_checklists", "events"
+  add_foreign_key "meetings", "events"
   add_foreign_key "owner_checklists", "events"
   add_foreign_key "payments", "events"
+  add_foreign_key "pendencies", "event_providers"
+  add_foreign_key "pendencies", "events"
+  add_foreign_key "pendencies", "meetings"
   add_foreign_key "procession_steps", "events"
 end

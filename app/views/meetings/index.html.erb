@@ -1,0 +1,44 @@
+<% content_for :title, "Reuniões & pendências - Cerimonial.app" %>
+
+<%= breadcrumbs ["Eventos", events_path], [event_crumb_label(@event), @event], ["Reuniões & pendências", nil] %>
+<div class="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+  <div>
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Reuniões & pendências</h1>
+    <p class="text-gray-500 mt-1">Reuniões com participantes e decisões, itens de ação e o briefing por fornecedor.</p>
+  </div>
+  <%= link_to "Briefing (PDF)", briefing_event_path(@event, format: :pdf),
+        class: "shrink-0 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm" %>
+</div>
+
+<section class="mb-10">
+  <h2 class="text-base font-semibold text-gray-900 mb-3">Reuniões</h2>
+  <%= render "meetings/form", event: @event, meeting: @meeting %>
+
+  <div class="mt-4 space-y-2">
+    <div id="meetings" class="space-y-2">
+      <%= render partial: "meetings/meeting", collection: @meetings, as: :meeting, locals: { event: @event } %>
+    </div>
+    <% if @meetings.empty? %>
+      <div id="meetings_empty" class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-12 text-gray-500 text-sm">
+        Nenhuma reunião registrada ainda. Adicione a primeira acima.
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<section>
+  <h2 class="text-base font-semibold text-gray-900 mb-1">Pendências gerais</h2>
+  <p class="text-gray-500 text-sm mb-3">Itens de ação que não estão ligados a uma reunião específica.</p>
+  <%= render "pendencies/form", event: @event, pendency: @pendency %>
+
+  <div class="mt-4 space-y-2">
+    <div id="general_pendencies" class="space-y-2">
+      <%= render partial: "pendencies/pendency", collection: @general_pendencies, as: :pendency, locals: { event: @event } %>
+    </div>
+    <% if @general_pendencies.empty? %>
+      <div id="general_pendencies_empty" class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-12 text-gray-500 text-sm">
+        Nenhuma pendência geral ainda.
+      </div>
+    <% end %>
+  </div>
+</section>

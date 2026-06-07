@@ -1,0 +1,37 @@
+<% content_for :title, "Reunião - Cerimonial.app" %>
+
+<%= breadcrumbs ["Eventos", events_path], [event_crumb_label(@event), @event], ["Reuniões & pendências", event_meetings_path(@event)], [@meeting.date.strftime("%d/%m/%Y"), nil] %>
+<div class="mb-6">
+  <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Reunião — <%= @meeting.date.strftime("%d/%m/%Y") %></h1>
+</div>
+
+<%# Detalhe editável inline da reunião. %>
+<%= form_with model: [@event, @meeting], id: dom_id(@meeting),
+      data: { controller: "autosave" },
+      class: "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-4 space-y-3 mb-8" do |f| %>
+  <div class="flex flex-col sm:flex-row gap-3">
+    <%= f.date_field :date, data: { action: "change->autosave#save" },
+          class: "border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    <%= f.text_field :participants, placeholder: "Participantes", data: { action: "input->autosave#save" },
+          class: "flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+  </div>
+  <%= f.text_area :summary, rows: 4, placeholder: "Resumo / decisões da reunião", data: { action: "input->autosave#save" },
+        class: "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+<% end %>
+
+<section>
+  <h2 class="text-base font-semibold text-gray-900 mb-1">Itens de ação / pendências</h2>
+  <p class="text-gray-500 text-sm mb-3">Com responsável (pessoa) ou fornecedor e status.</p>
+  <%= render "pendencies/form", event: @event, pendency: @pendency %>
+
+  <div class="mt-4 space-y-2">
+    <div id="meeting_<%= @meeting.id %>_pendencies" class="space-y-2">
+      <%= render partial: "pendencies/pendency", collection: @pendencies, as: :pendency, locals: { event: @event } %>
+    </div>
+    <% if @pendencies.empty? %>
+      <div id="meeting_<%= @meeting.id %>_pendencies_empty" class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-12 text-gray-500 text-sm">
+        Nenhuma pendência nesta reunião ainda.
+      </div>
+    <% end %>
+  </div>
+</section>

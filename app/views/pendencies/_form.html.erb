@@ -1,0 +1,25 @@
+<%# Form de nova pendência. Locals: event, pendency (novo; pode vir com meeting). %>
+<% form_dom_id = pendency.meeting_id.present? ? "new_meeting_#{pendency.meeting_id}_pendency" : "new_general_pendency" %>
+<%= form_with model: [event, pendency], id: form_dom_id,
+      class: "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-4 space-y-3" do |f| %>
+  <%= f.hidden_field :meeting_id %>
+  <div class="flex flex-col sm:flex-row gap-3">
+    <%= f.text_field :description, placeholder: "Descrição do item de ação", required: true,
+          class: "flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    <%= f.text_field :assignee, placeholder: "Responsável (pessoa)",
+          class: "border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+  </div>
+  <div class="flex flex-col sm:flex-row gap-3">
+    <%= f.select :event_provider_id, event_providers_for_select(event),
+          { include_blank: "Fornecedor (opcional)" },
+          class: "flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    <%= f.select :status, pendency_status_options, {},
+          class: "border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    <%= f.date_field :due_date,
+          class: "border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+  </div>
+  <div class="flex justify-end">
+    <%= f.submit "Adicionar pendência",
+          class: "px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm cursor-pointer whitespace-nowrap" %>
+  </div>
+<% end %>
