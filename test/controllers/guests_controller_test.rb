@@ -27,6 +27,19 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=?]", "tab-familiares"
   end
 
+  test "index creates the godparent list for a wedding that lacks one and shows its link" do
+    @event.godparent_list.destroy! # wedding created before automatic generation
+    @event.reload
+
+    assert_difference -> { GodparentList.count }, 1 do
+      get event_guests_path(@event)
+    end
+    assert_response :success
+    # Shows the ready-to-share link panel, not a "generate link" form.
+    assert_select "input[value=?]", godparent_list_url(@event.reload.godparent_list.token)
+    assert_select "input[type=submit][value=?]", "Gerar link de preenchimento", count: 0
+  end
+
   test "index has no padrinhos or familiares tabs for non-wedding events" do
     party = Event.create!(title: "Aniversário", event_type: "adult_birthday",
                           main_date: Date.current + 1.month, estimated_guests: 50)

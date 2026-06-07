@@ -316,6 +316,36 @@ class EventTest < ActiveSupport::TestCase
     assert_nil event.godparent_list
   end
 
+  test "find_or_create_godparent_list! returns the existing list without creating another" do
+    event = Event.create!(title: "Casamento", event_type: "wedding",
+                          main_date: Date.current + 1.month, estimated_guests: 100)
+    existing = event.godparent_list
+
+    assert_no_difference -> { GodparentList.count } do
+      assert_equal existing, event.find_or_create_godparent_list!
+    end
+  end
+
+  test "find_or_create_godparent_list! builds a list for a wedding that lacks one" do
+    event = Event.create!(title: "Casamento", event_type: "wedding",
+                          main_date: Date.current + 1.month, estimated_guests: 100)
+    # Simulate a wedding created before automatic generation existed.
+    event.godparent_list.destroy!
+    event.reload
+
+    assert_difference -> { GodparentList.count }, 1 do
+      list = event.find_or_create_godparent_list!
+      assert list.token.present?
+    end
+  end
+
+  test "find_or_create_godparent_list! is a no-op for non-weddings" do
+    event = Event.create!(title: "Festa", event_type: "adult_birthday",
+                          main_date: Date.current + 1.month, estimated_guests: 50)
+    assert_nil event.find_or_create_godparent_list!
+    assert_nil event.reload.godparent_list
+  end
+
   private
 
   # Event with every dynamic contract field (and a complete contratante) filled.

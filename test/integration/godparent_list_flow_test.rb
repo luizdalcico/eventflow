@@ -29,13 +29,13 @@ class GodparentListFlowTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { GodparentList.count } do
       post event_godparent_list_path(@event), params: { godparent_list: { expires_at: 1.week.from_now } }
     end
-    assert_redirected_to event_path(@event)
+    assert_redirected_to event_guests_path(@event)
     list = @event.reload.godparent_list
     assert list.token.present?
     assert list.expires_at.present?
   end
 
-  test "generating twice reuses the same list" do
+  test "posting twice reuses the same list" do
     post event_godparent_list_path(@event), params: { godparent_list: {} }
     first = @event.reload.godparent_list
     post event_godparent_list_path(@event), params: { godparent_list: {} }

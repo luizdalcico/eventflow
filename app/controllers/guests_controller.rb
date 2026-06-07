@@ -5,7 +5,8 @@ class GuestsController < ApplicationController
     @guests = @event.guests.order(:name)
     # Wedding-only tabs: godparents (paired) and family members.
     if @event.wedding?
-      @godparent_list = @event.godparent_list
+      # Weddings predating auto-generation get their list created on first view.
+      @godparent_list = @event.find_or_create_godparent_list!
       # Preload the paired padrinho to avoid an N+1 when rendering each pair row.
       @anchors = @event.godparents.anchors.includes(:pair)
       @family_members = @event.family_members.ordered

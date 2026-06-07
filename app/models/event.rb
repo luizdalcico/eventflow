@@ -86,6 +86,12 @@ class Event < ApplicationRecord
     event_type == "corporate_event"
   end
 
+  # Returns the godparent list, creating it on demand for weddings that predate
+  # automatic generation. Idempotent: never builds a second list.
+  def find_or_create_godparent_list!
+    godparent_list || (create_godparent_list! if wedding?)
+  end
+
   # Sum of every contracted provider value for this event (nil values count as zero).
   def providers_total_cost
     event_providers.sum(:value)
@@ -137,7 +143,7 @@ class Event < ApplicationRecord
 
   # Every wedding gets a godparent list ready to be filled in from the start.
   def ensure_godparent_list
-    create_godparent_list! if wedding? && godparent_list.nil?
+    find_or_create_godparent_list!
   end
 
   def end_time_after_start_time
