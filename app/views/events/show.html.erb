@@ -134,7 +134,7 @@
               <div class="font-medium text-gray-900"><%= owner.name %></div>
               <div class="text-sm text-gray-500 flex flex-wrap gap-x-2">
                 <% if owner.role.present? %><span><%= owner.role %></span><span>·</span><% end %>
-                <span><%= format_phone(owner.phone_number) %></span>
+                <span class="inline-flex items-center gap-1"><%= format_phone(owner.phone_number) %> <%= whatsapp_link(owner.phone_number) %></span>
                 <% if owner.cpf.present? %><span>·</span><span><%= owner.cpf %></span><% end %>
               </div>
             </div>
