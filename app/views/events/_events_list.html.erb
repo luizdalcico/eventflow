@@ -1,0 +1,36 @@
+<%# Event listing wrapped in a Turbo Frame so search-as-you-type updates only
+    this region — the search input outside the frame keeps focus. target="_top"
+    makes links inside (cards, empty-state actions) navigate the full page. %>
+<%= turbo_frame_tag "events_list", target: "_top" do %>
+  <% if @total_count.zero? && @filters_active %>
+    <div class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-16 px-4">
+      <div class="text-gray-500 text-lg mb-4">Nenhum evento encontrado para os filtros</div>
+      <%= link_to "Limpar filtros", events_path(filter: @filter),
+            class: "inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg" %>
+    </div>
+  <% elsif @total_count.zero? %>
+    <div class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-16 px-4">
+      <div class="text-gray-500 text-lg mb-4">Nenhum evento cadastrado ainda</div>
+      <%= link_to "Criar primeiro evento", new_event_path,
+            class: "inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg" %>
+    </div>
+  <% else %>
+    <% if show_upcoming? && @upcoming_events.any? %>
+      <section class="mb-8">
+        <h2 class="text-lg font-semibold text-gray-800 mb-3">Próximos eventos</h2>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <%= render partial: "event_card", collection: @upcoming_events, as: :event %>
+        </div>
+      </section>
+    <% end %>
+
+    <% if show_past? && @past_events.any? %>
+      <section>
+        <h2 class="text-lg font-semibold text-gray-500 mb-3">Eventos passados</h2>
+        <div class="grid gap-4 sm:grid-cols-2 opacity-90">
+          <%= render partial: "event_card", collection: @past_events, as: :event %>
+        </div>
+      </section>
+    <% end %>
+  <% end %>
+<% end %>

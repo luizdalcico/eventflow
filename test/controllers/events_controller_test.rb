@@ -153,12 +153,24 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_select "body", text: /#{b.title}/
   end
 
-  test "index wires the filter form to auto-submit via Stimulus" do
+  test "index wires the filter form to auto-submit via Stimulus targeting the list frame" do
     get events_url
 
     assert_response :success
-    # The form auto-applies filters through the autosave controller (no manual button).
-    assert_select "form[data-controller=?][data-action*=?]", "autosave", "autosave#save"
+    # The form auto-applies filters through the autosave controller (no manual button)
+    # and targets the events_list Turbo Frame so the search input keeps focus.
+    assert_select "form[data-controller=?][data-action*=?][data-turbo-frame=?]", "autosave", "autosave#save", "events_list"
+  end
+
+  test "index wraps the event listing in a top-targeting Turbo Frame" do
+    Event.create!(title: "Festa Frame", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 30)
+
+    get events_url
+
+    assert_response :success
+    # The listing lives in the frame; target=_top keeps card links full-page.
+    assert_select "turbo-frame#events_list[target=_top]"
+    assert_select "turbo-frame#events_list a[href=?]", event_path(Event.last)
   end
 
   test "index offers the year-based date filter options" do
