@@ -127,7 +127,6 @@ pt-BR:
 
       godparent_list:
         token: "Token"
-        expires_at: "Expira em"
         status: "Status"
 
       procession_step:

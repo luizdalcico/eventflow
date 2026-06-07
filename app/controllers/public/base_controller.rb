@@ -10,11 +10,7 @@ module Public
       @list = find_list(params[:token])
       @event = @list&.event
 
-      if @list.nil?
-        render "public/shared/invalid", status: :not_found
-      elsif @list.expired?
-        render "public/shared/expired", status: :gone
-      end
+      render "public/shared/invalid", status: :not_found if @list.nil?
     end
 
     # Each public list controller resolves its own token-protected record.

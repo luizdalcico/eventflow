@@ -14,10 +14,6 @@ Rails.application.routes.draw do
       get :contract
       get :briefing
     end
-    # Admin: gera o link de preenchimento das listas públicas
-    resource :godparent_list, only: [ :create ], module: :admin
-    resource :guest_list, only: [ :create ], module: :admin
-    resource :family_member_list, only: [ :create ], module: :admin
     resources :event_owners, path: "owners" do
       collection do
         get :lookup

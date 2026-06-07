@@ -40,6 +40,29 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type=submit][value=?]", "Gerar link de preenchimento", count: 0
   end
 
+  test "index shows the compact public link panels without expiration controls" do
+    get event_guests_path(@event)
+    assert_response :success
+    # Ready-to-share links for the three audiences.
+    assert_select "input[value=?]", guest_list_url(@event.guest_list.token)
+    assert_select "input[value=?]", family_member_list_url(@event.family_member_list.token)
+    assert_select "input[value=?]", godparent_list_url(@event.godparent_list.token)
+    # No expiration UI anymore.
+    assert_no_match "Alterar expiração", @response.body
+    assert_no_match "Expira em", @response.body
+  end
+
+  test "non-wedding events get a guest link panel but no family link panel" do
+    party = Event.create!(title: "Aniversário", event_type: "adult_birthday",
+                          main_date: Date.current + 1.month, estimated_guests: 50)
+
+    get event_guests_path(party)
+    assert_response :success
+    assert_select "input[value=?]", guest_list_url(party.guest_list.token)
+    assert_nil party.family_member_list
+    assert_select "h2", text: "Link público de familiares", count: 0
+  end
+
   test "index has no padrinhos or familiares tabs for non-wedding events" do
     party = Event.create!(title: "Aniversário", event_type: "adult_birthday",
                           main_date: Date.current + 1.month, estimated_guests: 50)

@@ -8,6 +8,7 @@ class GodparentListFlowTest < ActionDispatch::IntegrationTest
       main_date: Date.current + 1.month,
       estimated_guests: 100
     )
+    @list = @event.godparent_list
   end
 
   # --- Wedding: lista já gerada na criação ---
@@ -23,73 +24,45 @@ class GodparentListFlowTest < ActionDispatch::IntegrationTest
     assert_nil party.godparent_list
   end
 
-  # --- Admin: atualizar o link da lista (já existente) ---
-
-  test "admin sets an expiry on the existing list without creating a new one" do
-    assert_no_difference -> { GodparentList.count } do
-      post event_godparent_list_path(@event), params: { godparent_list: { expires_at: 1.week.from_now } }
-    end
-    assert_redirected_to event_guests_path(@event)
-    list = @event.reload.godparent_list
-    assert list.token.present?
-    assert list.expires_at.present?
-  end
-
-  test "posting twice reuses the same list" do
-    post event_godparent_list_path(@event), params: { godparent_list: {} }
-    first = @event.reload.godparent_list
-    post event_godparent_list_path(@event), params: { godparent_list: {} }
-    assert_equal first.id, @event.reload.godparent_list.id
-  end
-
   # --- Público: acesso por token ---
 
   test "public page renders for a valid token" do
-    list = list_expiring(1.week.from_now)
-    get godparent_list_path(list.token)
+    get godparent_list_path(@list.token)
     assert_response :success
     assert_select "h1", text: @event.title
   end
 
   test "show creates a default blank pair when the list is empty" do
-    list = list_expiring(1.week.from_now)
     assert_difference -> { @event.godparents.count }, 2 do
-      get godparent_list_path(list.token)
+      get godparent_list_path(@list.token)
     end
     assert_response :success
     assert_select "tr[id^=?]", "pair_"
   end
 
   test "show does not create extra pairs when one already exists" do
-    list = list_expiring(1.week.from_now)
-    list.add_pair!
+    @list.add_pair!
     assert_no_difference -> { @event.godparents.count } do
-      get godparent_list_path(list.token)
+      get godparent_list_path(@list.token)
     end
   end
 
-  test "show does not create a pair when the list is not editable" do
-    list = list_expiring(1.day.ago)
+  test "show does not create a pair when the list is finalized" do
+    @list.finalize!
     assert_no_difference -> { @event.godparents.count } do
-      get godparent_list_path(list.token)
+      get godparent_list_path(@list.token)
     end
   end
 
   test "invalid token returns not found" do
-    get godparent_list_path("does-not-exist")
+    get godparent_list_path("nope")
     assert_response :not_found
-  end
-
-  test "expired token returns gone" do
-    list = list_expiring(1.day.ago)
-    get godparent_list_path(list.token)
-    assert_response :gone
   end
 
   # --- Pares: criar / atualizar / remover ---
 
   test "creating a pair builds two linked godparent guests" do
-    list = list_expiring(1.week.from_now)
+    list = @list
     assert_difference -> { @event.godparents.count }, 2 do
       post godparent_list_pairs_path(list.token), as: :turbo_stream
     end
@@ -102,7 +75,7 @@ class GodparentListFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "updating a pair saves member and pair attributes on both rows" do
-    list = list_expiring(1.week.from_now)
+    list = @list
     post godparent_list_pairs_path(list.token), as: :turbo_stream
     madrinha = @event.godparents.find_by(role: "madrinha")
 
@@ -129,7 +102,7 @@ class GodparentListFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "destroying a pair removes both rows" do
-    list = list_expiring(1.week.from_now)
+    list = @list
     post godparent_list_pairs_path(list.token), as: :turbo_stream
     madrinha = @event.godparents.find_by(role: "madrinha")
 
@@ -141,7 +114,7 @@ class GodparentListFlowTest < ActionDispatch::IntegrationTest
   # --- Salvar rascunho ---
 
   test "draft redirects with a success notice" do
-    list = list_expiring(1.week.from_now)
+    list = @list
     get draft_godparent_list_path(list.token)
     assert_redirected_to godparent_list_path(list.token)
     assert_match(/Rascunho salvo/, flash[:notice])
@@ -150,7 +123,7 @@ class GodparentListFlowTest < ActionDispatch::IntegrationTest
   # --- Finalizar valida e trava a edição ---
 
   test "finalize is blocked when a pair is incomplete" do
-    list = list_expiring(1.week.from_now)
+    list = @list
     post godparent_list_pairs_path(list.token), as: :turbo_stream # par em branco
 
     patch finalize_godparent_list_path(list.token)
@@ -159,7 +132,7 @@ class GodparentListFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "finalize succeeds and locks when every pair is complete" do
-    list = list_expiring(1.week.from_now)
+    list = @list
     complete_pair!(list)
 
     patch finalize_godparent_list_path(list.token)
@@ -173,11 +146,6 @@ class GodparentListFlowTest < ActionDispatch::IntegrationTest
   end
 
   private
-
-  # Reuses the list auto-generated on wedding creation, applying an expiry.
-  def list_expiring(expires_at)
-    @event.godparent_list.tap { |list| list.update!(expires_at: expires_at) }
-  end
 
   # Cria um par e preenche todos os campos.
   def complete_pair!(list)
