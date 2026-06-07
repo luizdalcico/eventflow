@@ -109,6 +109,16 @@
           <dt class="text-gray-500">Convidados (estimativa)</dt>
           <dd class="text-gray-900 font-medium"><%= @event.estimated_guests || "—" %></dd>
         </div>
+        <div>
+          <dt class="text-gray-500">Horário</dt>
+          <dd class="text-gray-900 font-medium">
+            <% if @event.start_time && @event.end_time %>
+              <%= @event.start_time.strftime("%H:%M") %> – <%= @event.end_time.strftime("%H:%M") %>
+            <% else %>
+              —
+            <% end %>
+          </dd>
+        </div>
         <div class="sm:col-span-2">
           <dt class="text-gray-500">Endereço</dt>
           <dd class="text-gray-900"><%= @event.address.presence || "Não definido" %></dd>
@@ -116,6 +126,32 @@
         <div>
           <dt class="text-gray-500">Horas extras</dt>
           <dd class="text-gray-900 font-medium"><%= @event.extra_hours.to_i > 0 ? "#{@event.extra_hours} h" : "—" %></dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Contrato -->
+    <div class="<%= card %>">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-base font-semibold text-gray-900">Contrato</h2>
+        <%= link_to "Gerenciar", edit_event_path(@event), class: "text-sm text-blue-600 hover:text-blue-800" %>
+      </div>
+      <dl class="grid sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <dt class="text-gray-500">Valor total</dt>
+          <dd class="text-gray-900 font-medium"><%= @event.contract_total_value.present? ? format_brl(@event.contract_total_value) : "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Valor da hora extra</dt>
+          <dd class="text-gray-900 font-medium"><%= @event.contract_extra_hour_rate.present? ? format_brl(@event.contract_extra_hour_rate) : "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Data limite de pagamento</dt>
+          <dd class="text-gray-900 font-medium"><%= @event.contract_payment_due_date&.strftime("%d/%m/%Y") || "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Nº de recepcionistas</dt>
+          <dd class="text-gray-900 font-medium"><%= @event.contract_receptionists_count || "—" %></dd>
         </div>
       </dl>
     </div>

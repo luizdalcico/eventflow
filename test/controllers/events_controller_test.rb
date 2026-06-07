@@ -33,6 +33,46 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     # Address and extra hours are blank, but their rows still render with a fallback.
     assert_select "dt", text: "Endereço"
     assert_select "dt", text: "Horas extras"
+    assert_select "dt", text: "Horário"
+  end
+
+  test "show renders the event schedule when start and end times are set" do
+    event = Event.create!(title: "Festa", event_type: "wedding", main_date: 1.month.from_now.to_date,
+                          estimated_guests: 70, start_time: "20:00", end_time: "23:30")
+
+    get event_url(event)
+
+    assert_response :success
+    assert_select "dt", text: "Horário"
+    assert_select "dd", text: /20:00.*23:30/
+  end
+
+  test "show renders the contract card with its financial fields" do
+    event = Event.create!(title: "Festa", event_type: "wedding", main_date: 1.month.from_now.to_date,
+                          estimated_guests: 70, contract_total_value: 7500.5,
+                          contract_extra_hour_rate: 300, contract_payment_due_date: Date.new(2026, 8, 15),
+                          contract_receptionists_count: 5)
+
+    get event_url(event)
+
+    assert_response :success
+    assert_select "h2", text: "Contrato"
+    assert_select "dt", text: "Valor total"
+    assert_select "dd", text: "R$ 7.500,50"
+    assert_select "dt", text: "Data limite de pagamento"
+    assert_select "dd", text: "15/08/2026"
+    assert_select "dt", text: "Nº de recepcionistas"
+  end
+
+  test "show renders the contract card with fallbacks when fields are blank" do
+    event = Event.create!(title: "Festa", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 70)
+
+    get event_url(event)
+
+    assert_response :success
+    # The contract card still shows every row, with a dash where data is missing.
+    assert_select "h2", text: "Contrato"
+    assert_select "dt", text: "Valor da hora extra"
   end
 
   test "index defaults to upcoming events and hides past events" do
