@@ -44,9 +44,12 @@
         <label class="block text-sm font-medium text-gray-700">Telefone</label>
         <p class="mt-1 text-sm text-gray-900">
           <% if @event_owner.phone_number.present? %>
-            <a href="tel:<%= @event_owner.phone_number %>" class="text-blue-600 hover:text-blue-800">
-              <%= @event_owner.phone_number %>
-            </a>
+            <span class="inline-flex items-center gap-1.5">
+              <a href="tel:<%= @event_owner.phone_number %>" class="text-blue-600 hover:text-blue-800">
+                <%= @event_owner.phone_number %>
+              </a>
+              <%= whatsapp_link(@event_owner.phone_number) %>
+            </span>
           <% else %>
             <span class="text-gray-500">Não informado</span>
           <% end %>

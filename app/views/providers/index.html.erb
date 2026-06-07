@@ -31,7 +31,7 @@
             </td>
             <td class="px-4 py-3 text-gray-600">
               <% if provider.contact_name.present? %><div>👤 <%= provider.contact_name %></div><% end %>
-              <% if provider.phone_number.present? %><div>📞 <%= format_phone(provider.phone_number) %></div><% end %>
+              <% if provider.phone_number.present? %><div class="flex items-center gap-1">📞 <%= format_phone(provider.phone_number) %> <%= whatsapp_link(provider.phone_number) %></div><% end %>
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-right">
               <span class="inline-flex items-center gap-3">

@@ -32,7 +32,10 @@
         <dt class="text-gray-500">Telefone</dt>
         <dd class="font-medium">
           <% if @provider.phone_number.present? %>
-            <a href="tel:<%= @provider.phone_number %>" class="text-blue-600 hover:text-blue-800"><%= format_phone(@provider.phone_number) %></a>
+            <span class="inline-flex items-center gap-1.5">
+              <a href="tel:<%= @provider.phone_number %>" class="text-blue-600 hover:text-blue-800"><%= format_phone(@provider.phone_number) %></a>
+              <%= whatsapp_link(@provider.phone_number) %>
+            </span>
           <% else %>
             <span class="text-gray-500">Não informado</span>
           <% end %>

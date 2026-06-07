@@ -14,7 +14,7 @@
   </td>
   <td class="px-4 py-3 text-gray-600">
     <% if p.contact_name.present? %><div>👤 <%= p.contact_name %></div><% end %>
-    <% if p.phone_number.present? %><div>📞 <%= format_phone(p.phone_number) %></div><% end %>
+    <% if p.phone_number.present? %><div class="flex items-center gap-1">📞 <%= format_phone(p.phone_number) %> <%= whatsapp_link(p.phone_number) %></div><% end %>
   </td>
   <td class="px-4 py-3">
     <%= select_tag "event_provider[status]",
