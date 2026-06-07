@@ -52,11 +52,6 @@ Rails.application.routes.draw do
         patch :toggle_completed
       end
     end
-    resources :owner_checklists, path: "owner_tasks" do
-      member do
-        patch :toggle_completed
-      end
-    end
     # Reuniões + itens de ação/pendências (gerais ou vinculados a uma reunião).
     resources :meetings, path: "reunioes"
     resources :pendencies, only: [ :create, :update, :destroy ], path: "pendencias"

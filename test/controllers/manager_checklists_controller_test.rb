@@ -12,7 +12,7 @@ class ManagerChecklistsControllerTest < ActionDispatch::IntegrationTest
     get event_manager_checklists_url(@event)
     assert_response :success
     assert_select "#checklist_items"
-    assert_select "h1", text: "Checklist interno"
+    assert_select "h1", text: "Checklist"
   end
 
   test "index shows the empty state when there are no tasks" do

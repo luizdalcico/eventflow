@@ -1,5 +1,5 @@
-# Ações compartilhadas pelos checklists (interno e dos responsáveis).
-# Cada controller define: model_class, collection_name, param_key, checklist_title.
+# Shared CRUD actions for an event checklist.
+# Each controller defines: model_class, collection_name, param_key, checklist_title.
 module ChecklistActions
   extend ActiveSupport::Concern
   include ActionView::RecordIdentifier

@@ -79,17 +79,10 @@
     </dl>
   <% end %>
 
-  <!-- Card 4 — Checklist interno -->
+  <!-- Card 4 — Checklist -->
   <%= link_to event_manager_checklists_path(@event), class: summary_card do %>
-    <div class="text-sm font-semibold text-gray-900 mb-3">✅ Checklist interno</div>
+    <div class="text-sm font-semibold text-gray-900 mb-3">✅ Checklist</div>
     <div class="text-2xl font-bold text-gray-900"><%= @manager_tasks.pending.count %><span class="text-base font-medium text-gray-400">/<%= @manager_tasks.count %></span></div>
-    <div class="text-xs text-gray-500 mt-1">pendentes</div>
-  <% end %>
-
-  <!-- Card 4 — Checklist responsáveis -->
-  <%= link_to event_owner_checklists_path(@event), class: summary_card do %>
-    <div class="text-sm font-semibold text-gray-900 mb-3">📋 Checklist responsáveis</div>
-    <div class="text-2xl font-bold text-gray-900"><%= @owner_tasks.pending.count %><span class="text-base font-medium text-gray-400">/<%= @owner_tasks.count %></span></div>
     <div class="text-xs text-gray-500 mt-1">pendentes</div>
   <% end %>
 
@@ -235,7 +228,7 @@
   <!-- Sidebar -->
   <div class="space-y-6">
     <!-- Próximas tarefas -->
-    <% pending_tasks = (@manager_tasks.pending.to_a + @owner_tasks.pending.to_a).sort_by { |t| t.due_date || Date.new(9999) } %>
+    <% pending_tasks = @manager_tasks.pending.sort_by { |t| t.due_date || Date.new(9999) } %>
     <div class="<%= card %>">
       <h3 class="text-base font-semibold text-gray-900 mb-4">Próximas tarefas</h3>
       <% if pending_tasks.any? %>
@@ -243,10 +236,9 @@
           <% pending_tasks.first(6).each do |task| %>
             <div class="text-sm">
               <div class="font-medium text-gray-800"><%= task.task %></div>
-              <div class="text-gray-500 text-xs flex gap-2">
-                <% if task.due_date %><span><%= task.due_date.strftime("%d/%m") %></span><span>·</span><% end %>
-                <span><%= task.is_a?(ManagerChecklist) ? "Interno" : "Responsáveis" %></span>
-              </div>
+              <% if task.due_date %>
+                <div class="text-gray-500 text-xs"><%= task.due_date.strftime("%d/%m") %></div>
+              <% end %>
             </div>
           <% end %>
         </div>

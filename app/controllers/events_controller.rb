@@ -28,7 +28,6 @@ class EventsController < ApplicationController
     @procession_steps_count = @event.procession_steps.count
     @providers = @event.providers.includes(:event_providers)
     @manager_tasks = @event.manager_checklists.order(:due_date)
-    @owner_tasks = @event.owner_checklists.order(:due_date)
     @meetings_count = @event.meetings.count
     @pendencies_pending_count = @event.pendencies.pending.count
 

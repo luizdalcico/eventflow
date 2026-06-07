@@ -6,5 +6,5 @@ class ManagerChecklistsController < ApplicationController
   def model_class = ManagerChecklist
   def collection_name = :manager_checklists
   def param_key = :manager_checklist
-  def checklist_title = "Checklist interno"
+  def checklist_title = "Checklist"
 end

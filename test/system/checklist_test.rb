@@ -6,11 +6,11 @@ class ChecklistTest < ApplicationSystemTestCase
                            main_date: Date.current + 1.month, estimated_guests: 100)
   end
 
-  test "manager checklist: add a task, mark done, responsive" do
+  test "checklist: add a task, mark done, responsive" do
     page.driver.browser.manage.window.resize_to(1200, 900)
     visit event_manager_checklists_path(@event)
 
-    assert_selector "h1", text: "Checklist interno"
+    assert_selector "h1", text: "Checklist"
     assert_text "Nenhuma tarefa ainda"
 
     fill_in "Nova tarefa…", with: "Contratar buffet"
@@ -26,10 +26,5 @@ class ChecklistTest < ApplicationSystemTestCase
 
     page.driver.browser.manage.window.resize_to(390, 850)
     page.save_screenshot(Rails.root.join("tmp/checklist_mobile.png").to_s)
-  end
-
-  test "owner checklist renders with its own title" do
-    visit event_owner_checklists_path(@event)
-    assert_selector "h1", text: "Checklist dos responsáveis"
   end
 end

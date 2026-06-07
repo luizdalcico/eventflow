@@ -262,8 +262,8 @@ end
 
 puts "Fornecedores associados aos eventos."
 
-# Add Manager Tasks
-puts "Criando Checklist interno..."
+# Add checklist tasks
+puts "Criando Checklist..."
 
 wedding.manager_checklists.find_or_create_by!(task: "Confirmar cardápio com buffet") do |task|
   task.due_date = wedding.main_date - 2.weeks
@@ -283,41 +283,31 @@ wedding.manager_checklists.find_or_create_by!(task: "Coordenar ensaio fotográfi
   task.completed = true
 end
 
+wedding.manager_checklists.find_or_create_by!(task: "Enviar lista final de convidados") do |task|
+  task.due_date = wedding.main_date - 1.month
+  task.reminder_date = wedding.main_date - 6.weeks
+  task.completed = true
+end
+
+wedding.manager_checklists.find_or_create_by!(task: "Buscar alianças") do |task|
+  task.due_date = wedding.main_date - 3.days
+  task.reminder_date = wedding.main_date - 1.week
+  task.completed = false
+end
+
 birthday.manager_checklists.find_or_create_by!(task: "Confirmar equipamento de som") do |task|
   task.due_date = birthday.main_date - 3.days
   task.reminder_date = birthday.main_date - 1.week
   task.completed = false
 end
 
-# Add Owner Tasks
-puts "Criando tarefas dos responsáveis..."
-
-wedding.owner_checklists.find_or_create_by!(task: "Enviar lista final de convidados") do |task|
-  task.due_date = wedding.main_date - 1.month
-  task.reminder_date = wedding.main_date - 6.weeks
-  task.completed = true
-end
-
-wedding.owner_checklists.find_or_create_by!(task: "Prova do vestido final") do |task|
-  task.due_date = wedding.main_date - 1.week
-  task.reminder_date = wedding.main_date - 2.weeks
-  task.completed = false
-end
-
-wedding.owner_checklists.find_or_create_by!(task: "Buscar alianças") do |task|
-  task.due_date = wedding.main_date - 3.days
-  task.reminder_date = wedding.main_date - 1.week
-  task.completed = false
-end
-
-birthday.owner_checklists.find_or_create_by!(task: "Definir lista de músicas") do |task|
+birthday.manager_checklists.find_or_create_by!(task: "Definir lista de músicas") do |task|
   task.due_date = birthday.main_date - 1.week
   task.reminder_date = birthday.main_date - 2.weeks
   task.completed = false
 end
 
-puts "#{ManagerChecklist.count} Checklist interno criadas."
-puts "#{OwnerChecklist.count} tarefas dos responsáveis criadas."
+puts "#{ManagerChecklist.count} tarefas de Checklist criadas."
 
 puts "\n✅ Dados de exemplo criados com sucesso!"
 puts "\nResumo:"
@@ -325,6 +315,5 @@ puts "- #{Event.count} eventos"
 puts "- #{Provider.count} fornecedores"
 puts "- #{Guest.count} convidados"
 puts "- #{EventProvider.count} associações evento-fornecedor"
-puts "- #{ManagerChecklist.count} Checklist interno"
-puts "- #{OwnerChecklist.count} tarefas dos responsáveis"
+puts "- #{ManagerChecklist.count} tarefas de Checklist"
 puts "\nAcesse http://localhost:3000 para ver a aplicação!"

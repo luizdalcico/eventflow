@@ -146,9 +146,8 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     event.guests.create!(name: "Convidado B", rsvp_status: "pending")
     provider = Provider.create!(name: "Buffet", provider_type: "buffet", contact_name: "João", phone_number: "11999999999", document: "")
     event.event_providers.create!(provider: provider)
-    event.manager_checklists.create!(task: "Interno pendente", completed: false)
-    event.manager_checklists.create!(task: "Interno feito", completed: true)
-    event.owner_checklists.create!(task: "Responsável pendente", completed: false)
+    event.manager_checklists.create!(task: "Tarefa pendente", completed: false)
+    event.manager_checklists.create!(task: "Tarefa feita", completed: true)
 
     get event_url(event)
 
@@ -157,7 +156,6 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", event_guests_path(event)
     assert_select "a[href=?]", event_event_providers_path(event)
     assert_select "a[href=?]", event_manager_checklists_path(event)
-    assert_select "a[href=?]", event_owner_checklists_path(event)
     assert_select "a[href=?]", event_cortejo_path(event)
   end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_07_190000) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_07_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -183,19 +183,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_07_190000) do
     t.index ["event_id"], name: "index_meetings_on_event_id"
   end
 
-  create_table "owner_checklists", force: :cascade do |t|
-    t.bigint "event_id", null: false
-    t.string "task", null: false
-    t.date "due_date"
-    t.boolean "completed", default: false, null: false
-    t.date "reminder_date"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["completed"], name: "index_owner_checklists_on_completed"
-    t.index ["event_id", "due_date"], name: "index_owner_checklists_on_event_id_and_due_date"
-    t.index ["event_id"], name: "index_owner_checklists_on_event_id"
-  end
-
   create_table "payments", force: :cascade do |t|
     t.bigint "event_id", null: false
     t.string "payer_name", null: false
@@ -260,7 +247,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_07_190000) do
   add_foreign_key "guests", "events"
   add_foreign_key "manager_checklists", "events"
   add_foreign_key "meetings", "events"
-  add_foreign_key "owner_checklists", "events"
   add_foreign_key "payments", "events"
   add_foreign_key "pendencies", "event_providers"
   add_foreign_key "pendencies", "events"

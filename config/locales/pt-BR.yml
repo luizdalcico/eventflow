@@ -118,12 +118,6 @@ pt-BR:
         description: "Descrição"
         due_date: "Data de vencimento"
         priority: "Prioridade"
-        
-      owner_checklist:
-        task_name: "Nome da tarefa"
-        description: "Descrição"
-        due_date: "Data de vencimento"
-        priority: "Prioridade"
 
       godparent_list:
         token: "Token"

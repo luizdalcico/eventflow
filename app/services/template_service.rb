@@ -213,18 +213,15 @@ class TemplateService
       # Tasks Summary
       manager_pending = event.manager_checklists.pending.count
       manager_total = event.manager_checklists.count
-      owner_pending = event.owner_checklists.pending.count
-      owner_total = event.owner_checklists.count
 
-      if manager_total > 0 || owner_total > 0
+      if manager_total > 0
         pdf.font_size 16
         pdf.text "Resumo de Tarefas", style: :bold
         pdf.move_down 10
 
         pdf.font_size 12
         tasks_summary = [
-          [ "Checklist interno:", "#{manager_total - manager_pending}/#{manager_total} concluídas" ],
-          [ "Checklist Responsáveis:", "#{owner_total - owner_pending}/#{owner_total} concluídas" ]
+          [ "Checklist:", "#{manager_total - manager_pending}/#{manager_total} concluídas" ]
         ]
 
         pdf.table(tasks_summary, width: pdf.bounds.width, cell_style: { borders: [] }) do

@@ -77,14 +77,6 @@ class BreadcrumbsTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "owner checklist index renders a breadcrumb trail" do
-    get event_owner_checklists_url(@event)
-    assert_response :success
-    assert_select "nav[aria-label=?]", "Breadcrumb" do
-      assert_select "a[href=?]", event_path(@event), text: @event.title
-    end
-  end
-
   test "providers index (section root) does not render a breadcrumb trail" do
     get providers_url
     assert_response :success

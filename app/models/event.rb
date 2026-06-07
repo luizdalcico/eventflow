@@ -13,7 +13,6 @@ class Event < ApplicationRecord
   has_many :event_providers, dependent: :destroy
   has_many :providers, through: :event_providers
   has_many :manager_checklists, dependent: :destroy
-  has_many :owner_checklists, dependent: :destroy
   has_many :payments, dependent: :destroy
   has_many :meetings, dependent: :destroy
   has_many :pendencies, dependent: :destroy
