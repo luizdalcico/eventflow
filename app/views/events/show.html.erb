@@ -26,31 +26,49 @@
   </div>
 </div>
 
-<!-- Stats -->
-<% stats = [
-     ["Convidados", @guests.count, "text-gray-900"],
-     ["RSVP confirmados", @event.guests.rsvp_confirmed.count, "text-green-700"]
-   ]
-   stats << ["Padrinhos", @godparents.count, "text-gray-900"] if @event.wedding?
-   stats << ["Fornecedores", @providers.count, "text-gray-900"] %>
-<div class="flex flex-wrap gap-3 mb-6">
-  <% stats.each do |title, value, color| %>
-    <div class="flex-1 min-w-[140px] bg-white rounded-xl ring-1 ring-gray-200 p-3 md:p-4 text-center">
-      <div class="text-2xl font-bold <%= color %>"><%= value %></div>
-      <div class="text-xs md:text-sm text-gray-500"><%= title %></div>
-    </div>
+<!-- Cards de resumo (clicáveis) -->
+<% summary_card = "block bg-white rounded-xl ring-1 ring-gray-200 hover:ring-blue-300 hover:bg-blue-50/40 p-4 md:p-5 transition" %>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+  <!-- Card 1 — Convidados -->
+  <%= link_to event_guests_path(@event), class: summary_card do %>
+    <div class="text-sm font-semibold text-gray-900 mb-3">👥 Convidados</div>
+    <dl class="space-y-1.5 text-sm">
+      <div class="flex justify-between">
+        <dt class="text-gray-500">Convidados</dt>
+        <dd class="font-bold text-gray-900"><%= @guests.count %></dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-gray-500">RSVP confirmados</dt>
+        <dd class="font-bold text-green-700"><%= @event.guests.rsvp_confirmed.count %></dd>
+      </div>
+      <% if @event.wedding? %>
+        <div class="flex justify-between">
+          <dt class="text-gray-500">Padrinhos</dt>
+          <dd class="font-bold text-gray-900"><%= @godparents.count %></dd>
+        </div>
+      <% end %>
+    </dl>
   <% end %>
-</div>
 
-<!-- Ações rápidas -->
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-  <% [
-    ["👥 Convidados", event_guests_path(@event)],
-    ["🤝 Fornecedores", event_event_providers_path(@event)],
-    ["✅ Checklist interno", event_manager_checklists_path(@event)],
-    ["📋 Checklist responsáveis", event_owner_checklists_path(@event)]
-  ].each do |label, path| %>
-    <%= link_to label, path, class: "block bg-white rounded-xl ring-1 ring-gray-200 hover:ring-blue-300 hover:bg-blue-50/40 p-3 text-sm font-medium text-gray-700 text-center transition" %>
+  <!-- Card 2 — Fornecedores -->
+  <%= link_to event_event_providers_path(@event), class: summary_card do %>
+    <div class="text-sm font-semibold text-gray-900 mb-3">🤝 Fornecedores</div>
+    <div class="text-2xl font-bold text-gray-900"><%= @providers.count %></div>
+    <div class="text-xs text-gray-500 mt-1">cadastrados</div>
+  <% end %>
+
+  <!-- Card 3 — Checklist interno -->
+  <%= link_to event_manager_checklists_path(@event), class: summary_card do %>
+    <div class="text-sm font-semibold text-gray-900 mb-3">✅ Checklist interno</div>
+    <div class="text-2xl font-bold text-gray-900"><%= @manager_tasks.pending.count %><span class="text-base font-medium text-gray-400">/<%= @manager_tasks.count %></span></div>
+    <div class="text-xs text-gray-500 mt-1">pendentes</div>
+  <% end %>
+
+  <!-- Card 4 — Checklist responsáveis -->
+  <%= link_to event_owner_checklists_path(@event), class: summary_card do %>
+    <div class="text-sm font-semibold text-gray-900 mb-3">📋 Checklist responsáveis</div>
+    <div class="text-2xl font-bold text-gray-900"><%= @owner_tasks.pending.count %><span class="text-base font-medium text-gray-400">/<%= @owner_tasks.count %></span></div>
+    <div class="text-xs text-gray-500 mt-1">pendentes</div>
   <% end %>
 </div>
 
