@@ -36,6 +36,12 @@ Rails.application.routes.draw do
         patch :update_details
       end
     end
+    # Pagamentos recebidos + recibo em PDF; saldo automático contra o contrato.
+    resources :payments, only: [ :index, :create, :destroy ] do
+      member do
+        get :receipt
+      end
+    end
     resources :manager_checklists, path: "manager_tasks" do
       member do
         patch :toggle_completed

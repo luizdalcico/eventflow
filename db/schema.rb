@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_07_180000) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_07_180001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -187,6 +187,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_07_180000) do
     t.index ["event_id"], name: "index_owner_checklists_on_event_id"
   end
 
+  create_table "payments", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.string "payer_name", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "reference"
+    t.string "payment_method", null: false
+    t.date "paid_on", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_payments_on_event_id"
+  end
+
   create_table "procession_steps", force: :cascade do |t|
     t.bigint "event_id", null: false
     t.string "description", null: false
@@ -223,5 +235,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_07_180000) do
   add_foreign_key "guests", "events"
   add_foreign_key "manager_checklists", "events"
   add_foreign_key "owner_checklists", "events"
+  add_foreign_key "payments", "events"
   add_foreign_key "procession_steps", "events"
 end

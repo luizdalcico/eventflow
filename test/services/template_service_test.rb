@@ -110,4 +110,39 @@ class TemplateServiceTest < ActiveSupport::TestCase
       TemplateService.generate_event_report(@event, :csv)
     end
   end
+
+  test "generate_receipt returns a non-empty PDF byte string" do
+    payment = @event.payments.create!(payer_name: "Maria Silva", amount: 1500.50,
+                                      reference: "Entrada", payment_method: "pix", paid_on: Date.new(2026, 6, 1))
+    pdf = TemplateService.generate_receipt(payment, :pdf)
+
+    assert pdf.is_a?(String)
+    assert pdf.start_with?("%PDF")
+    assert pdf.bytesize.positive?
+  end
+
+  test "generate_receipt raises for an unsupported format" do
+    payment = @event.payments.create!(payer_name: "Maria", amount: 100, payment_method: "pix", paid_on: Date.current)
+    assert_raises(ArgumentError) do
+      TemplateService.generate_receipt(payment, :csv)
+    end
+  end
+
+  test "amount_in_words spells reais and centavos in Brazilian Portuguese" do
+    assert_equal "zero real", TemplateService.amount_in_words(0)
+    assert_equal "um real", TemplateService.amount_in_words(1)
+    assert_equal "dois reais", TemplateService.amount_in_words(2)
+    assert_equal "um centavo", TemplateService.amount_in_words(0.01)
+    assert_equal "cinquenta centavos", TemplateService.amount_in_words(0.50)
+    assert_equal "cem reais", TemplateService.amount_in_words(100)
+    assert_equal "mil reais", TemplateService.amount_in_words(1000)
+    assert_equal "um real e cinquenta centavos", TemplateService.amount_in_words(1.50)
+  end
+
+  test "amount_in_words handles thousands, hundreds and millions" do
+    assert_equal "mil e duzentos e trinta e quatro reais e cinquenta e seis centavos",
+                 TemplateService.amount_in_words(1234.56)
+    assert_equal "duzentos e cinquenta reais", TemplateService.amount_in_words(250)
+    assert_equal "um milhão reais", TemplateService.amount_in_words(1_000_000)
+  end
 end

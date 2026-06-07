@@ -14,6 +14,7 @@ class Event < ApplicationRecord
   has_many :providers, through: :event_providers
   has_many :manager_checklists, dependent: :destroy
   has_many :owner_checklists, dependent: :destroy
+  has_many :payments, dependent: :destroy
   has_one :godparent_list, dependent: :destroy
   has_one :guest_list, dependent: :destroy
   has_one :family_member_list, dependent: :destroy
@@ -126,6 +127,18 @@ class Event < ApplicationRecord
   # Outstanding balance still owed (total cost minus what is already paid).
   def providers_balance
     providers_total_cost - providers_paid_total
+  end
+
+  # Sum of every payment received from the contratante for this event.
+  def payments_total
+    payments.sum(:amount)
+  end
+
+  # Automatic balance still owed on the contract ("RESTANDO"): the contract
+  # total minus everything already paid. A blank contract value counts as zero,
+  # and overpayments simply produce a negative balance.
+  def payments_balance
+    (contract_total_value || 0) - payments_total
   end
 
   # Dynamic fields merged into the contract PDF, paired with their human label.

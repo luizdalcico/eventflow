@@ -414,6 +414,29 @@ class EventTest < ActiveSupport::TestCase
     assert_nil event.reload.family_member_list
   end
 
+  test "payments_total sums every payment amount" do
+    event = full_contract_event
+    event.payments.create!(payer_name: "A", amount: 1000, payment_method: "pix", paid_on: Date.current)
+    event.payments.create!(payer_name: "B", amount: 500.50, payment_method: "dinheiro", paid_on: Date.current)
+
+    assert_equal BigDecimal("1500.50"), event.payments_total
+  end
+
+  test "payments_balance subtracts payments from the contract total" do
+    event = full_contract_event # contract_total_value: 5000
+    event.payments.create!(payer_name: "A", amount: 2000, payment_method: "pix", paid_on: Date.current)
+
+    assert_equal BigDecimal("3000"), event.payments_balance
+  end
+
+  test "payments_balance treats a blank contract value as zero" do
+    event = Event.create!(title: "Sem contrato", event_type: "adult_birthday",
+                          main_date: Date.current + 1.month, estimated_guests: 50)
+    event.payments.create!(payer_name: "A", amount: 300, payment_method: "pix", paid_on: Date.current)
+
+    assert_equal BigDecimal("-300"), event.payments_balance
+  end
+
   private
 
   # Event with every dynamic contract field (and a complete contratante) filled.

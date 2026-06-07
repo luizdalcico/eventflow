@@ -69,6 +69,19 @@ module ApplicationHelper
     PROVIDER_STATUS_LABELS[status.to_s] || status.to_s.humanize
   end
 
+  PAYMENT_METHOD_LABELS = {
+    "pix" => "PIX",
+    "dinheiro" => "Dinheiro",
+    "cartao" => "Cartão",
+    "transferencia" => "Transferência",
+    "cheque" => "Cheque",
+    "boleto" => "Boleto"
+  }.freeze
+
+  def translate_payment_method(method)
+    PAYMENT_METHOD_LABELS[method.to_s] || method.to_s.humanize
+  end
+
   # Format a numeric amount as Brazilian currency: R$ 1.234,56.
   def format_brl(amount)
     integer, decimals = format("%.2f", amount.to_f).split(".")

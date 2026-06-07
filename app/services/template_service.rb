@@ -23,6 +23,16 @@ class TemplateService
     end
   end
 
+  # Renders the payment receipt (recibo) as a PDF byte string.
+  def self.generate_receipt(payment, format = :pdf)
+    case format.to_sym
+    when :pdf
+      generate_receipt_pdf(payment)
+    else
+      raise ArgumentError, "Formato não suportado: #{format}"
+    end
+  end
+
   private
 
   def self.generate_pdf_report(event)
@@ -462,6 +472,128 @@ class TemplateService
     return "—" unless digits.length == 11
 
     "#{digits[0, 3]}.#{digits[3, 3]}.#{digits[6, 3]}-#{digits[9, 2]}"
+  end
+
+  PAYMENT_METHOD_LABELS = {
+    "pix" => "PIX",
+    "dinheiro" => "dinheiro",
+    "cartao" => "cartão",
+    "transferencia" => "transferência bancária",
+    "cheque" => "cheque",
+    "boleto" => "boleto"
+  }.freeze
+
+  def self.payment_method_label(method)
+    PAYMENT_METHOD_LABELS[method.to_s] || method.to_s
+  end
+
+  # Renders a single payment receipt following the RECIBO model: company header,
+  # the received-from statement with amount in words, the automatic remaining
+  # balance against the contract ("RESTANDO") and a signature block.
+  def self.generate_receipt_pdf(payment)
+    event = payment.event
+
+    Prawn::Document.new do |pdf|
+      pdf.font_size 16
+      pdf.text "RECIBO", align: :center, style: :bold
+      pdf.move_down 6
+
+      pdf.font_size 11
+      pdf.text company_name, align: :center, style: :bold
+      pdf.text "CNPJ #{company_cnpj} — #{company_address}", align: :center
+      pdf.move_down 4
+      pdf.text "Valor: #{format_currency(payment.amount)}", align: :center, style: :bold
+      pdf.move_down 18
+
+      statement = "Recebemos de #{payment.payer_name} a importância de " \
+                  "#{format_currency(payment.amount)} (#{amount_in_words(payment.amount)})" \
+                  "#{receipt_reference_clause(payment)}, paga via " \
+                  "#{payment_method_label(payment.payment_method)} em " \
+                  "#{payment.paid_on.strftime('%d/%m/%Y')}."
+      pdf.text statement, align: :justify
+      pdf.move_down 14
+
+      pdf.text "RESTANDO: #{format_currency(event.payments_balance)}", style: :bold
+      pdf.move_down 36
+
+      pdf.text "_________________________________________"
+      pdf.text company_name
+      pdf.move_down 24
+
+      city = forum_city.split(",").first
+      pdf.text "#{city}, #{payment.paid_on.strftime('%d/%m/%Y')}.", align: :right
+    end.render
+  end
+
+  def self.receipt_reference_clause(payment)
+    return "" if payment.reference.blank?
+
+    ", referente a #{payment.reference}"
+  end
+
+  # Cardinal-number words for the integer-to-extenso conversion (0–999 groups).
+  EXTENSO_UNITS = %w[zero um dois três quatro cinco seis sete oito nove dez onze doze treze
+                     quatorze quinze dezesseis dezessete dezoito dezenove].freeze
+  EXTENSO_TENS = [ nil, nil, "vinte", "trinta", "quarenta", "cinquenta", "sessenta",
+                  "setenta", "oitenta", "noventa" ].freeze
+  EXTENSO_HUNDREDS = [ nil, "cento", "duzentos", "trezentos", "quatrocentos", "quinhentos",
+                      "seiscentos", "setecentos", "oitocentos", "novecentos" ].freeze
+
+  # Spells a Brazilian Real amount in full ("um mil, duzentos e trinta e quatro reais e
+  # cinquenta e seis centavos"). Handles reais/centavos, singular/plural, and zero.
+  def self.amount_in_words(value)
+    cents_total = (value.to_d * 100).round.to_i
+    reais = cents_total / 100
+    centavos = cents_total % 100
+
+    parts = []
+    parts << "#{integer_in_words(reais)} #{reais == 1 ? 'real' : 'reais'}" if reais.positive?
+    parts << "#{integer_in_words(centavos)} #{centavos == 1 ? 'centavo' : 'centavos'}" if centavos.positive?
+    return "zero real" if parts.empty?
+
+    parts.join(" e ")
+  end
+
+  # Spells a non-negative integer in Brazilian Portuguese (supports up to millions).
+  def self.integer_in_words(number)
+    return "zero" if number.zero?
+
+    groups = []
+    millions = number / 1_000_000
+    thousands = (number % 1_000_000) / 1000
+    remainder = number % 1000
+
+    if millions.positive?
+      groups << "#{millions == 1 ? 'um milhão' : "#{hundreds_in_words(millions)} milhões"}"
+    end
+    if thousands.positive?
+      groups << "#{thousands == 1 ? 'mil' : "#{hundreds_in_words(thousands)} mil"}"
+    end
+    groups << hundreds_in_words(remainder) if remainder.positive?
+
+    groups.join(" e ")
+  end
+
+  # Spells an integer in the 1–999 range.
+  def self.hundreds_in_words(number)
+    return "cem" if number == 100
+
+    parts = []
+    hundreds = number / 100
+    tens_units = number % 100
+    parts << EXTENSO_HUNDREDS[hundreds] if hundreds.positive?
+
+    if tens_units.positive?
+      if tens_units < 20
+        parts << EXTENSO_UNITS[tens_units]
+      else
+        tens = tens_units / 10
+        units = tens_units % 10
+        parts << (units.positive? ? "#{EXTENSO_TENS[tens]} e #{EXTENSO_UNITS[units]}" : EXTENSO_TENS[tens])
+      end
+    end
+
+    parts.join(" e ")
   end
 
   # Build the provider cost-sheet workbook (one "Planilha de custos" sheet) and

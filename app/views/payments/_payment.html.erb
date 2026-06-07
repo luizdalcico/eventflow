@@ -1,0 +1,17 @@
+<%# A registered payment (table row). Locals: event, payment. %>
+<tr id="<%= dom_id(payment) %>" class="hover:bg-gray-50 align-top">
+  <td class="px-4 py-3 font-semibold text-gray-900"><%= payment.payer_name %></td>
+  <td class="px-4 py-3 font-semibold text-gray-900 whitespace-nowrap"><%= format_brl(payment.amount) %></td>
+  <td class="px-4 py-3 text-gray-600"><%= payment.reference.presence || "—" %></td>
+  <td class="px-4 py-3 whitespace-nowrap">
+    <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"><%= translate_payment_method(payment.payment_method) %></span>
+  </td>
+  <td class="px-4 py-3 text-gray-600 whitespace-nowrap"><%= payment.paid_on.strftime("%d/%m/%Y") %></td>
+  <td class="px-4 py-3 whitespace-nowrap text-right">
+    <%= link_to "Recibo PDF", receipt_event_payment_path(event, payment, format: :pdf),
+          class: "text-sm text-blue-600 hover:text-blue-800 font-medium mr-3" %>
+    <%= link_to "×", [event, payment], title: "Remover pagamento",
+          data: { turbo_method: :delete, turbo_confirm: "Remover este pagamento?", confirm_label: "Remover" },
+          class: "text-gray-400 hover:text-red-600 text-lg leading-none px-1" %>
+  </td>
+</tr>
