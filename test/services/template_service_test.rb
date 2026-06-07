@@ -61,6 +61,27 @@ class TemplateServiceTest < ActiveSupport::TestCase
     assert_equal "—", TemplateService.send(:format_cpf, nil)
   end
 
+  test "receptionists_text spells out the count like the contract template" do
+    @event.contract_receptionists_count = 3
+    assert_equal "03 (TRÊS) RECEPCIONISTAS", TemplateService.send(:receptionists_text, @event)
+
+    @event.contract_receptionists_count = 1
+    assert_equal "01 (UM) RECEPCIONISTA", TemplateService.send(:receptionists_text, @event)
+
+    @event.contract_receptionists_count = nil
+    assert_equal "_____ RECEPCIONISTAS", TemplateService.send(:receptionists_text, @event)
+  end
+
+  test "format_hours drops trailing zero and uses comma" do
+    assert_equal "6", TemplateService.send(:format_hours, 6)
+    assert_equal "6,5", TemplateService.send(:format_hours, 6.5)
+  end
+
+  test "company identity falls back to the contract defaults" do
+    assert_equal "ANAILDE COELHO EVENTOS", TemplateService.send(:company_name)
+    assert_equal "16.666.264/0001-19", TemplateService.send(:company_cnpj)
+  end
+
   test "generates a non-empty pdf report" do
     bytes = TemplateService.generate_event_report(@event, :pdf)
     assert bytes.bytesize.positive?

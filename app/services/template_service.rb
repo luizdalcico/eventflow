@@ -219,100 +219,185 @@ class TemplateService
     end.render
   end
 
-  # Penalty applied over the total value on contract termination.
+  # Termination penalty owed by the CONTRATANTE (clause 7ª).
   TERMINATION_PENALTY_RATE = 0.30
+  # Default reception hours included before extra hours kick in (clause 3ª, II).
+  DEFAULT_RECEPTION_HOURS = 6
 
+  # CONTRATADA (service provider) identity printed on the contract header.
   def self.company_name
-    ENV["RSVP_COMPANY_NAME"].presence || "Cerimonial.app"
+    ENV["CONTRACT_COMPANY_NAME"].presence || "ANAILDE COELHO EVENTOS"
   end
 
+  def self.company_cnpj
+    ENV["CONTRACT_COMPANY_CNPJ"].presence || "16.666.264/0001-19"
+  end
+
+  def self.company_address
+    ENV["CONTRACT_COMPANY_ADDRESS"].presence || "Rua Euzébio de Sousa, 379, Fortaleza/CE"
+  end
+
+  def self.forum_city
+    ENV["CONTRACT_FORUM_CITY"].presence || "Fortaleza, Estado do Ceará"
+  end
+
+  # Renders the service contract following the company's clause template,
+  # merging the event + contratante (event_owner) data.
   def self.generate_contract_pdf(event)
     contratante = event.event_owners.first
+    reception_hours = event.extra_hours.present? ? DEFAULT_RECEPTION_HOURS + event.extra_hours : DEFAULT_RECEPTION_HOURS
 
     Prawn::Document.new do |pdf|
-      # Company header
-      pdf.font_size 18
-      pdf.text company_name, align: :center, style: :bold
-      pdf.move_down 4
-      pdf.font_size 13
-      pdf.text "Contrato de Prestação de Serviços", align: :center, style: :bold
-      pdf.move_down 20
+      pdf.font_size 12
+      pdf.text "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ESPECIALIZADOS EM COORDENAÇÃO DE EVENTOS",
+               align: :center, style: :bold
+      pdf.move_down 16
 
       pdf.font_size 11
 
-      # Objeto
-      pdf.text "1. DO OBJETO", style: :bold
+      # Preâmbulo (qualificação das partes)
+      preamble = "Por meio deste instrumento particular, de um lado, #{company_name}, " \
+                 "inscrita no CNPJ #{company_cnpj}, estabelecida na #{company_address}, " \
+                 "doravante denominada CONTRATADA, e de outro lado, " \
+                 "#{(contratante&.name.presence || '____________________').upcase}, " \
+                 "CPF #{format_cpf(contratante&.cpf)}, denominada simplesmente CONTRATANTE, " \
+                 "têm justo e acertado celebrar o presente CONTRATO DE PRESTAÇÃO DE SERVIÇOS " \
+                 "ESPECIALIZADOS EM COORDENAÇÃO DE EVENTOS, mediante as cláusulas e condições " \
+                 "mencionadas a seguir, as quais se obrigam mutuamente a cumprir e a fazer cumprir:"
+      pdf.text preamble, align: :justify
+      pdf.move_down 14
+
+      # Do objeto
+      pdf.text "DO OBJETO DO PRESENTE CONTRATO", style: :bold
       pdf.move_down 4
-      objeto = "O presente contrato tem por objeto a prestação de serviços de cerimonial " \
-               "para o evento do tipo #{translate_event_type(event.event_type)}, " \
-               "a ser realizado em #{event.main_date.strftime('%d/%m/%Y')}" \
-               "#{event_time_clause(event)}#{event_place_clause(event)}."
-      pdf.text objeto, align: :justify
-      pdf.move_down 12
+      pdf.text "Cláusula 1ª. O presente contrato tem por objeto a prestação de serviços técnicos " \
+               "especializados, por parte da CONTRATADA para o serviço DE ASSESSORIA, ORGANIZAÇÃO " \
+               "E PLANEJAMENTO DE #{translate_event_type(event.event_type).upcase} a ser celebrado " \
+               "no dia #{event.main_date.strftime('%d/%m/%Y')}#{event_place_clause(event)}, utilizando " \
+               "na execução dos serviços mão de obra especializada/treinada, mediante planejamento, " \
+               "bem como capacitada, a utilizar-se de mecanização e tecnologia, quando for necessário " \
+               "para a boa execução dos serviços;", align: :justify
+      pdf.move_down 8
+      pdf.text "Parágrafo primeiro. O presente contrato é regulado pelos ditames civis previstos nos " \
+               "artigos 593 a 609, do Capítulo VII (DA PRESTAÇÃO DE SERVIÇOS), DO DIREITO DAS " \
+               "OBRIGAÇÕES, do Código Civil Brasileiro.", align: :justify
+      pdf.move_down 14
 
-      # Contratante
-      pdf.text "2. DO CONTRATANTE", style: :bold
+      # Da execução dos serviços
+      pdf.text "DA EXECUÇÃO DOS SERVIÇOS", style: :bold
       pdf.move_down 4
-      pdf.text "Nome: #{contratante&.name.presence || '—'}"
-      pdf.text "CPF: #{format_cpf(contratante&.cpf)}"
-      pdf.move_down 12
+      pdf.text "Cláusula 2ª. Os serviços serão prestados pela CONTRATADA mediante pessoal habilitado " \
+               "em número mínimo de #{receptionists_text(event)} E A CONTRATADA.", align: :justify
+      pdf.move_down 14
 
-      # Obrigações
-      pdf.text "3. DAS OBRIGAÇÕES", style: :bold
+      # Das obrigações da contratada
+      pdf.text "DAS OBRIGAÇÕES DA CONTRATADA", style: :bold
       pdf.move_down 4
-      pdf.text "Nº de recepcionistas: #{event.contract_receptionists_count || '—'}"
-      pdf.text "Horas de recepção (extras): #{event.extra_hours.present? ? format('%g', event.extra_hours) : '0'}"
-      pdf.text "Valor da hora extra: #{format_currency(event.contract_extra_hour_rate)}"
-      pdf.move_down 12
-
-      # Pagamento
-      pdf.text "4. DO PAGAMENTO", style: :bold
+      pdf.text "Cláusula 3ª. A CONTRATADA, além da boa e fiel execução dos serviços contratados se obriga a:",
+               align: :justify
+      pdf.move_down 6
+      pdf.text "I- Planejar, executar, administrar, coordenar todas as ações relativas ao objeto deste " \
+               "instrumento, sempre sob apreciação e respectiva autorização do CONTRATANTE;", align: :justify
       pdf.move_down 4
-      pdf.text "Valor total: #{format_currency(event.contract_total_value)}"
-      pdf.text "Data limite de pagamento: #{event.contract_payment_due_date&.strftime('%d/%m/%Y') || '—'}"
-      pdf.move_down 12
-
-      # Penalidades
-      pdf.text "5. DAS PENALIDADES", style: :bold
+      pdf.text "II- Acompanhar o CONTRATANTE em todo o evento acertado, desde o início do evento até o " \
+               "término do mesmo (CERIMÔNIA + #{format_hours(reception_hours)} HORAS DE RECEPÇÃO). " \
+               "Será cobrada hora extra a partir do horário final definido no contrato#{extra_hour_rate_clause(event)};",
+               align: :justify
       pdf.move_down 4
-      penalty = "Em caso de rescisão por parte do CONTRATANTE, será devida multa de " \
-                "#{(TERMINATION_PENALTY_RATE * 100).to_i}% (trinta por cento) sobre o valor total do contrato" \
-                "#{penalty_amount_clause(event)}."
-      pdf.text penalty, align: :justify
-      pdf.move_down 12
-
-      # Vigência
-      pdf.text "6. DA VIGÊNCIA", style: :bold
+      pdf.text "III- Executar os serviços de acordo com os prazos negociados;", align: :justify
       pdf.move_down 4
-      pdf.text "O presente contrato vigora a partir de sua assinatura até a conclusão dos " \
-               "serviços contratados, referentes à data do evento.", align: :justify
-      pdf.move_down 12
-
-      # Foro
-      pdf.text "7. DO FORO", style: :bold
+      pdf.text "IV- Responsabilizar-se exclusivamente por todas as despesas e obrigações relativas à " \
+               "previdência social e implicações de natureza trabalhista e fiscal de seus empregados;",
+               align: :justify
       pdf.move_down 4
-      pdf.text "Fica eleito o foro da comarca de domicílio do CONTRATANTE para dirimir " \
-               "quaisquer questões oriundas do presente contrato.", align: :justify
-      pdf.move_down 30
+      pdf.text "V- Caso haja o adiamento do evento por motivos de força maior ou pandemia, não haverá " \
+               "cobrança de multa. Neste caso será feito o agendamento de nova data, levando em " \
+               "consideração a disponibilidade da CONTRATADA.", align: :justify
+      pdf.move_down 14
 
-      # Signatures
-      pdf.text "_________________________________", align: :center
-      pdf.text company_name, align: :center
-      pdf.move_down 16
-      pdf.text "_________________________________", align: :center
-      pdf.text "Contratante: #{contratante&.name.presence || ''}", align: :center
+      # Das obrigações do contratante
+      pdf.text "DAS OBRIGAÇÕES DO CONTRATANTE", style: :bold
+      pdf.move_down 4
+      pdf.text "Cláusula 4ª. São obrigações do CONTRATANTE, além das demais previstas ou decorrentes do contrato:",
+               align: :justify
+      pdf.move_down 6
+      pdf.text "I - Fornecer à CONTRATADA todos os subsídios necessários ao desempenho da atividade objeto " \
+               "deste contrato, assim como cumprir integralmente o que fora pactuado;", align: :justify
+      pdf.move_down 4
+      pdf.text "II - Definir com detalhes específicos, por escrito, os compromissos que deseja realizar, sob " \
+               "pena de indefinição e cancelamento do evento, em seu prejuízo, caso seja o responsável;", align: :justify
+      pdf.move_down 4
+      pdf.text "III - Proceder ao pagamento acertado com a CONTRATADA da forma estabelecida neste instrumento;",
+               align: :justify
+      pdf.move_down 4
+      pdf.text "IV - Comunicar a CONTRATADA, POR ESCRITO, COM ANTECEDÊNCIA MÍNIMA DE 60 DIAS, qualquer " \
+               "alteração a ser feita em relação ao evento anteriormente acordado;", align: :justify
+      pdf.move_down 4
+      pdf.text "V - A comunicação da desistência ou a falta em algum dos eventos não desobriga o CONTRATANTE " \
+               "das obrigações já estabelecidas e do que já fora acertado.", align: :justify
+      pdf.move_down 14
 
+      # Dos valores e das condições de pagamento
+      pdf.text "DOS VALORES E DAS CONDIÇÕES DE PAGAMENTO", style: :bold
+      pdf.move_down 4
+      pdf.text "Cláusula 5ª. Pela prestação dos serviços objeto deste contrato, o CONTRATANTE pagará, a " \
+               "título de remuneração, #{payment_due_clause(event)}à CONTRATADA, a importância de " \
+               "#{format_currency(event.contract_total_value)}, valor este definido conforme orçamento " \
+               "anexo a este contrato.", align: :justify
+      pdf.move_down 8
+      pdf.text "Parágrafo primeiro. Os valores acima acertados poderão ser pagos à vista ou parcelados, a " \
+               "contar da data da assinatura deste contrato.", align: :justify
+      pdf.move_down 4
+      pdf.text "Parágrafo segundo. Em caso de pagamento por meio de cheque ou qualquer outro título de " \
+               "crédito, somente será dada quitação após a devida compensação do título dado como pagamento.",
+               align: :justify
+      pdf.move_down 4
+      pdf.text "Parágrafo terceiro. O atraso do pagamento ou seu total inadimplemento implicará na cobrança " \
+               "de multa de 2% (dois por cento) ao mês, de acordo com o parágrafo primeiro, do artigo 52, " \
+               "da Lei nº 8.078/90, acrescidos de juros moratórios, além da correção monetária da " \
+               "importância em mora, sem prejuízo de honorários advocatícios quando a cobrança se proceder " \
+               "judicialmente.", align: :justify
+      pdf.move_down 14
+
+      # Das penalidades
+      pdf.text "DAS PENALIDADES", style: :bold
+      pdf.move_down 4
+      pdf.text "Cláusula 6ª. A CONTRATADA, em caso de desistência durante a vigência do presente contrato, " \
+               "deverá restituir à CONTRATANTE o valor integralmente pago.", align: :justify
+      pdf.move_down 6
+      pdf.text "Cláusula 7ª. O CONTRATANTE, em caso de desistência durante a vigência do presente contrato, " \
+               "em decorrência das despesas administrativas e outros encargos da CONTRATADA, deverá pagar " \
+               "#{(TERMINATION_PENALTY_RATE * 100).to_i}% (trinta por cento) do valor total firmado no " \
+               "contrato#{penalty_amount_clause(event)}.", align: :justify
+      pdf.move_down 14
+
+      # Da vigência do contrato
+      pdf.text "DA VIGÊNCIA DO CONTRATO", style: :bold
+      pdf.move_down 4
+      pdf.text "Cláusula 8ª. O presente contrato é firmado a contar da data de assinatura do mesmo, com termo " \
+               "final no horário previamente definido de acordo com a 3ª cláusula.", align: :justify
+      pdf.move_down 6
+      pdf.text "Cláusula 9ª. Para dirimir quaisquer controvérsias oriundas do presente contrato, as partes " \
+               "elegem o foro da comarca de #{forum_city}.", align: :justify
+      pdf.move_down 14
+
+      pdf.text "E, por estarem justas e contratadas, as partes assinam o presente instrumento em duas (02) " \
+               "vias de igual teor e forma.", align: :justify
+      pdf.move_down 36
+
+      # Assinaturas
+      pdf.text "CONTRATANTE   __________________________________"
+      pdf.move_down 4
+      pdf.text contratante.name.to_s, indent_paragraphs: 30 if contratante&.name.present?
       pdf.move_down 24
-      pdf.font_size 9
-      pdf.text "Gerado por Cerimonial.app em #{Time.current.strftime('%d/%m/%Y às %H:%M')}",
-               align: :center, style: :italic
+      pdf.text "CONTRATADA    __________________________________"
+      pdf.move_down 4
+      pdf.text company_name, indent_paragraphs: 30
+
+      pdf.move_down 30
+      city = forum_city.split(",").first
+      pdf.text "#{city}, #{Date.current.strftime('%d/%m/%Y')}.", align: :center
     end.render
-  end
-
-  def self.event_time_clause(event)
-    return "" unless event.start_time && event.end_time
-
-    ", das #{event.start_time.strftime('%H:%M')} às #{event.end_time.strftime('%H:%M')}"
   end
 
   def self.event_place_clause(event)
@@ -321,11 +406,44 @@ class TemplateService
     ", no local #{event.place}"
   end
 
+  # "03 (TRÊS) RECEPCIONISTAS" — count + spelled-out word from the contract field.
+  def self.receptionists_text(event)
+    count = event.contract_receptionists_count
+    return "_____ RECEPCIONISTAS" if count.blank?
+
+    word = number_in_words(count)
+    "#{format('%02d', count)} (#{word}) RECEPCIONISTA#{'S' if count != 1}"
+  end
+
+  def self.extra_hour_rate_clause(event)
+    return "" if event.contract_extra_hour_rate.blank?
+
+    ", no valor de #{format_currency(event.contract_extra_hour_rate)} por hora"
+  end
+
+  def self.payment_due_clause(event)
+    return "" if event.contract_payment_due_date.blank?
+
+    "até a data de #{event.contract_payment_due_date.strftime('%d/%m/%Y')}, "
+  end
+
   def self.penalty_amount_clause(event)
     return "" if event.contract_total_value.blank?
 
     amount = event.contract_total_value * TERMINATION_PENALTY_RATE
     ", equivalente a #{format_currency(amount)}"
+  end
+
+  # Formats reception hours dropping a trailing ".0" (6.0 -> "6", 6.5 -> "6,5").
+  def self.format_hours(value)
+    format("%g", value).tr(".", ",")
+  end
+
+  # Spells out small integers in Portuguese for the receptionists clause.
+  NUMBER_WORDS = %w[zero um dois três quatro cinco seis sete oito nove dez].freeze
+
+  def self.number_in_words(count)
+    NUMBER_WORDS[count]&.upcase || count.to_s
   end
 
   # Formats a decimal as Brazilian Real: R$ 1.234,56.
