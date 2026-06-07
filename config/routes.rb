@@ -19,7 +19,11 @@ Rails.application.routes.draw do
         get :lookup
       end
     end
-    resources :event_dates, path: "dates"
+    resources :event_dates, path: "dates" do
+      collection do
+        post :apply_template
+      end
+    end
     resources :guests, only: [ :index, :create, :update, :destroy ] do
       collection do
         post :import

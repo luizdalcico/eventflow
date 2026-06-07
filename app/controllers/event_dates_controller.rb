@@ -43,6 +43,21 @@ class EventDatesController < ApplicationController
     end
   end
 
+  # Semeia a lista com o template de datas do tipo de evento e re-renderiza.
+  def apply_template
+    DateTemplate.apply(@event)
+    @event_dates = @event.event_dates.order(:date)
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.remove("event_dates_empty"),
+          turbo_stream.replace("event_dates", partial: "event_dates/list", locals: { event: @event, event_dates: @event_dates })
+        ]
+      end
+      format.html { redirect_to event_event_dates_path(@event) }
+    end
+  end
+
   private
 
   def set_event

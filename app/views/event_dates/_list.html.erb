@@ -1,0 +1,4 @@
+<%# Container das datas do evento. Locals: event, event_dates. %>
+<div id="event_dates" class="space-y-2">
+  <%= render partial: "event_dates/event_date", collection: event_dates, as: :event_date, locals: { event: event } %>
+</div>
