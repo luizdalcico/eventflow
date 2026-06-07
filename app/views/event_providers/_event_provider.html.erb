@@ -23,12 +23,17 @@
           class: "border border-gray-300 rounded-lg px-2 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
   </td>
   <td class="px-4 py-3">
-    <%= number_field_tag "event_provider[professionals_count]", event_provider.professionals_count, min: 0,
+    <%= number_field_tag "event_provider[professionals_count]", event_provider.professionals_count, min: 0, placeholder: "—",
           form: form_id, data: { action: "input->autosave#save" },
           class: "w-20 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
   </td>
   <td class="px-4 py-3">
     <%= text_field_tag "event_provider[value]", event_provider.value.present? ? format_brl(event_provider.value) : nil, placeholder: "R$ 0,00",
+          form: form_id, data: { action: "input->autosave#save" },
+          class: "w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+  </td>
+  <td class="px-4 py-3">
+    <%= text_field_tag "event_provider[paid_value]", event_provider.paid_value.present? ? format_brl(event_provider.paid_value) : nil, placeholder: "R$ 0,00",
           form: form_id, data: { action: "input->autosave#save" },
           class: "w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
   </td>

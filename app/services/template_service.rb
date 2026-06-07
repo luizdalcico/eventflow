@@ -166,7 +166,7 @@ class TemplateService
         pdf.move_down 10
 
         pdf.font_size 10
-        providers_data = [ [ "Tipo", "Fornecedor", "Contato", "Status", "Profissionais", "Valor" ] ]
+        providers_data = [ [ "Tipo", "Fornecedor", "Contato", "Status", "Profissionais", "Valor", "Valor pago" ] ]
         event_providers.each do |ep|
           provider = ep.provider
           providers_data << [
@@ -175,13 +175,15 @@ class TemplateService
             provider.contact_name,
             translate_provider_status(ep.status),
             ep.professionals_count.to_s,
-            format_brl(ep.value)
+            format_brl(ep.value),
+            format_brl(ep.paid_value)
           ]
         end
         providers_data << [
           "Totais", "", "", "",
           event.providers_total_professionals.to_s,
-          format_brl(event.providers_total_cost)
+          format_brl(event.providers_total_cost),
+          format_brl(event.providers_paid_total)
         ]
 
         pdf.table(providers_data, header: true, width: pdf.bounds.width) do
@@ -607,7 +609,7 @@ class TemplateService
       money = sheet.styles.add_style(format_code: '"R$" #,##0.00')
       total = sheet.styles.add_style(b: true)
 
-      sheet.add_row [ "Tipo", "Fornecedor", "Contato", "Telefone", "Status", "Profissionais", "Valor", "Observações" ], style: header
+      sheet.add_row [ "Tipo", "Fornecedor", "Contato", "Telefone", "Status", "Profissionais", "Valor", "Valor pago", "Observações" ], style: header
 
       event.event_providers.includes(:provider).each do |ep|
         provider = ep.provider
@@ -619,18 +621,19 @@ class TemplateService
           translate_provider_status(ep.status),
           ep.professionals_count,
           ep.value,
+          ep.paid_value,
           ep.custom_detail(:notes)
-        ], style: [ nil, nil, nil, nil, nil, nil, money, nil ]
+        ], style: [ nil, nil, nil, nil, nil, nil, money, money, nil ]
       end
 
       sheet.add_row [
         "Totais", "", "", "", "",
         event.providers_total_professionals,
         event.providers_total_cost,
+        event.providers_paid_total,
         ""
-      ], style: [ total, nil, nil, nil, nil, total, money, nil ]
-      sheet.add_row [ "Total pago", "", "", "", "", "", event.providers_paid_total, "" ], style: [ total, nil, nil, nil, nil, nil, money, nil ]
-      sheet.add_row [ "Saldo a pagar", "", "", "", "", "", event.providers_balance, "" ], style: [ total, nil, nil, nil, nil, nil, money, nil ]
+      ], style: [ total, nil, nil, nil, nil, total, money, money, nil ]
+      sheet.add_row [ "Saldo a pagar", "", "", "", "", "", "", event.providers_balance, "" ], style: [ total, nil, nil, nil, nil, nil, nil, money, nil ]
     end
 
     package.to_stream.read

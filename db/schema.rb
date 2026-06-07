@@ -50,7 +50,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_07_180001) do
     t.datetime "updated_at", null: false
     t.decimal "value", precision: 12, scale: 2
     t.string "status", default: "pendente", null: false
-    t.integer "professionals_count", default: 1, null: false
+    t.integer "professionals_count"
+    t.decimal "paid_value", precision: 12, scale: 2
     t.index ["event_id", "provider_id"], name: "index_event_providers_on_event_id_and_provider_id", unique: true
     t.index ["event_id"], name: "index_event_providers_on_event_id"
     t.index ["provider_id"], name: "index_event_providers_on_provider_id"

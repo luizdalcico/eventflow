@@ -189,18 +189,19 @@ class EventTest < ActiveSupport::TestCase
     assert_equal [ "CPF do contratante" ], event.reload.missing_contract_fields
   end
 
-  test "provider totals aggregate cost, professionals, paid and balance" do
+  test "provider totals aggregate cost, professionals, paid and balance with partial payments" do
     event = events(:future_event)
-    contracted = Provider.create!(provider_type: "buffet", name: "Buffet A", document: "11111111000111", contact_name: "Ana", phone_number: "11999990000")
-    paid = Provider.create!(provider_type: "cake", name: "Bolo B", document: "22222222000122", contact_name: "Bia", phone_number: "11999991111")
+    partial = Provider.create!(provider_type: "buffet", name: "Buffet A", document: "11111111000111", contact_name: "Ana", phone_number: "11999990000")
+    settled = Provider.create!(provider_type: "cake", name: "Bolo B", document: "22222222000122", contact_name: "Bia", phone_number: "11999991111")
 
-    event.event_providers.create!(provider: contracted, value: 1000, status: "contratado", professionals_count: 2)
-    event.event_providers.create!(provider: paid, value: 500, status: "pago", professionals_count: 3)
+    # Buffet billed 1000, half paid; cake billed 500, fully paid. Buffet is a team → no headcount.
+    event.event_providers.create!(provider: partial, value: 1000, paid_value: 400, status: "contratado", professionals_count: nil)
+    event.event_providers.create!(provider: settled, value: 500, paid_value: 500, status: "pago", professionals_count: 3)
 
     assert_equal BigDecimal("1500"), event.providers_total_cost
-    assert_equal 5, event.providers_total_professionals
-    assert_equal BigDecimal("500"), event.providers_paid_total
-    assert_equal BigDecimal("1000"), event.providers_balance
+    assert_equal 3, event.providers_total_professionals
+    assert_equal BigDecimal("900"), event.providers_paid_total
+    assert_equal BigDecimal("600"), event.providers_balance
   end
 
   test "provider totals are zero when there are no providers" do

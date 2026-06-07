@@ -119,9 +119,9 @@ class Event < ApplicationRecord
     event_providers.sum(:professionals_count)
   end
 
-  # Total already settled (providers marked "pago").
+  # Total already settled, summing each provider's paid amount (supports partial payments).
   def providers_paid_total
-    event_providers.where(status: "pago").sum(:value)
+    event_providers.sum(:paid_value)
   end
 
   # Outstanding balance still owed (total cost minus what is already paid).

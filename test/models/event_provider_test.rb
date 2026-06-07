@@ -20,7 +20,8 @@ class EventProviderTest < ActiveSupport::TestCase
     ep = build_event_provider
     assert ep.valid?
     assert_equal "pendente", ep.status
-    assert_equal 1, ep.professionals_count
+    assert_nil ep.professionals_count
+    assert_nil ep.paid_value
   end
 
   test "accepts every defined status" do
@@ -40,6 +41,10 @@ class EventProviderTest < ActiveSupport::TestCase
     assert_not ep.valid?
   end
 
+  test "allows a blank professionals_count (e.g. a buffet team)" do
+    assert build_event_provider(professionals_count: nil).valid?
+  end
+
   test "rejects a negative value" do
     ep = build_event_provider(value: -10)
     assert_not ep.valid?
@@ -47,6 +52,15 @@ class EventProviderTest < ActiveSupport::TestCase
 
   test "allows a nil value" do
     assert build_event_provider(value: nil).valid?
+  end
+
+  test "rejects a negative paid_value" do
+    ep = build_event_provider(paid_value: -10)
+    assert_not ep.valid?
+  end
+
+  test "allows a nil paid_value" do
+    assert build_event_provider(paid_value: nil).valid?
   end
 
   test "round-trips notes through custom_details" do

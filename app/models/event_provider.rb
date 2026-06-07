@@ -7,8 +7,9 @@ class EventProvider < ApplicationRecord
 
   validates :event_id, uniqueness: { scope: :provider_id }
   validates :status, inclusion: { in: STATUSES }
-  validates :professionals_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :professionals_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
   validates :value, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :paid_value, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
   def custom_detail(key)
     custom_details&.dig(key.to_s)

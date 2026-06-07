@@ -88,16 +88,18 @@ class EventProvidersController < ApplicationController
   end
 
   def detail_params
-    params.require(:event_provider).permit(:value, :status, :professionals_count, :notes)
+    params.require(:event_provider).permit(:value, :paid_value, :status, :professionals_count, :notes)
   end
 
   # Build the real-column attributes present in this request, parsing the
-  # BRL-formatted value field into a decimal. Keys absent from the form are skipped.
+  # BRL-formatted money fields into decimals. Keys absent from the form are skipped.
   def column_detail_attributes
     attrs = {}
     attrs[:value] = EventProvider.parse_brl(detail_params[:value]) if detail_params.key?(:value)
+    attrs[:paid_value] = EventProvider.parse_brl(detail_params[:paid_value]) if detail_params.key?(:paid_value)
     attrs[:status] = detail_params[:status] if detail_params.key?(:status)
-    attrs[:professionals_count] = detail_params[:professionals_count] if detail_params.key?(:professionals_count)
+    # Blank professionals count means "not applicable" (e.g. a buffet team) → store nil.
+    attrs[:professionals_count] = detail_params[:professionals_count].presence if detail_params.key?(:professionals_count)
     attrs
   end
 end
