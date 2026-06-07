@@ -8,6 +8,27 @@
   <% end %>
 </div>
 
+<%# Filtros: busca por nome/responsável + período %>
+<%= form_with url: events_path, method: :get, class: "flex flex-col sm:flex-row gap-3 mb-6" do %>
+  <div class="relative flex-1">
+    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">🔍</span>
+    <%= text_field_tag :q, @query,
+          placeholder: "Buscar por evento ou responsável",
+          class: "w-full rounded-lg border border-gray-300 pl-9 pr-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500" %>
+  </div>
+  <%= select_tag :period,
+        options_for_select(event_date_filter_options, @period),
+        class: "rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500" %>
+  <div class="flex gap-2">
+    <%= submit_tag "Filtrar",
+          class: "bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm cursor-pointer" %>
+    <% if @filters_active %>
+      <%= link_to "Limpar", events_path,
+            class: "inline-flex items-center text-gray-600 hover:text-gray-900 text-sm px-2" %>
+    <% end %>
+  </div>
+<% end %>
+
 <%# Resumo compacto %>
 <% total = @upcoming_events.size + @past_events.size %>
 <div class="grid grid-cols-3 gap-3 mb-8">
@@ -25,7 +46,13 @@
   </div>
 </div>
 
-<% if total.zero? %>
+<% if total.zero? && @filters_active %>
+  <div class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-16 px-4">
+    <div class="text-gray-500 text-lg mb-4">Nenhum evento encontrado para os filtros</div>
+    <%= link_to "Limpar filtros", events_path,
+          class: "inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg" %>
+  </div>
+<% elsif total.zero? %>
   <div class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-16 px-4">
     <div class="text-gray-500 text-lg mb-4">Nenhum evento cadastrado ainda</div>
     <%= link_to "Criar primeiro evento", new_event_path,

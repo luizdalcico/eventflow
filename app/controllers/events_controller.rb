@@ -2,8 +2,13 @@ class EventsController < ApplicationController
   before_action :set_event, only: [ :show, :edit, :update, :destroy, :contract ]
 
   def index
-    @upcoming_events = Event.includes(:event_owners).upcoming.order(:main_date)
-    @past_events = Event.includes(:event_owners).past.order(main_date: :desc)
+    @query = params[:q]
+    @period = params[:period]
+
+    base = Event.includes(:event_owners).search(@query).in_date_range(@period)
+    @upcoming_events = base.upcoming.order(:main_date)
+    @past_events = base.past.order(main_date: :desc)
+    @filters_active = @query.present? || @period.present?
   end
 
   def show

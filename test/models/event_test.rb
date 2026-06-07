@@ -167,4 +167,91 @@ class EventTest < ActiveSupport::TestCase
     assert_equal 0, event.providers_total_professionals
     assert_equal 0, event.providers_balance
   end
+
+  test "search matches the event title case-insensitively" do
+    match = Event.create!(title: "Festa Junina XYZ", event_type: "corporate_event", main_date: Date.current + 1.month, estimated_guests: 10)
+    other = Event.create!(title: "Outro Evento", event_type: "corporate_event", main_date: Date.current + 1.month, estimated_guests: 10)
+
+    results = Event.search("festa junina")
+    assert_includes results, match
+    assert_not_includes results, other
+  end
+
+  test "search matches an owner name" do
+    match = Event.create!(title: "Sem Nome Buscavel", event_type: "wedding", main_date: Date.current + 1.month, estimated_guests: 10)
+    match.event_owners.create!(name: "Mariana Responsável", phone_number: "11999990000", email: "mariana@example.com")
+    other = Event.create!(title: "Outro Sem Match", event_type: "wedding", main_date: Date.current + 1.month, estimated_guests: 10)
+
+    results = Event.search("mariana")
+    assert_includes results, match
+    assert_not_includes results, other
+  end
+
+  test "search returns each event once even when multiple owners match" do
+    event = Event.create!(title: "Casamento Dois Donos", event_type: "wedding", main_date: Date.current + 1.month, estimated_guests: 10)
+    event.event_owners.create!(name: "Carlos Silva", phone_number: "11999990001", email: "carlos@example.com")
+    event.event_owners.create!(name: "Carla Silva", phone_number: "11999990002", email: "carla@example.com")
+
+    results = Event.search("silva")
+    assert_equal 1, results.where(id: event.id).count
+    assert_equal 1, results.to_a.count { |e| e.id == event.id }
+  end
+
+  test "search is a no-op when the query is blank" do
+    assert_equal Event.count, Event.search("").count
+    assert_equal Event.count, Event.search(nil).count
+  end
+
+  test "in_date_range this_week keeps only events within the current week" do
+    inside = Event.create!(title: "Dentro Semana", event_type: "corporate_event", main_date: Date.current, estimated_guests: 10)
+    outside = Event.create!(title: "Fora Semana", event_type: "corporate_event", main_date: Date.current.end_of_week + 1.day, estimated_guests: 10)
+
+    results = Event.in_date_range("this_week")
+    assert_includes results, inside
+    assert_not_includes results, outside
+  end
+
+  test "in_date_range this_month keeps only events within the current month" do
+    inside = Event.create!(title: "Dentro Mês", event_type: "corporate_event", main_date: Date.current.beginning_of_month, estimated_guests: 10)
+    outside = Event.create!(title: "Fora Mês", event_type: "corporate_event", main_date: Date.current.next_month.beginning_of_month, estimated_guests: 10)
+
+    results = Event.in_date_range("this_month")
+    assert_includes results, inside
+    assert_not_includes results, outside
+  end
+
+  test "in_date_range next_month keeps only events within the next month" do
+    inside = Event.create!(title: "Dentro Próx Mês", event_type: "corporate_event", main_date: Date.current.next_month.beginning_of_month, estimated_guests: 10)
+    outside = Event.create!(title: "Fora Próx Mês", event_type: "corporate_event", main_date: Date.current.beginning_of_month, estimated_guests: 10)
+
+    results = Event.in_date_range("next_month")
+    assert_includes results, inside
+    assert_not_includes results, outside
+  end
+
+  test "in_date_range this_year keeps only events within the current year" do
+    inside = Event.create!(title: "Dentro Ano", event_type: "corporate_event", main_date: Date.current.beginning_of_year, estimated_guests: 10)
+    outside = Event.create!(title: "Fora Ano", event_type: "corporate_event", main_date: Date.current.next_year.beginning_of_year, estimated_guests: 10)
+
+    results = Event.in_date_range("this_year")
+    assert_includes results, inside
+    assert_not_includes results, outside
+  end
+
+  test "in_date_range is a no-op for blank or unknown periods" do
+    assert_equal Event.count, Event.in_date_range("").count
+    assert_equal Event.count, Event.in_date_range(nil).count
+    assert_equal Event.count, Event.in_date_range("garbage").count
+  end
+
+  test "search and in_date_range compose" do
+    match = Event.create!(title: "Festa Composta ABC", event_type: "corporate_event", main_date: Date.current.beginning_of_month, estimated_guests: 10)
+    wrong_date = Event.create!(title: "Festa Composta ABC", event_type: "corporate_event", main_date: Date.current.next_month.beginning_of_month, estimated_guests: 10)
+    wrong_name = Event.create!(title: "Festa Diferente", event_type: "corporate_event", main_date: Date.current.beginning_of_month, estimated_guests: 10)
+
+    results = Event.search("composta abc").in_date_range("this_month")
+    assert_includes results, match
+    assert_not_includes results, wrong_date
+    assert_not_includes results, wrong_name
+  end
 end

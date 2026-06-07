@@ -1,6 +1,9 @@
 class Event < ApplicationRecord
   EVENT_TYPES = %w[wedding quinze_anos formatura bodas adult_birthday children_birthday corporate_event].freeze
 
+  # Whitelisted keys for the home date filter. Order mirrors the UI options.
+  DATE_FILTERS = %w[this_week this_month next_month this_year].freeze
+
   has_many :event_owners, dependent: :destroy
   has_many :event_dates, dependent: :destroy
   has_many :guests, dependent: :destroy
@@ -29,6 +32,39 @@ class Event < ApplicationRecord
   scope :by_type, ->(type) { where(event_type: type) }
   scope :upcoming, -> { where("main_date >= ?", Date.current) }
   scope :past, -> { where("main_date < ?", Date.current) }
+
+  # Case-insensitive match on the event title or any owner's name.
+  # Blank query is a no-op so the scope composes cleanly.
+  scope :search, ->(query) {
+    next all if query.blank?
+
+    pattern = "%#{sanitize_sql_like(query.strip)}%"
+    left_outer_joins(:event_owners)
+      .where("events.title ILIKE :p OR event_owners.name ILIKE :p", p: pattern)
+      .distinct
+  }
+
+  # Restrict to events whose main_date falls in the given named period.
+  # Unknown or blank periods are a no-op (return everything).
+  scope :in_date_range, ->(period) {
+    range = date_filter_range(period)
+    range ? where(main_date: range) : all
+  }
+
+  # Maps a whitelisted DATE_FILTERS key to a concrete date range, or nil.
+  def self.date_filter_range(period)
+    return nil unless DATE_FILTERS.include?(period.to_s)
+
+    today = Date.current
+    case period.to_s
+    when "this_week"  then today.beginning_of_week..today.end_of_week
+    when "this_month" then today.beginning_of_month..today.end_of_month
+    when "next_month"
+      next_month = today.next_month
+      next_month.beginning_of_month..next_month.end_of_month
+    when "this_year"  then today.beginning_of_year..today.end_of_year
+    end
+  end
 
   def wedding?
     event_type == "wedding"

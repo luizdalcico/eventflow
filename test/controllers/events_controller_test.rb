@@ -77,6 +77,55 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 5, event.contract_receptionists_count
   end
 
+  test "index without filters lists every event" do
+    a = Event.create!(title: "Evento Index A", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
+    b = Event.create!(title: "Evento Index B", event_type: "wedding", main_date: 2.months.ago.to_date, estimated_guests: 50)
+
+    get events_url
+
+    assert_response :success
+    assert_select "body", text: /#{a.title}/
+    assert_select "body", text: /#{b.title}/
+  end
+
+  test "index filters by search query across title and owner name" do
+    by_title = Event.create!(title: "Casório Tabajara", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
+    by_owner = Event.create!(title: "Evento Genérico", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
+    by_owner.event_owners.create!(name: "Tabajara Souza", phone_number: "11999990000", email: "tab@example.com")
+    miss = Event.create!(title: "Nada A Ver", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
+
+    get events_url, params: { q: "tabajara" }
+
+    assert_response :success
+    assert_select "body", text: /#{by_title.title}/
+    assert_select "body", text: /#{by_owner.title}/
+    assert_select "body", { text: /#{miss.title}/, count: 0 }
+  end
+
+  test "index filters by date period" do
+    this_month = Event.create!(title: "Deste Mês Filtro", event_type: "wedding", main_date: Date.current.beginning_of_month, estimated_guests: 50)
+    next_month = Event.create!(title: "Próximo Mês Filtro", event_type: "wedding", main_date: Date.current.next_month.beginning_of_month, estimated_guests: 50)
+
+    get events_url, params: { period: "this_month" }
+
+    assert_response :success
+    assert_select "body", text: /#{this_month.title}/
+    assert_select "body", { text: /#{next_month.title}/, count: 0 }
+  end
+
+  test "index composes search and date filters" do
+    match = Event.create!(title: "Combo Match", event_type: "wedding", main_date: Date.current.beginning_of_month, estimated_guests: 50)
+    wrong_date = Event.create!(title: "Combo Match", event_type: "wedding", main_date: Date.current.next_month.beginning_of_month, estimated_guests: 50)
+
+    get events_url, params: { q: "combo match", period: "this_month" }
+
+    assert_response :success
+    assert_select "body", text: /#{match.title}/
+    # Same title, out of the date range — must be excluded.
+    assert_equal 1, response.body.scan("Combo Match").size
+    assert_not_nil wrong_date
+  end
+
   test "update persists contract fields" do
     event = Event.create!(title: "Editar", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 60)
 
