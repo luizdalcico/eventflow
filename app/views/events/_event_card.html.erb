@@ -25,7 +25,7 @@
 
   <%# relative z-10 keeps these action links above the stretched title overlay. %>
   <div class="relative z-10 mt-4 flex items-center gap-4 text-sm border-t border-gray-100 pt-3">
-    <%= link_to "Ver", event, class: "font-medium text-blue-600 hover:text-blue-800" %>
+    <%= link_to "Gerenciar", event, class: "font-medium text-blue-600 hover:text-blue-800" %>
     <%= link_to "Editar", edit_event_path(event), class: "text-gray-600 hover:text-gray-900" %>
     <%= link_to "Excluir", event,
           data: { turbo_method: :delete, turbo_confirm: "Excluir este evento? Esta ação não pode ser desfeita.", confirm_label: "Excluir" },
