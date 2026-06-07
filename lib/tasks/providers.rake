@@ -159,7 +159,199 @@ namespace :providers do
       [ "invitations", "Amo Convites", "Amo Convites", placeholder_phone ],
       [ "invitations", "Fazendo Arte", "Fazendo Arte", placeholder_phone ],
       [ "invitations", "Studio Grão", "Studio Grão", placeholder_phone ],
-      [ "invitations", "Roccia Atelie", "Roccia Atelie", placeholder_phone ]
+      [ "invitations", "Roccia Atelie", "Roccia Atelie", placeholder_phone ],
+
+      # === Second batch — extracted from "CASAMENTOS 2025" event files ===
+
+      # --- photographers (FOTO) ---
+      [ "photographer", "Junior Alves", "Junior Alves", placeholder_phone ],
+      [ "photographer", "Roberio Castro", "Roberio Castro", placeholder_phone ],
+      [ "photographer", "Foto Metrar", "Foto Metrar", placeholder_phone ],
+      [ "photographer", "Tiago Guedes", "Tiago Guedes", placeholder_phone ],
+      [ "photographer", "Fabio Meireles", "Fabio Meireles", placeholder_phone ],
+      [ "photographer", "Beco da Imagem", "Beco da Imagem", placeholder_phone ],
+      [ "photographer", "David Marques", "David Marques", placeholder_phone ],
+      [ "photographer", "Rodrigo e Duda", "Rodrigo e Duda", "991512445" ],
+      [ "photographer", "Lucas Spidler", "Lucas Spidler", placeholder_phone ],
+      [ "photographer", "Depois do Click", "Depois do Click", "99981-6767" ],
+      [ "photographer", "Sara Feiosa", "Sara Feiosa", placeholder_phone ],
+      [ "photographer", "Cleonice e Giovana", "Cleonice e Giovana", placeholder_phone ],
+      [ "photographer", "Clécio Albuquerque", "Clécio Albuquerque", placeholder_phone ],
+      [ "photographer", "David", "David", placeholder_phone ],
+      [ "photographer", "Studio MWillians", "Studio MWillians", placeholder_phone ],
+      [ "photographer", "Eduardo", "Eduardo", placeholder_phone ],
+      [ "photographer", "Kreatos", "Kreatos", placeholder_phone ],
+      [ "photographer", "Reflab", "Reflab", placeholder_phone ],
+
+      # --- filming (FILMAGEM / VÍDEO) ---
+      [ "filming", "Simão Amora", "Simão Amora", placeholder_phone ],
+      [ "filming", "Italo Rodrigues", "Italo Rodrigues", placeholder_phone ],
+      [ "filming", "Jardim Filmes", "Jardim Filmes", "997685186" ],
+      [ "filming", "Victor Rocha", "Victor Rocha", "99775.3796" ],
+      [ "filming", "Alisson dos Santos", "Alisson dos Santos", "986524405" ],
+      [ "filming", "Cartier Films", "Cartier Films", placeholder_phone ],
+      [ "filming", "DN Filmes", "Danilo Sousa", placeholder_phone ],
+      [ "filming", "Samuel Souza", "Samuel Souza", placeholder_phone ],
+      [ "filming", "Disraele", "Disraele", placeholder_phone ],
+      [ "filming", "Ville Video", "Ville Video", placeholder_phone ],
+
+      # --- decoration (DECORAÇÃO) ---
+      [ "decoration", "Wilfrid Decorações", "Wilfrid", placeholder_phone ],
+      [ "decoration", "Jacqueline Kato", "Jacqueline Kato", placeholder_phone ],
+      [ "decoration", "Leandro", "Leandro", placeholder_phone ],
+      [ "decoration", "Mundo da Lua Decorações", "Mundo da Lua Decorações", placeholder_phone ],
+      [ "decoration", "Rochele", "Rochele", "997881881" ],
+      [ "decoration", "Adelaide", "Adelaide", placeholder_phone ],
+      [ "decoration", "Maria Clara", "Maria Clara", placeholder_phone ],
+      [ "decoration", "Gabriel Camara", "Gabriel Camara", placeholder_phone ],
+      [ "decoration", "Patricia Lopes", "Patricia Lopes", "85988556596" ],
+      [ "decoration", "Nascimento Junior", "Nascimento Junior", placeholder_phone ],
+      [ "decoration", "Regina", "Regina", placeholder_phone ],
+      [ "decoration", "Branca Mourão", "Branca Mourão", placeholder_phone ],
+      [ "decoration", "Roberta Freire", "Roberta Freire", placeholder_phone ],
+      [ "decoration", "Kaio Wendel", "Kaio Wendel", "989450176" ],
+      [ "decoration", "Isabela Mindelo", "Isabela Mindelo", placeholder_phone ],
+      [ "decoration", "Breno", "Breno", placeholder_phone ],
+      [ "decoration", "Paulo Folhagem", "Paulo Folhagem", placeholder_phone ],
+
+      # --- music (MÚSICA / DJ / BANDA) ---
+      [ "music_band", "Nayra Monte", "Nayra Monte", placeholder_phone ],
+      [ "music_band", "Karla Tomé", "Karla Tomé", placeholder_phone ],
+      [ "music_band", "Daniel Barros", "Daniel Barros", placeholder_phone ],
+      [ "music_band", "Mazé e Zelia Santhi", "Mazé e Zelia Santhi", placeholder_phone ],
+      [ "music_band", "Laio Cosmo", "Laio Cosmo", "985783464" ],
+      [ "music_band", "Elane Araújo", "Elane Araújo", placeholder_phone ],
+      [ "music_band", "Balanço Social", "Balanço Social", placeholder_phone ],
+      [ "music_band", "Cecilia Yohanna", "Cecilia Yohanna", placeholder_phone ],
+      [ "music_band", "DJ Marciano", "DJ Marciano", placeholder_phone ],
+      [ "music_band", "Juliana Barreto", "Juliana Barreto", placeholder_phone ],
+      [ "music_band", "Juliana Oliveira e Banda", "Juliana Oliveira", placeholder_phone ],
+      [ "music_band", "Levizim", "Levizim", placeholder_phone ],
+      [ "music_band", "Bia Melandes", "Bia Melandes", placeholder_phone ],
+      [ "music_band", "Vivian Fernandes", "Vivian Fernandes", placeholder_phone ],
+      [ "music_band", "Bella Vox", "Bella Vox", placeholder_phone ],
+      [ "music_band", "Sandrinha", "Sandrinha", placeholder_phone ],
+      [ "music_band", "Nagib e Coral", "Nagib", placeholder_phone ],
+      [ "music_band", "Davi Cartaxo", "Davi Cartaxo", placeholder_phone ],
+      [ "music_band", "Mix Brasil", "Mix Brasil", placeholder_phone ],
+      [ "music_band", "Banda Versare", "Banda Versare", placeholder_phone ],
+      [ "music_band", "Iza Façanha", "Iza Façanha", placeholder_phone ],
+      [ "music_band", "Giovanni Barruti", "Giovanni Barruti", "991392294" ],
+      [ "music_band", "DJ Davi Fernandes", "DJ Davi Fernandes", placeholder_phone ],
+      [ "music_band", "Forró Mix", "Forró Mix", placeholder_phone ],
+      [ "music_band", "Celebratrio", "Celebratrio", placeholder_phone ],
+      [ "music_band", "Luan Melo e Banda", "Luan Melo", placeholder_phone ],
+      [ "music_band", "DJ Pedro Barbosa", "DJ Pedro Barbosa", placeholder_phone ],
+      [ "music_band", "Gilmario", "Gilmario", placeholder_phone ],
+      [ "music_band", "Rondinele", "Rondinele", placeholder_phone ],
+
+      # --- light & structure (ILUMI & ESTRUT / GERADOR) ---
+      [ "light", "DB Geradores", "DB Geradores", "99507897" ],
+      [ "light", "TL Eventos", "TL Eventos", placeholder_phone ],
+      [ "light", "CSI Geradores", "CSI", placeholder_phone ],
+      [ "light", "Plejart", "Plejart", "991382544" ],
+      [ "light", "JT Eventos", "Jorginho", placeholder_phone ],
+      [ "light", "Amplifica", "Amplifica", placeholder_phone ],
+      [ "light", "Espaço Tuning", "Espaço Tuning", placeholder_phone ],
+      [ "light", "Val Cenário", "Val Cenário", placeholder_phone ],
+      [ "light", "FG Refrigerações", "FG Refrigerações", placeholder_phone ],
+      [ "light", "Nordeste Gerador", "Nordeste Gerador", placeholder_phone ],
+      [ "light", "Marson", "Marson", placeholder_phone ],
+      [ "light", "Treelight Eventos", "Treelight Eventos", placeholder_phone ],
+      [ "light", "Luminarte", "Luminarte", placeholder_phone ],
+      [ "light", "Staff Soluções", "Solon", "986030805" ],
+      [ "light", "Ponto Alto Produções", "Ponto Alto Produções", placeholder_phone ],
+      [ "light", "Fulltime", "Fulltime", placeholder_phone ],
+      [ "light", "Fernando Iluminação", "Fernando", placeholder_phone ],
+
+      # --- cake (BOLO) ---
+      [ "cake", "Nabirra", "Nabirra", placeholder_phone ],
+      [ "cake", "Mayar", "Mayar", placeholder_phone ],
+      [ "cake", "Wladia", "Wladia", placeholder_phone ],
+      [ "cake", "Cacau2You", "Cacau2You", placeholder_phone ],
+      [ "cake", "Bolcher", "Bolcher", placeholder_phone ],
+      [ "cake", "Miriam Pontes", "Miriam Pontes", placeholder_phone ],
+      [ "cake", "Magic Candy", "Magic Candy", placeholder_phone ],
+
+      # --- sweets (DOCES / BEM CASADOS / BROWNIES) ---
+      [ "sweets", "Dilazaro", "Dilazaro", "98531.6458" ],
+      [ "sweets", "Choco Brownie", "Choco Brownie", placeholder_phone ],
+      [ "sweets", "Carla Soares", "Carla Soares", placeholder_phone ],
+      [ "sweets", "Sweet Marie", "Sweet Marie", placeholder_phone ],
+      [ "sweets", "Tia Marcia", "Tia Marcia", placeholder_phone ],
+      [ "sweets", "Bossa Macarons", "Bossa", placeholder_phone ],
+      [ "sweets", "Empório Di Doce", "Empório Di Doce", placeholder_phone ],
+      [ "sweets", "My Coco", "My Coco", placeholder_phone ],
+      [ "sweets", "Petit Gelato", "Petit Gelato", placeholder_phone ],
+      [ "sweets", "50 Sabores", "50 Sabores", placeholder_phone ],
+      [ "sweets", "Glaucilene", "Glaucilene", placeholder_phone ],
+      [ "sweets", "Prima Luana", "Prima Luana", placeholder_phone ],
+      [ "sweets", "Din Din Gourmet", "Din Din Gourmet", placeholder_phone ],
+
+      # --- drinks / coquetel (COQUETEL) ---
+      [ "drinks", "Mago dos Drinks", "Mago dos Drinks", placeholder_phone ],
+      [ "drinks", "Drinkeria", "Cassia", "9860861828" ],
+      [ "drinks", "Cokteria", "Cokteria", placeholder_phone ],
+      [ "drinks", "Pequiar Drink", "Pequiar Drink", placeholder_phone ],
+
+      # --- beer / chopp (CHOPP) ---
+      [ "beer", "Chopp to Go", "Chopp to Go", placeholder_phone ],
+      [ "beer", "Chopp do Lira", "Chopp do Lira", placeholder_phone ],
+      [ "beer", "Rede Express", "Rede Express", placeholder_phone ],
+
+      # --- buffet (BUFFET especializado) ---
+      [ "buffet", "Palatium Buffet", "Luciana Monteiro", placeholder_phone ],
+      [ "buffet", "Bouganville Buffet", "Bouganville Buffet", placeholder_phone ],
+      [ "buffet", "Sottili Buffet", "Weber", placeholder_phone ],
+      [ "buffet", "Drinkteria", "Drinkteria", placeholder_phone ],
+
+      # --- bouquet (BUQUÊ) ---
+      [ "bouquet", "Sousas Floricultura", "Sousas Floricultura", placeholder_phone ],
+
+      # --- beauty (CABELO E MAQUIAGEM) ---
+      [ "beauty_shop", "Lays Brunelli", "Lays Brunelli", placeholder_phone ],
+      [ "beauty_shop", "Jessica Eufrasio", "Jessica Eufrasio", placeholder_phone ],
+      [ "beauty_shop", "Eduardo Alves", "Eduardo Alves", placeholder_phone ],
+      [ "beauty_shop", "Grazy Lourenço", "Grazy Lourenço", placeholder_phone ],
+      [ "beauty_shop", "Emanuelle Lima", "Emanuelle Lima", "998407215" ],
+      [ "beauty_shop", "Lu Servesion", "Lu Servesion", placeholder_phone ],
+      [ "beauty_shop", "Mariana Holanda", "Mariana Holanda", "98212-2434" ],
+      [ "beauty_shop", "Leidiane Oliveira", "Leidiane Oliveira", "99778-0373" ],
+      [ "beauty_shop", "Ticiana Maquiagem", "Ticiana", placeholder_phone ],
+      [ "beauty_shop", "Andressa Guerra", "Andressa Guerra", placeholder_phone ],
+      [ "beauty_shop", "Rebeca Rodrigues", "Rebeca Rodrigues", "99718-3644" ],
+      [ "beauty_shop", "Dudu Ferreira", "Dudu Ferreira", placeholder_phone ],
+      [ "beauty_shop", "Backstreet Barbearia", "Backstreet", placeholder_phone ],
+
+      # --- women_cloth (ROUPA NOIVA / DAMAS) ---
+      [ "women_cloth", "Ivanildo Nunes", "Ivanildo Nunes", placeholder_phone ],
+      [ "women_cloth", "Prin Ateliê", "Prin Ateliê", placeholder_phone ],
+      [ "women_cloth", "Ticiana Sampaio", "Ticiana Sampaio", placeholder_phone ],
+      [ "women_cloth", "Nai Bridal", "Nai Bridal", placeholder_phone ],
+      [ "women_cloth", "Maison Cris", "Maison Cris", placeholder_phone ],
+      [ "women_cloth", "Maison Vip", "Maison Vip", placeholder_phone ],
+      [ "women_cloth", "Ateliê Renata Oliveira", "Renata Oliveira", placeholder_phone ],
+      [ "women_cloth", "Solange Sahado", "Solange Sahado", placeholder_phone ],
+      [ "women_cloth", "Lisblu", "Lisblu", placeholder_phone ],
+      [ "women_cloth", "Nobre Elegancy", "Nobre Elegancy", placeholder_phone ],
+      [ "women_cloth", "Bel Robes", "Bel Robes", placeholder_phone ],
+
+      # --- men_cloth (ROUPA NOIVO) ---
+      [ "men_cloth", "Nai Man", "Nai Man", placeholder_phone ],
+      [ "men_cloth", "Bal Reis", "Bal Reis", placeholder_phone ],
+      [ "men_cloth", "Studio Men", "Studio Men", placeholder_phone ],
+      [ "men_cloth", "Via Veneto", "Via Veneto", placeholder_phone ],
+
+      # --- souvenir (LEMBRANÇA / FOTO LEMBRANÇA) ---
+      [ "souvenir", "Click Selfie", "Click Selfie", "99609-5899" ],
+      [ "souvenir", "Mãos Mágicas Embalagens", "Mãos Mágicas Embalagens", placeholder_phone ],
+      [ "souvenir", "Themis", "Themis", placeholder_phone ],
+      [ "souvenir", "Studio Eventos", "Studio Eventos", placeholder_phone ],
+
+      # --- invitations (CONVITES / MENUS) ---
+      [ "invitations", "Caixa e Cia", "Caixa e Cia", placeholder_phone ],
+      [ "invitations", "Brasil Convites", "Brasil Convites", placeholder_phone ],
+      [ "invitations", "SC Convites", "SC Convites", placeholder_phone ]
     ]
 
     created = 0
