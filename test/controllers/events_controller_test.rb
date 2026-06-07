@@ -14,6 +14,71 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", edit_event_path(event)
   end
 
+  test "index defaults to upcoming events and hides past events" do
+    upcoming = Event.create!(title: "Futuro", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
+    past = Event.create!(title: "Antigo", event_type: "wedding", main_date: 1.month.ago.to_date, estimated_guests: 50)
+
+    get events_url
+
+    assert_response :success
+    assert_select "a[href=?]", event_path(upcoming)
+    assert_select "a[href=?]", event_path(past), count: 0
+  end
+
+  test "index with filter=past renders past events and hides upcoming" do
+    upcoming = Event.create!(title: "Futuro", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
+    past = Event.create!(title: "Antigo", event_type: "wedding", main_date: 1.month.ago.to_date, estimated_guests: 50)
+
+    get events_url(filter: "past")
+
+    assert_response :success
+    assert_select "a[href=?]", event_path(past)
+    assert_select "a[href=?]", event_path(upcoming), count: 0
+  end
+
+  test "index with filter=all renders both upcoming and past events" do
+    upcoming = Event.create!(title: "Futuro", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
+    past = Event.create!(title: "Antigo", event_type: "wedding", main_date: 1.month.ago.to_date, estimated_guests: 50)
+
+    get events_url(filter: "all")
+
+    assert_response :success
+    assert_select "a[href=?]", event_path(upcoming)
+    assert_select "a[href=?]", event_path(past)
+  end
+
+  test "index summary cards always link to each filter with full counts" do
+    Event.create!(title: "Futuro", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
+    Event.create!(title: "Antigo", event_type: "wedding", main_date: 1.month.ago.to_date, estimated_guests: 50)
+
+    upcoming_count = Event.upcoming.count
+    past_count = Event.past.count
+    total_count = upcoming_count + past_count
+
+    get events_url(filter: "past")
+
+    assert_response :success
+    # Cards stay clickable to switch views regardless of the active filter.
+    assert_select "a[href=?]", events_path(filter: "all")
+    assert_select "a[href=?]", events_path(filter: "upcoming")
+    assert_select "a[href=?]", events_path(filter: "past")
+    # Counts reflect the whole dataset, not the filtered list.
+    assert_select "a[href=?]", events_path(filter: "all"), text: /#{total_count}.*Total/m
+    assert_select "a[href=?]", events_path(filter: "upcoming"), text: /#{upcoming_count}.*Próximos/m
+    assert_select "a[href=?]", events_path(filter: "past"), text: /#{past_count}.*Passados/m
+  end
+
+  test "index with an invalid filter falls back to the upcoming default" do
+    upcoming = Event.create!(title: "Futuro", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
+    past = Event.create!(title: "Antigo", event_type: "wedding", main_date: 1.month.ago.to_date, estimated_guests: 50)
+
+    get events_url(filter: "'; DROP TABLE events; --")
+
+    assert_response :success
+    assert_select "a[href=?]", event_path(upcoming)
+    assert_select "a[href=?]", event_path(past), count: 0
+  end
+
   test "show renders the four clickable summary cards for a wedding" do
     event = Event.create!(title: "Casamento Teste", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 100)
     event.guests.create!(name: "Convidado A", rsvp_status: "confirmed")
@@ -77,11 +142,11 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 5, event.contract_receptionists_count
   end
 
-  test "index without filters lists every event" do
+  test "index with filter=all and no search lists every event" do
     a = Event.create!(title: "Evento Index A", event_type: "wedding", main_date: 1.month.from_now.to_date, estimated_guests: 50)
     b = Event.create!(title: "Evento Index B", event_type: "wedding", main_date: 2.months.ago.to_date, estimated_guests: 50)
 
-    get events_url
+    get events_url(filter: "all")
 
     assert_response :success
     assert_select "body", text: /#{a.title}/
@@ -106,7 +171,7 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     this_month = Event.create!(title: "Deste Mês Filtro", event_type: "wedding", main_date: Date.current.beginning_of_month, estimated_guests: 50)
     next_month = Event.create!(title: "Próximo Mês Filtro", event_type: "wedding", main_date: Date.current.next_month.beginning_of_month, estimated_guests: 50)
 
-    get events_url, params: { period: "this_month" }
+    get events_url, params: { period: "this_month", filter: "all" }
 
     assert_response :success
     assert_select "body", text: /#{this_month.title}/
@@ -117,7 +182,7 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     match = Event.create!(title: "Combo Match", event_type: "wedding", main_date: Date.current.beginning_of_month, estimated_guests: 50)
     wrong_date = Event.create!(title: "Combo Match", event_type: "wedding", main_date: Date.current.next_month.beginning_of_month, estimated_guests: 50)
 
-    get events_url, params: { q: "combo match", period: "this_month" }
+    get events_url, params: { q: "combo match", period: "this_month", filter: "all" }
 
     assert_response :success
     assert_select "body", text: /#{match.title}/

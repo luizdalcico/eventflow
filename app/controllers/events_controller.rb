@@ -1,14 +1,24 @@
 class EventsController < ApplicationController
   before_action :set_event, only: [ :show, :edit, :update, :destroy, :contract ]
 
+  FILTERS = %w[upcoming past all].freeze
+
   def index
     @query = params[:q]
     @period = params[:period]
+    @filter = params[:filter].presence_in(FILTERS) || "upcoming"
 
     base = Event.includes(:event_owners).search(@query).in_date_range(@period)
-    @upcoming_events = base.upcoming.order(:main_date)
-    @past_events = base.past.order(main_date: :desc)
     @filters_active = @query.present? || @period.present?
+
+    # Summary cards count the whole (search/period-filtered) dataset, regardless
+    # of which time segment the active card filter is currently showing.
+    @upcoming_count = base.upcoming.count
+    @past_count = base.past.count
+    @total_count = @upcoming_count + @past_count
+
+    @upcoming_events = base.upcoming.order(:main_date) if show_upcoming?
+    @past_events = base.past.order(main_date: :desc) if show_past?
   end
 
   def show
@@ -74,6 +84,16 @@ class EventsController < ApplicationController
   end
 
   private
+
+  def show_upcoming?
+    @filter.in?(%w[upcoming all])
+  end
+  helper_method :show_upcoming?
+
+  def show_past?
+    @filter.in?(%w[past all])
+  end
+  helper_method :show_past?
 
   def set_event
     @event = Event.find(params[:id])
