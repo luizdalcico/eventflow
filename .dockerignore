@@ -39,10 +39,6 @@
 # Ignore CI service files.
 /.github
 
-# Ignore Kamal files.
-/config/deploy*.yml
-/.kamal
-
 # Ignore compose / bare-metal deploy artifacts (not needed inside the image).
 /docker-compose.yml
 /deploy
