@@ -50,6 +50,7 @@ class EventOwnersController < ApplicationController
   end
 
   def event_owner_params
-    params.require(:event_owner).permit(:name, :email, :cpf, :phone_number, :role)
+    params.require(:event_owner).permit(:name, :email, :cpf, :phone_number, :role,
+                                        :address, :mother_name, :father_name, :birth_date, :instagram)
   end
 end

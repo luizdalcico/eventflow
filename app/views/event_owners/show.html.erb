@@ -55,8 +55,28 @@
           <% end %>
         </p>
       </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Endereço</label>
+        <p class="mt-1 text-sm text-gray-900">
+          <%= @event_owner.address.present? ? @event_owner.address : "Não informado" %>
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Instagram</label>
+        <p class="mt-1 text-sm text-gray-900">
+          <% if @event_owner.instagram.present? %>
+            <a href="https://instagram.com/<%= @event_owner.instagram %>" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-800">
+              @<%= @event_owner.instagram %>
+            </a>
+          <% else %>
+            <span class="text-gray-500">Não informado</span>
+          <% end %>
+        </p>
+      </div>
     </div>
-    
+
     <div class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700">CPF</label>
@@ -64,14 +84,35 @@
           <%= @event_owner.cpf.present? ? @event_owner.cpf : "Não informado" %>
         </p>
       </div>
-      
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Nome da Mãe</label>
+        <p class="mt-1 text-sm text-gray-900">
+          <%= @event_owner.mother_name.present? ? @event_owner.mother_name : "Não informado" %>
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Nome do Pai</label>
+        <p class="mt-1 text-sm text-gray-900">
+          <%= @event_owner.father_name.present? ? @event_owner.father_name : "Não informado" %>
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Data de Aniversário</label>
+        <p class="mt-1 text-sm text-gray-900">
+          <%= @event_owner.birth_date.present? ? @event_owner.birth_date.strftime('%d/%m/%Y') : "Não informado" %>
+        </p>
+      </div>
+
       <div>
         <label class="block text-sm font-medium text-gray-700">Função no Evento</label>
         <p class="mt-1 text-sm text-gray-900">
           <%= @event_owner.role.present? ? @event_owner.role : "Não definida" %>
         </p>
       </div>
-      
+
       <div>
         <label class="block text-sm font-medium text-gray-700">Cadastrado em</label>
         <p class="mt-1 text-sm text-gray-900">
