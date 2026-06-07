@@ -1,25 +1,10 @@
 class OwnerChecklistsController < ApplicationController
-  def index
-  end
+  include ChecklistActions
 
-  def show
-  end
+  private
 
-  def new
-  end
-
-  def create
-  end
-
-  def edit
-  end
-
-  def update
-  end
-
-  def destroy
-  end
-
-  def toggle_completed
-  end
+  def model_class = OwnerChecklist
+  def collection_name = :owner_checklists
+  def param_key = :owner_checklist
+  def checklist_title = "Checklist dos responsáveis"
 end

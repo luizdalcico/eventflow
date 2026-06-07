@@ -16,7 +16,7 @@ class TemplateService
     Prawn::Document.new do |pdf|
       # Header
       pdf.font_size 24
-      pdf.text "EventFlow - Relatório do Evento", align: :center, style: :bold
+      pdf.text "Cerimonial.app - Relatório do Evento", align: :center, style: :bold
       pdf.move_down 20
 
       # Event basic info
@@ -75,8 +75,7 @@ class TemplateService
       pdf.font_size 12
       guests_summary = [
         [ "Total de Convidados:", event.guests.count.to_s ],
-        [ "Padrinhos:", event.guests.godparents.count.to_s ],
-        [ "Convidados Regulares:", event.guests.regular_guests.count.to_s ]
+        [ "Padrinhos:", event.godparents.count.to_s ]
       ]
 
       pdf.table(guests_summary, width: pdf.bounds.width, cell_style: { borders: [] }) do
@@ -137,7 +136,7 @@ class TemplateService
       # Footer
       pdf.move_down 30
       pdf.font_size 10
-      pdf.text "Gerado por EventFlow em #{Time.current.strftime('%d/%m/%Y às %H:%M')}",
+      pdf.text "Gerado por Cerimonial.app em #{Time.current.strftime('%d/%m/%Y às %H:%M')}",
                align: :center, style: :italic
     end.render
   end

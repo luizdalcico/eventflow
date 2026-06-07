@@ -5,9 +5,17 @@ export default class extends Controller {
   static values = { pattern: String }
 
   connect() {
-    console.log("Simple mask controller connected", this.element, this.patternValue)
     this.element.addEventListener('input', this.handleInput.bind(this))
     this.element.addEventListener('keydown', this.handleKeydown.bind(this))
+    this.formatExisting()
+  }
+
+  // Formata o valor já preenchido ao carregar (ex.: telefone vindo do banco).
+  formatExisting() {
+    const digits = this.element.value.replace(/\D/g, '')
+    if (!digits) return
+    if (this.patternValue === '(00) 00000-0000') this.element.value = this.formatPhone(digits)
+    else if (this.patternValue === '000.000.000-00') this.element.value = this.formatCpf(digits)
   }
 
   disconnect() {
@@ -19,49 +27,38 @@ export default class extends Controller {
     const pattern = this.patternValue
     if (!pattern) return
 
-    let value = event.target.value.replace(/\D/g, '')
-    let maskedValue = value
+    const digits = event.target.value.replace(/\D/g, '')
+    let maskedValue = event.target.value
 
     if (pattern === '(00) 00000-0000') {
-      // Phone mask
-      if (value.length > 11) {
-        value = value.substring(0, 11)
-      }
-      
-      if (value.length >= 2) {
-        maskedValue = '(' + value.substring(0, 2) + ')'
-        if (value.length > 2) {
-          maskedValue += ' ' + value.substring(2, value.length <= 6 ? value.length : 7)
-          if (value.length > 7) {
-            maskedValue += '-' + value.substring(7, 11)
-          } else if (value.length > 6) {
-            maskedValue += '-' + value.substring(6, 10)
-          }
-        }
-      }
+      maskedValue = this.formatPhone(digits)
     } else if (pattern === '000.000.000-00') {
-      // CPF mask
-      if (value.length > 11) {
-        value = value.substring(0, 11)
-      }
-      
-      if (value.length >= 3) {
-        maskedValue = value.substring(0, 3)
-        if (value.length > 3) {
-          maskedValue += '.' + value.substring(3, 6)
-          if (value.length > 6) {
-            maskedValue += '.' + value.substring(6, 9)
-            if (value.length > 9) {
-              maskedValue += '-' + value.substring(9, 11)
-            }
-          }
-        }
-      }
+      maskedValue = this.formatCpf(digits)
     }
 
     if (maskedValue !== event.target.value) {
       event.target.value = maskedValue
     }
+  }
+
+  // Telefone BR: fixo (10 díg.) "(XX) XXXX-XXXX" e celular (11 díg.) "(XX) XXXXX-XXXX".
+  formatPhone(digits) {
+    digits = digits.substring(0, 11)
+    const len = digits.length
+    if (len === 0) return ''
+    if (len < 3) return `(${digits}`
+    if (len <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+    if (len <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+  }
+
+  formatCpf(digits) {
+    digits = digits.substring(0, 11)
+    const len = digits.length
+    if (len <= 3) return digits
+    if (len <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`
+    if (len <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`
   }
 
   handleKeydown(event) {

@@ -6,7 +6,7 @@ class EventOwner < ApplicationRecord
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP, message: 'deve ser um email válido' }
   validates :cpf, format: { with: /\A\d{11}\z/, message: 'deve conter 11 dígitos' }, allow_blank: true
 
-  before_save :sanitize_phone_number, :sanitize_cpf
+  before_validation :sanitize_phone_number, :sanitize_cpf
 
   scope :by_role, ->(role) { where(role: role) }
 

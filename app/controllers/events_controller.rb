@@ -2,16 +2,15 @@ class EventsController < ApplicationController
   before_action :set_event, only: [:show, :edit, :update, :destroy]
 
   def index
-    @events = Event.includes(:event_owners, :guests).order(:main_date)
-    @upcoming_events = @events.upcoming.limit(5)
-    @past_events = @events.past.limit(5)
+    @upcoming_events = Event.includes(:event_owners).upcoming.order(:main_date)
+    @past_events = Event.includes(:event_owners).past.order(main_date: :desc)
   end
 
   def show
     @event_owners = @event.event_owners
     @event_dates = @event.event_dates.order(:date)
     @guests = @event.guests.order(:name)
-    @godparents = @event.guests.godparents.order(:name)
+    @godparents = @event.godparents.order(:name)
     @providers = @event.providers.includes(:event_providers)
     @manager_tasks = @event.manager_checklists.order(:due_date)
     @owner_tasks = @event.owner_checklists.order(:due_date)

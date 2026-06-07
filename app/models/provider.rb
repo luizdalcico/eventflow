@@ -13,7 +13,7 @@ class Provider < ApplicationRecord
   validates :phone_number, presence: true
   validates :document, format: { with: /\A(\d{11}|\d{14})\z/, message: 'deve conter 11 dígitos (CPF) ou 14 dígitos (CNPJ)' }, allow_blank: true
 
-  before_save :sanitize_phone_number, :sanitize_document
+  before_validation :sanitize_phone_number, :sanitize_document
 
   scope :by_type, ->(type) { where(provider_type: type) }
 

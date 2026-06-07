@@ -26,6 +26,10 @@ pt-BR:
   activerecord:
     errors:
       messages:
+        record_invalid: "A validação falhou: %{errors}"
+        restrict_dependent_destroy:
+          has_one: "Não é possível excluir o registro pois existe um %{record} dependente"
+          has_many: "Não é possível excluir o registro pois existem %{record} dependentes"
         blank: "não pode ficar em branco"
         invalid: "é inválido"
         not_a_number: "não é um número"
@@ -101,7 +105,12 @@ pt-BR:
         name: "Nome"
         guest_type: "Tipo de convidado"
         godparent_id: "Padrinho/Madrinha"
-        
+        godparent_role: "Função"
+        side: "Lado"
+        position: "Ordem"
+        relationship: "Relação entre eles"
+        relation: "Relação"
+
       manager_checklist:
         task_name: "Nome da tarefa"
         description: "Descrição"
@@ -113,3 +122,27 @@ pt-BR:
         description: "Descrição"
         due_date: "Data de vencimento"
         priority: "Prioridade"
+
+      godparent_list:
+        token: "Token"
+        expires_at: "Expira em"
+        status: "Status"
+
+  date:
+    formats:
+      long: "%d/%m/%Y"
+      default: "%d/%m/%Y"
+
+  time:
+    formats:
+      long: "%d/%m/%Y às %H:%M"
+      default: "%d/%m/%Y %H:%M"
+
+  godparent:
+    relationships:
+      casados: "Casados"
+      solteiros: "Solteiros"
+      irmaos: "Irmãos"
+      mae_filho: "Mãe e filho"
+      pai_filho: "Pai e filho"
+      outro: "Outro"

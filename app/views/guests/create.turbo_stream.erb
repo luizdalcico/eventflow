@@ -1,0 +1,3 @@
+<%= turbo_stream.append "guests_body" do %>
+  <%= render partial: "guest_row", locals: { guest: @guest, event: @event, expanded: true } %>
+<% end %>

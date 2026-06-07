@@ -1,0 +1,62 @@
+<%
+  input = "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+  lbl   = "block text-sm font-medium text-gray-700 mb-1"
+  card  = "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-5 md:p-6"
+%>
+
+<%= form_with model: @provider, class: "space-y-6" do |form| %>
+  <% if @provider.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <h3 class="text-sm font-medium text-red-800 mb-2">
+        <%= pluralize(@provider.errors.count, "erro") %> encontrado<%= "s" if @provider.errors.count > 1 %>:
+      </h3>
+      <ul class="text-sm text-red-700 list-disc list-inside">
+        <% @provider.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <section class="<%= card %> space-y-5">
+    <h2 class="text-base font-semibold text-gray-900">Dados do fornecedor</h2>
+
+    <div class="grid md:grid-cols-2 gap-5">
+      <div>
+        <%= form.label :provider_type, "Tipo de fornecedor", class: lbl %>
+        <%= form.select :provider_type,
+            options_for_select(Provider::PROVIDER_TYPES.map { |t| [translate_provider_type(t), t] }.sort_by(&:first), @provider.provider_type),
+            { prompt: "Selecione o tipo" }, { class: input } %>
+      </div>
+      <div>
+        <%= form.label :name, "Nome da empresa", class: lbl %>
+        <%= form.text_field :name, placeholder: "ex: Foto & Arte", class: input %>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-5">
+      <div>
+        <%= form.label :contact_name, "Nome do contato", class: lbl %>
+        <%= form.text_field :contact_name, class: input %>
+      </div>
+      <div>
+        <%= form.label :phone_number, "Telefone", class: lbl %>
+        <%= form.text_field :phone_number, placeholder: "(11) 99999-9999",
+              data: { controller: "simple-mask", "simple-mask-pattern-value": "(00) 00000-0000" }, class: input %>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :document, "CNPJ ou CPF", class: lbl %>
+      <%= form.text_field :document, placeholder: "00.000.000/0001-00 ou 000.000.000-00",
+            data: { controller: "simple-document-mask" }, class: input %>
+    </div>
+  </section>
+
+  <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-1">
+    <%= link_to "Cancelar", (@provider.persisted? ? @provider : providers_path),
+          class: "text-center px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium" %>
+    <%= form.submit (@provider.persisted? ? "Salvar alterações" : "Criar fornecedor"),
+          class: "px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium cursor-pointer" %>
+  </div>
+<% end %>

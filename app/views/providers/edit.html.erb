@@ -1,86 +1,11 @@
-<% content_for :title, "Editar Fornecedor - EventFlow" %>
+<% content_for :title, "Editar fornecedor - Cerimonial.app" %>
 
-<div class="mb-6">
-  <h1 class="text-3xl font-bold text-gray-900">Editar Fornecedor</h1>
-  <p class="text-gray-600 mt-2">Atualize as informações do fornecedor</p>
+<div class="max-w-3xl mx-auto">
+  <div class="mb-6">
+    <%= link_to "← Voltar", @provider, class: "text-sm text-blue-600 hover:text-blue-800" %>
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-1">Editar fornecedor</h1>
+    <p class="text-gray-500 mt-1">Atualize as informações do fornecedor</p>
+  </div>
+
+  <%= render "form" %>
 </div>
-
-<div class="bg-white rounded-lg shadow-lg p-6">
-  <%= form_with model: @provider, local: true, class: "space-y-6" do |form| %>
-    <% if @provider.errors.any? %>
-      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-        <h3 class="text-sm font-medium text-red-800 mb-2">
-          <%= pluralize(@provider.errors.count, "erro") %> encontrado<%= "s" if @provider.errors.count > 1 %>:
-        </h3>
-        <ul class="text-sm text-red-700 list-disc list-inside">
-          <% @provider.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-
-    <div class="grid md:grid-cols-2 gap-6">
-      <div>
-        <%= form.label :provider_type, "Tipo de Fornecedor", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= form.select :provider_type, 
-            options_for_select([
-              ["Fotógrafo", "photographer"],
-              ["Buffet", "buffet"],
-              ["Filmagem", "filming"],
-              ["Bolo", "cake"],
-              ["Doces", "sweets"],
-              ["Chocolates", "chocolates"],
-              ["Bebidas", "drinks"],
-              ["Cerveja", "beer"],
-              ["Iluminação", "light"],
-              ["Decoração", "decoration"],
-              ["Buquê", "bouquet"],
-              ["Vestimenta Feminina", "women_cloth"],
-              ["Vestimenta Masculina", "men_cloth"],
-              ["Salão de Beleza", "beauty_shop"],
-              ["Lembrancinhas", "souvenir"],
-              ["Convites", "invitations"],
-              ["Música/Banda", "music_band"]
-            ], @provider.provider_type),
-            { prompt: "Selecione o tipo" },
-            { class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
-      </div>
-
-      <div>
-        <%= form.label :name, "Nome da Empresa", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= form.text_field :name, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
-      </div>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-6">
-      <div>
-        <%= form.label :contact_name, "Nome do Contato", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= form.text_field :contact_name, class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
-      </div>
-
-      <div>
-        <%= form.label :phone_number, "Telefone", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= form.text_field :phone_number, 
-            placeholder: "(11) 99999-9999", 
-            data: { controller: "simple-mask", "simple-mask-pattern-value": "(00) 00000-0000" },
-            class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
-      </div>
-    </div>
-
-    <div>
-      <%= form.label :document, "CNPJ ou CPF", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.text_field :document, 
-          placeholder: "00.000.000/0001-00 ou 000.000.000-00", 
-          data: { controller: "simple-document-mask" },
-          class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
-    </div>
-
-    <!-- Form Actions -->
-    <div class="flex justify-between pt-6 border-t">
-      <%= link_to "Cancelar", @provider, class: "bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-lg" %>
-      <%= form.submit "Atualizar Fornecedor", class: "bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg" %>
-    </div>
-  <% end %>
-</div>
-

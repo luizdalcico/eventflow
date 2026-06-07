@@ -1,0 +1,17 @@
+<%# Modal de confirmação padrão do sistema (usado por todo data-turbo-confirm). %>
+<dialog data-controller="confirm-modal" data-action="click->confirm-modal#backdrop"
+        class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 m-0 rounded-xl shadow-2xl p-0 w-[90%] max-w-sm backdrop:bg-black/40">
+  <div class="p-6">
+    <p data-confirm-modal-target="message" class="text-gray-800 text-[15px] leading-relaxed mb-6"></p>
+    <div class="flex justify-end gap-3">
+      <button type="button" data-action="confirm-modal#cancel"
+              class="px-4 py-2 rounded-lg text-sm bg-gray-100 text-gray-700 hover:bg-gray-200">
+        Cancelar
+      </button>
+      <button type="button" data-action="confirm-modal#confirm" data-confirm-modal-target="confirmButton"
+              class="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-700">
+        Confirmar
+      </button>
+    </div>
+  </div>
+</dialog>

@@ -80,6 +80,7 @@ wedding = Event.find_or_create_by!(
   event_type: "wedding",
   main_date: 3.months.from_now.to_date
 ) do |event|
+  event.title = "Casamento Marina & Rafael"
   event.start_time = "18:00"
   event.end_time = "23:00"
   event.place = "Igreja São Paulo e Salão de Festas Jardim"
@@ -91,12 +92,14 @@ end
 # Create Event Owners for Wedding
 wedding.event_owners.find_or_create_by!(name: "Marina Fernandes") do |owner|
   owner.cpf = "123.456.789-01"
+  owner.email = "marina.fernandes@example.com"
   owner.phone_number = "(11) 98888-1111"
   owner.role = "Noiva"
 end
 
 wedding.event_owners.find_or_create_by!(name: "Rafael Costa") do |owner|
   owner.cpf = "987.654.321-09"
+  owner.email = "rafael.costa@example.com"
   owner.phone_number = "(11) 97777-2222"
   owner.role = "Noivo"
 end
@@ -106,6 +109,7 @@ birthday = Event.find_or_create_by!(
   event_type: "adult_birthday",
   main_date: 1.month.from_now.to_date
 ) do |event|
+  event.title = "Aniversário de 30 anos da Carla"
   event.start_time = "20:00"
   event.end_time = "23:59"
   event.place = "Salão de Festas Villa Real"
@@ -116,6 +120,7 @@ end
 
 birthday.event_owners.find_or_create_by!(name: "Carla Mendes") do |owner|
   owner.cpf = "456.789.123-45"
+  owner.email = "carla.mendes@example.com"
   owner.phone_number = "(11) 96666-3333"
   owner.role = "Aniversariante"
 end
@@ -125,6 +130,7 @@ corporate = Event.find_or_create_by!(
   event_type: "corporate_event",
   main_date: 2.weeks.from_now.to_date
 ) do |event|
+  event.title = "Convenção Anual Corporativa"
   event.start_time = "08:00"
   event.end_time = "18:00"
   event.place = "Centro de Convenções SP"
@@ -135,6 +141,7 @@ end
 
 corporate.event_owners.find_or_create_by!(name: "José Pereira") do |owner|
   owner.cpf = "789.123.456-78"
+  owner.email = "jose.pereira@example.com"
   owner.phone_number = "(11) 95555-4444"
   owner.role = "Organizador"
 end

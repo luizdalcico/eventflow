@@ -1,0 +1,19 @@
+<%# Uma tarefa do checklist (edição inline + concluir + remover). Locals: event, item. %>
+<%= form_with model: [event, item], id: dom_id(item),
+      data: { controller: "checklist-item" },
+      class: "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-3 flex items-center gap-3" do |f| %>
+  <%= f.check_box :completed,
+        { data: { action: "change->checklist-item#toggleAndSave" }, class: "w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 shrink-0 cursor-pointer" } %>
+
+  <%= f.text_field :task,
+        data: { "checklist-item-target": "task", action: "input->checklist-item#save" },
+        class: "flex-1 min-w-0 bg-transparent border-0 px-2 py-1 text-sm text-gray-800 focus:bg-blue-50 focus:outline-none rounded #{'line-through text-gray-400' if item.completed?}" %>
+
+  <%= f.date_field :due_date,
+        data: { action: "change->checklist-item#save" },
+        class: "shrink-0 w-36 bg-transparent border-0 px-2 py-1 text-sm focus:bg-blue-50 focus:outline-none rounded #{item.overdue? ? 'text-red-600 font-medium' : 'text-gray-500'}" %>
+
+  <%= link_to "×", [event, item], title: "Remover",
+        data: { turbo_method: :delete, turbo_confirm: "Remover esta tarefa?", confirm_label: "Remover" },
+        class: "shrink-0 text-gray-400 hover:text-red-600 text-lg leading-none px-1" %>
+<% end %>

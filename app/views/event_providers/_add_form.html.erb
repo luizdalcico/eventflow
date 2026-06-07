@@ -1,0 +1,19 @@
+<%# Form para associar um fornecedor existente ao evento. Locals: event, available_providers. %>
+<div id="add_provider">
+  <% if available_providers.any? %>
+    <%= form_with url: event_event_providers_path(event), method: :post,
+          class: "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-4 flex flex-col sm:flex-row gap-3" do %>
+      <%= select_tag :provider_id,
+            options_for_select(available_providers.map { |p| ["#{translate_provider_type(p.provider_type)} — #{p.name}", p.id] }),
+            prompt: "Selecione um fornecedor…",
+            class: "flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <%= submit_tag "Adicionar ao evento",
+            class: "px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm cursor-pointer whitespace-nowrap" %>
+    <% end %>
+  <% else %>
+    <div class="bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-4 text-sm text-gray-500 flex flex-wrap items-center gap-2">
+      Todos os fornecedores cadastrados já estão neste evento.
+      <%= link_to "Cadastrar novo fornecedor", new_provider_path, class: "text-blue-600 hover:text-blue-800 font-medium" %>
+    </div>
+  <% end %>
+</div>

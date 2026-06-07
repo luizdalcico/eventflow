@@ -1,177 +1,160 @@
-<% content_for :title, "#{@event.event_owners.first&.name || 'Evento'} - EventFlow" %>
+<% content_for :title, "#{@event.title} - Cerimonial.app" %>
+<% upcoming = @event.main_date.present? && @event.main_date >= Date.current %>
+<% card = "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-5 md:p-6" %>
 
 <!-- Header -->
-<div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-  <div class="flex justify-between items-start">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">
-        <%= @event.event_owners.first&.name || "Evento sem responsável" %>
-      </h1>
-      <div class="flex items-center space-x-4">
-        <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full 
-          <%= @event.main_date >= Date.current ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+<div class="mb-6">
+  <%= link_to "← Eventos", events_path, class: "text-sm text-blue-600 hover:text-blue-800" %>
+  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mt-1">
+    <div class="min-w-0">
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-900"><%= @event.title.presence || "Evento sem título" %></h1>
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-gray-600">
+        <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full <%= upcoming ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600" %>">
           <%= translate_event_type(@event.event_type) %>
         </span>
-        <span class="text-gray-600">
-          <%= @event.main_date.strftime('%d/%m/%Y') if @event.main_date %>
-        </span>
+        <% if @event.main_date %><span>📅 <%= @event.main_date.strftime("%d/%m/%Y") %></span><% end %>
         <% if @event.start_time && @event.end_time %>
-          <span class="text-gray-600">
-            <%= @event.start_time.strftime('%H:%M') %> - <%= @event.end_time.strftime('%H:%M') %>
-          </span>
+          <span>🕐 <%= @event.start_time.strftime("%H:%M") %> – <%= @event.end_time.strftime("%H:%M") %></span>
         <% end %>
+        <% if @event_owners.first&.name.present? %><span>· <%= @event_owners.first.name %></span><% end %>
       </div>
     </div>
-    <div class="space-x-2">
-      <%= link_to "Exportar PDF", event_path(@event, format: :pdf), 
-          class: "bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg" %>
-      <%= link_to "Editar", edit_event_path(@event), class: "bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg" %>
-      <%= link_to "Voltar", events_path, class: "bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg" %>
+    <div class="flex gap-2 shrink-0">
+      <%= link_to "Editar", edit_event_path(@event), class: "px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-medium text-sm" %>
+      <%= link_to "Exportar PDF", event_path(@event, format: :pdf), class: "px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm" %>
     </div>
   </div>
 </div>
 
-<!-- Event Details Grid -->
-<div class="grid lg:grid-cols-3 gap-6 mb-6">
-  <!-- Event Information -->
+<!-- Stats -->
+<% stats = [
+     ["Convidados", @guests.count, "text-gray-900"],
+     ["RSVP confirmados", @event.guests.rsvp_confirmed.count, "text-green-700"]
+   ]
+   stats << ["Padrinhos", @godparents.count, "text-gray-900"] if @event.wedding?
+   stats << ["Fornecedores", @providers.count, "text-gray-900"] %>
+<div class="flex flex-wrap gap-3 mb-6">
+  <% stats.each do |title, value, color| %>
+    <div class="flex-1 min-w-[140px] bg-white rounded-xl ring-1 ring-gray-200 p-3 md:p-4 text-center">
+      <div class="text-2xl font-bold <%= color %>"><%= value %></div>
+      <div class="text-xs md:text-sm text-gray-500"><%= title %></div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Ações rápidas -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+  <% [
+    ["👥 Convidados", event_guests_path(@event)],
+    ["🤝 Fornecedores", event_event_providers_path(@event)],
+    ["✅ Checklist interno", event_manager_checklists_path(@event)],
+    ["📋 Checklist responsáveis", event_owner_checklists_path(@event)]
+  ].each do |label, path| %>
+    <%= link_to label, path, class: "block bg-white rounded-xl ring-1 ring-gray-200 hover:ring-blue-300 hover:bg-blue-50/40 p-3 text-sm font-medium text-gray-700 text-center transition" %>
+  <% end %>
+</div>
+
+<div class="grid lg:grid-cols-3 gap-6">
+  <!-- Coluna principal -->
   <div class="lg:col-span-2 space-y-6">
-    <!-- Basic Info -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">Informações do Evento</h2>
-      <div class="grid md:grid-cols-2 gap-4">
+    <!-- Informações -->
+    <div class="<%= card %>">
+      <h2 class="text-base font-semibold text-gray-900 mb-4">Informações do evento</h2>
+      <dl class="grid sm:grid-cols-2 gap-4 text-sm">
         <div>
-          <label class="block text-sm font-medium text-gray-700">Local</label>
-          <p class="text-gray-900"><%= @event.place || "Não definido" %></p>
+          <dt class="text-gray-500">Local</dt>
+          <dd class="text-gray-900 font-medium"><%= @event.place.presence || "Não definido" %></dd>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700">Estimativa de Convidados</label>
-          <p class="text-gray-900"><%= @event.estimated_guests || "Não definido" %></p>
+          <dt class="text-gray-500">Convidados (estimativa)</dt>
+          <dd class="text-gray-900 font-medium"><%= @event.estimated_guests || "—" %></dd>
         </div>
         <% if @event.address.present? %>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700">Endereço</label>
-            <p class="text-gray-900"><%= @event.address %></p>
+          <div class="sm:col-span-2">
+            <dt class="text-gray-500">Endereço</dt>
+            <dd class="text-gray-900"><%= @event.address %></dd>
           </div>
         <% end %>
         <% if @event.extra_hours.present? && @event.extra_hours > 0 %>
           <div>
-            <label class="block text-sm font-medium text-gray-700">Horas Extras</label>
-            <p class="text-gray-900"><%= @event.extra_hours %> horas</p>
+            <dt class="text-gray-500">Horas extras</dt>
+            <dd class="text-gray-900 font-medium"><%= @event.extra_hours %> h</dd>
           </div>
         <% end %>
-      </div>
+      </dl>
     </div>
 
-    <!-- Event Owners -->
-    <div class="bg-white rounded-lg shadow p-6">
+    <!-- Responsáveis -->
+    <div class="<%= card %>">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-gray-900">Responsáveis</h2>
-        <%= link_to "Gerenciar", event_event_owners_path(@event), class: "text-blue-600 hover:text-blue-800" %>
+        <h2 class="text-base font-semibold text-gray-900">Responsáveis</h2>
+        <%= link_to "Gerenciar", event_event_owners_path(@event), class: "text-sm text-blue-600 hover:text-blue-800" %>
       </div>
       <% if @event_owners.any? %>
         <div class="space-y-3">
           <% @event_owners.each do |owner| %>
-            <div class="border border-gray-200 rounded-lg p-3">
+            <div class="border border-gray-100 rounded-lg p-3">
               <div class="font-medium text-gray-900"><%= owner.name %></div>
-              <div class="text-sm text-gray-600">
-                <%= owner.role if owner.role.present? %>
-                <span class="mx-2">•</span>
-                <%= owner.phone_number %>
-                <% if owner.cpf.present? %>
-                  <span class="mx-2">•</span>
-                  <%= owner.cpf %>
-                <% end %>
+              <div class="text-sm text-gray-500 flex flex-wrap gap-x-2">
+                <% if owner.role.present? %><span><%= owner.role %></span><span>·</span><% end %>
+                <span><%= format_phone(owner.phone_number) %></span>
+                <% if owner.cpf.present? %><span>·</span><span><%= owner.cpf %></span><% end %>
               </div>
             </div>
           <% end %>
         </div>
       <% else %>
-        <p class="text-gray-500">Nenhum responsável cadastrado</p>
+        <p class="text-gray-500 text-sm">Nenhum responsável cadastrado</p>
       <% end %>
     </div>
 
-    <!-- Event Dates -->
-    <div class="bg-white rounded-lg shadow p-6">
+    <!-- Outras datas -->
+    <div class="<%= card %>">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-gray-900">Outras Datas</h2>
-        <%= link_to "Gerenciar", event_event_dates_path(@event), class: "text-blue-600 hover:text-blue-800" %>
+        <h2 class="text-base font-semibold text-gray-900">Outras datas</h2>
+        <%= link_to "Gerenciar", event_event_dates_path(@event), class: "text-sm text-blue-600 hover:text-blue-800" %>
       </div>
       <% if @event_dates.any? %>
-        <div class="space-y-2">
+        <div class="divide-y divide-gray-100">
           <% @event_dates.each do |event_date| %>
-            <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-              <span class="font-medium"><%= event_date.description %></span>
-              <span class="text-gray-600"><%= event_date.date.strftime('%d/%m/%Y') %></span>
+            <div class="flex justify-between items-center py-2 text-sm">
+              <span class="font-medium text-gray-800"><%= event_date.description %></span>
+              <span class="text-gray-500"><%= event_date.date.strftime("%d/%m/%Y") %></span>
             </div>
           <% end %>
         </div>
       <% else %>
-        <p class="text-gray-500">Nenhuma data adicional cadastrada</p>
+        <p class="text-gray-500 text-sm">Nenhuma data adicional cadastrada</p>
       <% end %>
     </div>
+
+    <!-- Lista de Padrinhos (só casamento) -->
+    <% if @event.wedding? %>
+      <%= render "godparent_list" %>
+    <% end %>
   </div>
 
   <!-- Sidebar -->
   <div class="space-y-6">
-    <!-- Quick Stats -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Resumo</h3>
-      <div class="space-y-3">
-        <div class="flex justify-between">
-          <span class="text-gray-600">Convidados</span>
-          <span class="font-medium"><%= @guests.count %></span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-600">Padrinhos</span>
-          <span class="font-medium"><%= @godparents.count %></span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-600">Fornecedores</span>
-          <span class="font-medium"><%= @providers.count %></span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-600">Checklist interno</span>
-          <span class="font-medium"><%= @manager_tasks.pending.count %>/<%= @manager_tasks.count %></span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-600">Checklist Responsáveis</span>
-          <span class="font-medium"><%= @owner_tasks.pending.count %>/<%= @owner_tasks.count %></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Ações Rápidas</h3>
-      <div class="space-y-2">
-        <%= link_to "Gerenciar Convidados", event_guests_path(@event), 
-            class: "block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded" %>
-        <%= link_to "Gerenciar Fornecedores", event_event_providers_path(@event), 
-            class: "block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded" %>
-        <%= link_to "Checklist interno", event_manager_checklists_path(@event), 
-            class: "block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded" %>
-        <%= link_to "Checklist Responsáveis", event_owner_checklists_path(@event), 
-            class: "block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded" %>
-      </div>
-    </div>
-
-    <!-- Upcoming Tasks -->
-    <% if @manager_tasks.pending.any? || @owner_tasks.pending.any? %>
-      <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Próximas Tarefas</h3>
-        <div class="space-y-2">
-          <% (@manager_tasks.pending.limit(3) + @owner_tasks.pending.limit(3)).sort_by(&:due_date).each do |task| %>
+    <!-- Próximas tarefas -->
+    <% pending_tasks = (@manager_tasks.pending.to_a + @owner_tasks.pending.to_a).sort_by { |t| t.due_date || Date.new(9999) } %>
+    <div class="<%= card %>">
+      <h3 class="text-base font-semibold text-gray-900 mb-4">Próximas tarefas</h3>
+      <% if pending_tasks.any? %>
+        <div class="space-y-3">
+          <% pending_tasks.first(6).each do |task| %>
             <div class="text-sm">
-              <div class="font-medium text-gray-900"><%= task.task %></div>
-              <div class="text-gray-600">
-                <%= task.due_date.strftime('%d/%m') if task.due_date %>
-                <span class="mx-2">•</span>
-                <%= task.class.name == 'ManagerChecklist' ? 'Gerente' : 'Responsável' %>
+              <div class="font-medium text-gray-800"><%= task.task %></div>
+              <div class="text-gray-500 text-xs flex gap-2">
+                <% if task.due_date %><span><%= task.due_date.strftime("%d/%m") %></span><span>·</span><% end %>
+                <span><%= task.is_a?(ManagerChecklist) ? "Interno" : "Responsáveis" %></span>
               </div>
             </div>
           <% end %>
         </div>
-      </div>
-    <% end %>
+      <% else %>
+        <p class="text-gray-500 text-sm">Nenhuma tarefa pendente 🎉</p>
+      <% end %>
+    </div>
   </div>
 </div>

@@ -1,25 +1,107 @@
 class GuestsController < ApplicationController
+  before_action :set_event
+
   def index
-  end
-
-  def show
-  end
-
-  def new
+    @guests = @event.guests.order(:name)
   end
 
   def create
-  end
-
-  def edit
+    @guest = @event.guests.create!
+    respond_to do |format|
+      format.turbo_stream # create.turbo_stream.erb (append da linha)
+      format.html { redirect_to event_guests_path(@event) }
+    end
   end
 
   def update
+    guest = @event.guests.find(params[:id])
+    guest.assign_attributes(guest_params)
+    # Marcação manual de RSVP: carimba a data da resposta.
+    if guest.rsvp_status_changed? && %w[confirmed declined].include?(guest.rsvp_status) && guest.rsvp_responded_at.blank?
+      guest.rsvp_responded_at = Time.current
+    end
+    guest.save!
+    head :ok
   end
 
   def destroy
+    @event.guests.find(params[:id]).destroy!
+    respond_to do |format|
+      format.turbo_stream { render turbo_stream: turbo_stream.remove("guest_#{params[:id]}") }
+      format.html { redirect_to event_guests_path(@event) }
+    end
   end
 
-  def toggle_godparent
+  def template
+    package = Axlsx::Package.new
+    package.workbook.add_worksheet(name: "Convidados") do |sheet|
+      header = sheet.styles.add_style(b: true, bg_color: "EEEEEE", border: { style: :thin, color: "BBBBBB" })
+      sheet.add_row ["Nome", "Quantidade de convidados", "Telefone", "Observações"], style: header
+      sheet.add_row ["João Silva", 2, "(85) 99999-0000", ""]
+      sheet.add_row ["Maria Souza", 1, "(85) 98888-0000", "Mesa 3"]
+      sheet.column_widths 28, 22, 20, 24
+    end
+
+    send_data package.to_stream.read,
+              filename: "modelo_convidados.xlsx",
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              disposition: "attachment"
+  end
+
+  def import
+    if params[:file].blank?
+      redirect_to event_guests_path(@event), alert: "Selecione um arquivo .xlsx ou .csv." and return
+    end
+
+    result = GuestImport.new(@event, params[:file]).call
+
+    if result.imported.positive?
+      notice = "#{result.imported} convidado(s) importado(s)."
+      notice += " #{result.skipped} linha(s) ignorada(s)." if result.skipped.positive?
+      redirect_to event_guests_path(@event), notice: notice
+    else
+      redirect_to event_guests_path(@event), alert: result.errors.first || "Nenhum convidado importado."
+    end
+  end
+
+  def send_rsvp
+    candidates =
+      if params[:all].present?
+        @event.guests.with_phone.to_a
+      else
+        ids = Array(params[:guest_ids]).map(&:to_i)
+        @event.guests.where(id: ids).to_a
+      end
+
+    # Não reenvia para quem já recebeu/respondeu.
+    guests = candidates.select(&:rsvp_sendable?)
+    skipped = candidates.size - guests.size
+
+    if guests.empty?
+      message = params[:all].present? ? "Nenhum convidado pendente para enviar." : "Nenhum convidado pendente selecionado (já enviados ou sem telefone)."
+      redirect_to event_guests_path(@event), alert: message and return
+    end
+
+    guests.each { |g| SendRsvpJob.perform_later(g.id) }
+
+    if Rsvp::Sender.configured?
+      notice = "Convite de RSVP enviado para #{guests.size} convidado(s)."
+      notice += " #{skipped} pulado(s) (já enviados ou sem telefone)." if skipped.positive?
+    else
+      notice = "Twilio não está configurado — defina as variáveis de ambiente para enviar de verdade."
+    end
+    redirect_to event_guests_path(@event), notice: notice
+  end
+
+  private
+
+  def set_event
+    @event = Event.find(params[:event_id])
+  end
+
+  def guest_params
+    permitted = params.require(:guest).permit(:name, :phone_number, :party_size, :notes, :rsvp_status)
+    permitted[:phone_number] = permitted[:phone_number].gsub(/\D/, "") if permitted[:phone_number].present?
+    permitted
   end
 end

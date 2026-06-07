@@ -1,0 +1,14 @@
+<%# Uma data do evento (edição inline + remover). Locals: event, event_date. %>
+<%= form_with model: [event, event_date], id: dom_id(event_date),
+      data: { controller: "autosave" },
+      class: "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-3 flex items-center gap-3" do |f| %>
+  <%= f.text_field :description,
+        data: { action: "input->autosave#save" },
+        class: "flex-1 min-w-0 bg-transparent border-0 px-2 py-1 text-sm text-gray-800 focus:bg-blue-50 focus:outline-none rounded" %>
+  <%= f.date_field :date,
+        data: { action: "change->autosave#save" },
+        class: "shrink-0 w-36 bg-transparent border-0 px-2 py-1 text-sm text-gray-600 focus:bg-blue-50 focus:outline-none rounded" %>
+  <%= link_to "×", [event, event_date], title: "Remover",
+        data: { turbo_method: :delete, turbo_confirm: "Remover esta data?", confirm_label: "Remover" },
+        class: "shrink-0 text-gray-400 hover:text-red-600 text-lg leading-none px-1" %>
+<% end %>

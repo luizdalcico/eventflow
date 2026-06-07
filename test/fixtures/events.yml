@@ -1,11 +1,13 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+past_event:
+  title: Casamento Passado
+  event_type: wedding
+  main_date: <%= 2.months.ago.to_date %>
+  estimated_guests: 100
+
+future_event:
+  title: Casamento Futuro
+  event_type: wedding
+  main_date: <%= 2.months.from_now.to_date %>
+  estimated_guests: 100

@@ -1,0 +1,161 @@
+<%
+  input = "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+  lbl   = "block text-sm font-medium text-gray-700 mb-1"
+  card  = "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-5 md:p-6"
+%>
+
+<%= form_with model: @event, class: "space-y-6" do |form| %>
+  <% if @event.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <h3 class="text-sm font-medium text-red-800 mb-2">
+        <%= pluralize(@event.errors.count, "erro") %> encontrado<%= "s" if @event.errors.count > 1 %>:
+      </h3>
+      <ul class="text-sm text-red-700 list-disc list-inside">
+        <% @event.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Informações do evento %>
+  <section class="<%= card %> space-y-5">
+    <h2 class="text-base font-semibold text-gray-900">Informações do evento</h2>
+
+    <div>
+      <%= form.label :title, "Título do evento", class: lbl %>
+      <%= form.text_field :title, placeholder: "ex: Casamento Marina & Rafael", class: input %>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-5">
+      <div>
+        <%= form.label :event_type, "Tipo do evento", class: lbl %>
+        <%= form.select :event_type,
+            options_for_select(Event::EVENT_TYPES.map { |t| [translate_event_type(t), t] }, @event.event_type),
+            { prompt: "Selecione o tipo" }, { class: input } %>
+      </div>
+      <div>
+        <%= form.label :main_date, "Data principal", class: lbl %>
+        <%= form.date_field :main_date, class: input %>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-5">
+      <div>
+        <%= form.label :start_time, "Horário de início", class: lbl %>
+        <%= form.time_field :start_time, class: input %>
+      </div>
+      <div>
+        <%= form.label :end_time, "Horário de término", class: lbl %>
+        <%= form.time_field :end_time, class: input %>
+      </div>
+    </div>
+  </section>
+
+  <%# Local %>
+  <section class="<%= card %> space-y-5">
+    <h2 class="text-base font-semibold text-gray-900">Local</h2>
+    <div>
+      <%= form.label :place, "Local", class: lbl %>
+      <%= form.text_field :place, placeholder: "ex: Salão de Festas Jardim", class: input %>
+    </div>
+    <div>
+      <%= form.label :address, "Endereço completo", class: lbl %>
+      <%= form.text_area :address, rows: 2, class: input %>
+    </div>
+  </section>
+
+  <%# Detalhes %>
+  <section class="<%= card %>">
+    <h2 class="text-base font-semibold text-gray-900 mb-5">Detalhes</h2>
+    <div class="grid grid-cols-2 gap-5">
+      <div>
+        <%= form.label :estimated_guests, "Convidados (estimativa)", class: lbl %>
+        <%= form.number_field :estimated_guests, min: 1, class: input %>
+      </div>
+      <div>
+        <%= form.label :extra_hours, "Horas extras", class: lbl %>
+        <%= form.number_field :extra_hours, step: 0.5, min: 0, class: input %>
+      </div>
+    </div>
+  </section>
+
+  <%# Responsáveis pelo evento %>
+  <section class="<%= card %>" data-controller="nested-owners" data-nested-owners-index-value="<%= @event.event_owners.size %>">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-base font-semibold text-gray-900">Responsáveis pelo evento</h2>
+      <button type="button" data-action="nested-owners#add"
+              class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white font-medium py-1.5 px-3 rounded-lg text-sm">
+        <span class="text-base leading-none">+</span> Adicionar
+      </button>
+    </div>
+
+    <div id="event_owners" data-nested-owners-target="container" class="space-y-4">
+      <%= form.fields_for :event_owners do |owner_form| %>
+        <div class="event-owner-fields relative border border-gray-200 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <button type="button" data-action="nested-owners#remove"
+                  class="remove-owner absolute top-2 right-2 text-red-600 hover:text-red-800 text-sm font-medium" style="display: none;">× Remover</button>
+          <%= owner_form.hidden_field :id %>
+          <%= owner_form.hidden_field :_destroy, value: "0" %>
+          <div>
+            <%= owner_form.label :name, "Nome", class: lbl %>
+            <%= owner_form.text_field :name, class: input %>
+          </div>
+          <div>
+            <%= owner_form.label :email, "Email", class: lbl %>
+            <%= owner_form.email_field :email, class: input %>
+          </div>
+          <div>
+            <%= owner_form.label :phone_number, "Telefone", class: lbl %>
+            <%= owner_form.text_field :phone_number, placeholder: "(11) 99999-9999",
+                  data: { controller: "simple-mask", "simple-mask-pattern-value": "(00) 00000-0000" }, class: input %>
+          </div>
+          <div>
+            <%= owner_form.label :cpf, "CPF", class: lbl %>
+            <%= owner_form.text_field :cpf, placeholder: "000.000.000-00",
+                  data: { controller: "simple-mask", "simple-mask-pattern-value": "000.000.000-00" }, class: input %>
+          </div>
+          <div>
+            <%= owner_form.label :role, "Função", class: lbl %>
+            <%= owner_form.text_field :role, placeholder: "ex: Noiva, Aniversariante", class: input %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <template data-nested-owners-target="template">
+      <div class="event-owner-fields relative border border-gray-200 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <button type="button" data-action="nested-owners#remove"
+                class="remove-owner absolute top-2 right-2 text-red-600 hover:text-red-800 text-sm font-medium">× Remover</button>
+        <div>
+          <label class="<%= lbl %>">Nome</label>
+          <input class="<%= input %>" type="text" name="event[event_owners_attributes][__INDEX__][name]">
+        </div>
+        <div>
+          <label class="<%= lbl %>">Email</label>
+          <input class="<%= input %>" type="email" name="event[event_owners_attributes][__INDEX__][email]">
+        </div>
+        <div>
+          <label class="<%= lbl %>">Telefone</label>
+          <input class="<%= input %>" type="text" name="event[event_owners_attributes][__INDEX__][phone_number]" placeholder="(11) 99999-9999" data-controller="simple-mask" data-simple-mask-pattern-value="(00) 00000-0000">
+        </div>
+        <div>
+          <label class="<%= lbl %>">CPF</label>
+          <input class="<%= input %>" type="text" name="event[event_owners_attributes][__INDEX__][cpf]" placeholder="000.000.000-00" data-controller="simple-mask" data-simple-mask-pattern-value="000.000.000-00">
+        </div>
+        <div>
+          <label class="<%= lbl %>">Função</label>
+          <input class="<%= input %>" type="text" name="event[event_owners_attributes][__INDEX__][role]" placeholder="ex: Noiva, Aniversariante">
+        </div>
+      </div>
+    </template>
+  </section>
+
+  <%# Ações %>
+  <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-1">
+    <%= link_to "Cancelar", (@event.persisted? ? @event : events_path),
+          class: "text-center px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium" %>
+    <%= form.submit (@event.persisted? ? "Salvar alterações" : "Criar evento"),
+          class: "px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium cursor-pointer" %>
+  </div>
+<% end %>

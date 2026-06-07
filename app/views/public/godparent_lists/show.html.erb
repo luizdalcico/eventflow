@@ -1,0 +1,70 @@
+<% content_for :title, "Lista de Padrinhos - #{@event.title}" %>
+
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-800"><%= @event.title %></h1>
+  <p class="text-gray-500">Preenchimento da lista de padrinhos</p>
+</div>
+
+<% unless @list.editable? %>
+  <div id="list_status_banner" class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-6 text-sm">
+    <% if @list.submitted? %>
+      ✅ Lista finalizada em <%= l(@list.submitted_at, format: :long) if @list.submitted_at %>. A edição está encerrada.
+    <% else %>
+      Este link não está mais disponível para edição.
+    <% end %>
+  </div>
+<% end %>
+
+<details open class="group mb-5 text-sm">
+  <summary class="cursor-pointer text-gray-500 hover:text-gray-700 select-none">Como preencher</summary>
+  <ul class="mt-2 list-disc list-inside space-y-1 text-gray-500">
+    <li>Preencha os pares na ordem de entrada desejada.</li>
+    <li>Em "Lado", diga se o par é da noiva, do noivo ou sem lado.</li>
+    <li>Em "Ela é / Ele é", informe a relação de cada madrinha/padrinho com o casal (irmão, amigo, avô, primo…).</li>
+    <li>Em "Os padrinhos são", diga a relação entre a madrinha e o padrinho (casados, irmãos…).</li>
+  </ul>
+</details>
+
+<div class="overflow-x-auto bg-white rounded-xl ring-1 ring-gray-200 shadow-sm">
+  <table class="block md:table w-full border-collapse text-sm">
+    <thead class="hidden md:table-header-group bg-gray-100">
+      <tr>
+        <% th = "border border-gray-300 px-2 py-2 text-left text-xs font-semibold text-gray-600" %>
+        <th class="<%= th %> w-10 text-center">#</th>
+        <th class="<%= th %>">Lado</th>
+        <th class="<%= th %>">Madrinha</th>
+        <th class="<%= th %>">Celular</th>
+        <th class="<%= th %>">Ela é:</th>
+        <th class="<%= th %>">Padrinho</th>
+        <th class="<%= th %>">Celular</th>
+        <th class="<%= th %>">Ele é:</th>
+        <th class="<%= th %>">Os padrinhos são:</th>
+        <th class="border border-gray-300 w-8"></th>
+      </tr>
+    </thead>
+    <tbody id="pairs_body" class="block md:table-row-group p-3 md:p-0">
+      <%= render partial: "public/godparent_pairs/row", collection: @anchors, as: :madrinha, locals: { list: @list } %>
+    </tbody>
+  </table>
+
+  <% if @list.editable? %>
+    <%= button_to godparent_list_pairs_path(@list.token),
+          class: "flex items-center gap-2 w-full text-left px-4 py-3 text-sm font-medium text-gray-500 " \
+                 "hover:text-blue-600 hover:bg-gray-50 border-t border-gray-200" do %>
+      <span class="text-lg leading-none">＋</span> Adicionar par
+    <% end %>
+  <% end %>
+</div>
+
+<% if @list.editable? %>
+  <%# Estático no mobile (evita cobrir os campos); fixo só no desktop. %>
+  <div class="static md:sticky md:bottom-0 bg-gray-50/90 backdrop-blur border-t border-gray-200 py-4 mt-8 flex flex-wrap gap-3 justify-end items-center">
+    <span class="text-sm text-gray-400 mr-auto">As alterações são salvas automaticamente.</span>
+    <%= link_to "Salvar rascunho", draft_godparent_list_path(@list.token),
+          class: "px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300" %>
+    <%= button_to "Finalizar e avisar o cerimonial",
+          finalize_godparent_list_path(@list.token), method: :patch,
+          form: { data: { turbo_confirm: "Tem certeza? Após finalizar não será mais possível editar a lista." } },
+          class: "px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700" %>
+  </div>
+<% end %>

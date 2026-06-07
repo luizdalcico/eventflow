@@ -1,0 +1,3 @@
+<%= turbo_stream.append "pairs_body" do %>
+  <%= render partial: "public/godparent_pairs/row", locals: { madrinha: @madrinha, list: @list, expanded: true } %>
+<% end %>

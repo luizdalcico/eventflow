@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
-    <title><%= content_for(:title) || "EventFlow - Gerenciamento de Eventos" %></title>
+    <title><%= content_for(:title) || "Cerimonial.app - Gerenciamento de Eventos" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -21,16 +21,33 @@
 
   <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
+    <nav class="bg-white shadow-lg" data-controller="nav">
       <div class="container mx-auto px-4">
         <div class="flex justify-between items-center py-4">
-          <%= link_to root_path, class: "text-2xl font-bold text-blue-600" do %>
-            EventFlow
-          <% end %>
-          <div class="space-x-4">
-            <%= link_to "Eventos", events_path, class: "text-gray-700 hover:text-blue-600" %>
-            <%= link_to "Fornecedores", providers_path, class: "text-gray-700 hover:text-blue-600" %>
+          <%= link_to "Cerimonial.app", root_path, class: "text-2xl font-bold text-blue-600" %>
+
+          <%# Links no desktop %>
+          <div class="hidden sm:flex space-x-6">
+            <%= link_to "Eventos", events_path, class: "text-gray-700 hover:text-blue-600 font-medium" %>
+            <%= link_to "Fornecedores", providers_path, class: "text-gray-700 hover:text-blue-600 font-medium" %>
           </div>
+
+          <%# Hamburguer no mobile %>
+          <button type="button" data-action="nav#toggle" aria-label="Menu"
+                  class="sm:hidden p-2 -mr-2 text-gray-700 hover:text-blue-600">
+            <svg data-nav-target="open" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg data-nav-target="close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <%# Menu mobile (colapsado) %>
+        <div data-nav-target="menu" class="hidden sm:hidden pb-3 space-y-1">
+          <%= link_to "Eventos", events_path, class: "block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium" %>
+          <%= link_to "Fornecedores", providers_path, class: "block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium" %>
         </div>
       </div>
     </nav>
@@ -52,5 +69,7 @@
     <main class="container mx-auto mt-8 px-4">
       <%= yield %>
     </main>
+
+    <%= render "shared/confirm_modal" %>
   </body>
 </html>

@@ -1,17 +1,27 @@
 module ApplicationHelper
-  def translate_event_type(event_type)
-    case event_type
-    when 'wedding'
-      'Casamento'
-    when 'adult_birthday'
-      'Aniversário Adulto'
-    when 'children_birthday'
-      'Aniversário Infantil'
-    when 'corporate_event'
-      'Evento Corporativo'
-    else
-      event_type.humanize
+  # Formata um telefone (dígitos) para exibição: (DD) 9XXXX-XXXX.
+  def format_phone(value)
+    d = value.to_s.gsub(/\D/, "")
+    d = d.sub(/\A55/, "") if d.length > 11
+    case d.length
+    when 11 then "(#{d[0, 2]}) #{d[2, 5]}-#{d[7, 4]}"
+    when 10 then "(#{d[0, 2]}) #{d[2, 4]}-#{d[6, 4]}"
+    else value.presence || "—"
     end
+  end
+
+  EVENT_TYPE_LABELS = {
+    "wedding" => "Casamento",
+    "quinze_anos" => "Quinze anos",
+    "formatura" => "Formatura",
+    "bodas" => "Bodas",
+    "adult_birthday" => "Aniversário Adulto",
+    "children_birthday" => "Aniversário Infantil",
+    "corporate_event" => "Evento Corporativo"
+  }.freeze
+
+  def translate_event_type(event_type)
+    EVENT_TYPE_LABELS[event_type] || event_type.to_s.humanize
   end
 
   def translate_provider_type(provider_type)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_18_094538) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_19_000009) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -64,19 +64,51 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_18_094538) do
     t.index ["main_date"], name: "index_events_on_main_date"
   end
 
-  create_table "guests", force: :cascade do |t|
+  create_table "godparent_lists", force: :cascade do |t|
     t.bigint "event_id", null: false
-    t.string "name", null: false
-    t.string "cpf"
-    t.string "phone_number"
-    t.boolean "is_godparent", default: false
-    t.bigint "godparent_pair_id"
+    t.string "token", null: false
+    t.datetime "expires_at"
+    t.string "status", default: "draft", null: false
+    t.datetime "submitted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_godparent_lists_on_event_id", unique: true
+    t.index ["token"], name: "index_godparent_lists_on_token", unique: true
+  end
+
+  create_table "godparents", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.string "name"
+    t.string "phone_number"
+    t.string "role"
+    t.string "side"
+    t.string "relation"
+    t.string "relationship"
+    t.bigint "pair_id"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "position"], name: "index_godparents_on_event_id_and_position"
+    t.index ["event_id"], name: "index_godparents_on_event_id"
+    t.index ["pair_id"], name: "index_godparents_on_pair_id"
+  end
+
+  create_table "guests", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.string "name"
+    t.string "cpf"
+    t.string "phone_number"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "rsvp_status", default: "pending", null: false
+    t.datetime "rsvp_sent_at"
+    t.datetime "rsvp_responded_at"
+    t.string "rsvp_message_sid"
+    t.integer "party_size", default: 1, null: false
+    t.string "notes"
     t.index ["event_id", "name"], name: "index_guests_on_event_id_and_name"
+    t.index ["event_id", "rsvp_status"], name: "index_guests_on_event_id_and_rsvp_status"
     t.index ["event_id"], name: "index_guests_on_event_id"
-    t.index ["godparent_pair_id"], name: "index_guests_on_godparent_pair_id"
-    t.index ["is_godparent"], name: "index_guests_on_is_godparent"
   end
 
   create_table "manager_checklists", force: :cascade do |t|
@@ -121,8 +153,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_18_094538) do
   add_foreign_key "event_owners", "events"
   add_foreign_key "event_providers", "events"
   add_foreign_key "event_providers", "providers"
+  add_foreign_key "godparent_lists", "events"
+  add_foreign_key "godparents", "events"
+  add_foreign_key "godparents", "godparents", column: "pair_id"
   add_foreign_key "guests", "events"
-  add_foreign_key "guests", "guests", column: "godparent_pair_id"
   add_foreign_key "manager_checklists", "events"
   add_foreign_key "owner_checklists", "events"
 end

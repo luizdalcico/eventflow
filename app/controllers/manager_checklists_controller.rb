@@ -1,25 +1,10 @@
 class ManagerChecklistsController < ApplicationController
-  def index
-  end
+  include ChecklistActions
 
-  def show
-  end
+  private
 
-  def new
-  end
-
-  def create
-  end
-
-  def edit
-  end
-
-  def update
-  end
-
-  def destroy
-  end
-
-  def toggle_completed
-  end
+  def model_class = ManagerChecklist
+  def collection_name = :manager_checklists
+  def param_key = :manager_checklist
+  def checklist_title = "Checklist interno"
 end

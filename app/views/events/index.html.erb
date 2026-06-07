@@ -1,83 +1,52 @@
-<% content_for :title, "Eventos - EventFlow" %>
+<% content_for :title, "Eventos - Cerimonial.app" %>
 
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-3xl font-bold text-gray-900">Eventos</h1>
-  <%= link_to "Novo Evento", new_event_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg" %>
-</div>
-
-<!-- Summary Cards -->
-<div class="grid md:grid-cols-3 gap-6 mb-8">
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-lg font-semibold text-gray-700 mb-2">Total de Eventos</h3>
-    <p class="text-3xl font-bold text-blue-600"><%= @events.count %></p>
-  </div>
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-lg font-semibold text-gray-700 mb-2">Próximos Eventos</h3>
-    <p class="text-3xl font-bold text-green-600"><%= @upcoming_events.count %></p>
-  </div>
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-lg font-semibold text-gray-700 mb-2">Eventos Passados</h3>
-    <p class="text-3xl font-bold text-gray-600"><%= @past_events.count %></p>
-  </div>
-</div>
-
-<!-- All Events -->
-<div>
-  <h2 class="text-2xl font-bold text-gray-900 mb-4">Todos os Eventos</h2>
-  <% if @events.any? %>
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Evento</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Local</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Convidados</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% @events.each do |event| %>
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm font-medium text-gray-900">
-                    <%= event.event_owners.first&.name || "Sem responsável" %>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                    <%= event.main_date >= Date.current ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
-                    <%= translate_event_type(event.event_type) %>
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <%= event.main_date.strftime('%d/%m/%Y') if event.main_date %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <%= event.place || "Não definido" %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <%= event.estimated_guests || 0 %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                  <%= link_to "Ver", event, class: "text-blue-600 hover:text-blue-900" %>
-                  <%= link_to "Editar", edit_event_path(event), class: "text-yellow-600 hover:text-yellow-900" %>
-                  <%= link_to "Excluir", event, method: :delete, 
-                      confirm: "Tem certeza que deseja excluir este evento?",
-                      class: "text-red-600 hover:text-red-900" %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  <% else %>
-    <div class="text-center py-12">
-      <div class="text-gray-500 text-lg mb-4">Nenhum evento cadastrado ainda</div>
-      <%= link_to "Criar Primeiro Evento", new_event_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg" %>
-    </div>
+<div class="flex items-center justify-between gap-3 mb-6">
+  <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Eventos</h1>
+  <%= link_to new_event_path,
+        class: "inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 md:px-4 rounded-lg text-sm whitespace-nowrap" do %>
+    <span class="text-lg leading-none">+</span> <span class="hidden sm:inline">Novo evento</span><span class="sm:hidden">Novo</span>
   <% end %>
 </div>
+
+<%# Resumo compacto %>
+<% total = @upcoming_events.size + @past_events.size %>
+<div class="grid grid-cols-3 gap-3 mb-8">
+  <div class="bg-white rounded-xl ring-1 ring-gray-200 p-3 md:p-4 text-center">
+    <div class="text-2xl font-bold text-blue-600"><%= total %></div>
+    <div class="text-xs md:text-sm text-gray-500">Total</div>
+  </div>
+  <div class="bg-white rounded-xl ring-1 ring-gray-200 p-3 md:p-4 text-center">
+    <div class="text-2xl font-bold text-green-600"><%= @upcoming_events.size %></div>
+    <div class="text-xs md:text-sm text-gray-500">Próximos</div>
+  </div>
+  <div class="bg-white rounded-xl ring-1 ring-gray-200 p-3 md:p-4 text-center">
+    <div class="text-2xl font-bold text-gray-500"><%= @past_events.size %></div>
+    <div class="text-xs md:text-sm text-gray-500">Passados</div>
+  </div>
+</div>
+
+<% if total.zero? %>
+  <div class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-16 px-4">
+    <div class="text-gray-500 text-lg mb-4">Nenhum evento cadastrado ainda</div>
+    <%= link_to "Criar primeiro evento", new_event_path,
+          class: "inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg" %>
+  </div>
+<% else %>
+  <% if @upcoming_events.any? %>
+    <section class="mb-8">
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Próximos eventos</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <%= render partial: "event_card", collection: @upcoming_events, as: :event %>
+      </div>
+    </section>
+  <% end %>
+
+  <% if @past_events.any? %>
+    <section>
+      <h2 class="text-lg font-semibold text-gray-500 mb-3">Eventos passados</h2>
+      <div class="grid gap-4 sm:grid-cols-2 opacity-90">
+        <%= render partial: "event_card", collection: @past_events, as: :event %>
+      </div>
+    </section>
+  <% end %>
+<% end %>

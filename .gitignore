@@ -40,3 +40,6 @@
 .DS_Store
 .ruby-lsp/
 .claude/settings.local.json
+
+# Editor
+/.vscode/

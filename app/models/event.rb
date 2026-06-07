@@ -1,13 +1,15 @@
 class Event < ApplicationRecord
-  EVENT_TYPES = %w[wedding adult_birthday children_birthday corporate_event].freeze
+  EVENT_TYPES = %w[wedding quinze_anos formatura bodas adult_birthday children_birthday corporate_event].freeze
 
   has_many :event_owners, dependent: :destroy
   has_many :event_dates, dependent: :destroy
   has_many :guests, dependent: :destroy
+  has_many :godparents, dependent: :destroy
   has_many :event_providers, dependent: :destroy
   has_many :providers, through: :event_providers
   has_many :manager_checklists, dependent: :destroy
   has_many :owner_checklists, dependent: :destroy
+  has_one :godparent_list, dependent: :destroy
 
   accepts_nested_attributes_for :event_owners, allow_destroy: true, reject_if: :all_blank
 

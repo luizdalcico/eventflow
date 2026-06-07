@@ -1,0 +1,10 @@
+<%# Form de nova data. Locals: event, event_date (novo). %>
+<%= form_with model: [event, event_date], id: "new_event_date",
+      class: "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-4 flex flex-col sm:flex-row gap-3" do |f| %>
+  <%= f.text_field :description, placeholder: "Descrição (ex: Ensaio fotográfico)", required: true,
+        class: "flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+  <%= f.date_field :date, required: true,
+        class: "border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+  <%= f.submit "Adicionar",
+        class: "px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm cursor-pointer whitespace-nowrap" %>
+<% end %>
