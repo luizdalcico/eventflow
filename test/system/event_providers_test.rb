@@ -35,10 +35,10 @@ class EventProvidersTest < ApplicationSystemTestCase
     fill_in "event_provider[value]", with: "R$ 5.000"
     find("h1").click # blur para disparar o auto-save
 
-    # auto-save (debounce) persiste no custom_details
+    # auto-save (debounce) parseia o valor BRL e persiste na coluna value
     ep = @event.event_providers.first
     saved = false
-    12.times { break (saved = true) if ep.reload.custom_detail("value") == "R$ 5.000"; sleep 0.25 }
+    12.times { break (saved = true) if ep.reload.value == BigDecimal("5000"); sleep 0.25 }
     assert saved, "valor deveria ter sido salvo via auto-save"
     page.save_screenshot(Rails.root.join("tmp/event_providers_desktop.png").to_s)
   end

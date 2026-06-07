@@ -3,6 +3,7 @@ require "test_helper"
 class EventTest < ActiveSupport::TestCase
   def setup
     @event = Event.new(
+      title: "Casamento Teste",
       event_type: "wedding",
       main_date: Date.current + 1.month,
       estimated_guests: 100
@@ -16,25 +17,25 @@ class EventTest < ActiveSupport::TestCase
   test "should require event_type" do
     @event.event_type = nil
     assert_not @event.valid?
-    assert_includes @event.errors[:event_type], "can't be blank"
+    assert_includes @event.errors[:event_type], "deve ser selecionado"
   end
 
   test "should require main_date" do
     @event.main_date = nil
     assert_not @event.valid?
-    assert_includes @event.errors[:main_date], "can't be blank"
+    assert_includes @event.errors[:main_date], "deve ser informada"
   end
 
   test "should require estimated_guests" do
     @event.estimated_guests = nil
     assert_not @event.valid?
-    assert_includes @event.errors[:estimated_guests], "can't be blank"
+    assert_includes @event.errors[:estimated_guests], "deve ser informado"
   end
 
   test "should only accept valid event types" do
     @event.event_type = "invalid_type"
     assert_not @event.valid?
-    assert_includes @event.errors[:event_type], "is not included in the list"
+    assert_includes @event.errors[:event_type], "deve ser um tipo válido"
   end
 
   test "should accept valid event types" do
@@ -47,7 +48,7 @@ class EventTest < ActiveSupport::TestCase
   test "should validate estimated_guests is positive" do
     @event.estimated_guests = 0
     assert_not @event.valid?
-    assert_includes @event.errors[:estimated_guests], "must be greater than 0"
+    assert_includes @event.errors[:estimated_guests], "deve ser maior que zero"
   end
 
   test "should validate end_time is after start_time" do

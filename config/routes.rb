@@ -45,9 +45,9 @@ Rails.application.routes.draw do
       end
     end
     # Cortejo + padrinhos & familiares (só faz sentido para casamentos).
-    resource :cortejo, only: [:show], controller: "cortejo"
-    resources :procession_steps, only: [:create, :update, :destroy], path: "cortejo/steps"
-    resources :family_members, only: [:create, :update, :destroy], path: "cortejo/familiares"
+    resource :cortejo, only: [ :show ], controller: "cortejo"
+    resources :procession_steps, only: [ :create, :update, :destroy ], path: "cortejo/steps"
+    resources :family_members, only: [ :create, :update, :destroy ], path: "cortejo/familiares"
   end
 
   # Webhook do Twilio (respostas de RSVP no WhatsApp)

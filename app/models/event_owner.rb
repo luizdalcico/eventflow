@@ -22,6 +22,6 @@ class EventOwner < ApplicationRecord
 
   # Store the Instagram handle canonically: no leading @, no surrounding whitespace.
   def sanitize_instagram
-    self.instagram = instagram.strip.delete_prefix('@') if instagram.present?
+    self.instagram = instagram.strip.delete_prefix("@") if instagram.present?
   end
 end

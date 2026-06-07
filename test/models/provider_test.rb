@@ -18,25 +18,27 @@ class ProviderTest < ActiveSupport::TestCase
   test "should require provider_type" do
     @provider.provider_type = nil
     assert_not @provider.valid?
-    assert_includes @provider.errors[:provider_type], "can't be blank"
+    assert_includes @provider.errors[:provider_type], "não pode ficar em branco"
   end
 
   test "should require name" do
     @provider.name = nil
     assert_not @provider.valid?
-    assert_includes @provider.errors[:name], "can't be blank"
+    assert_includes @provider.errors[:name], "não pode ficar em branco"
   end
 
-  test "should require document" do
+  test "document is optional" do
     @provider.document = nil
-    assert_not @provider.valid?
-    assert_includes @provider.errors[:document], "can't be blank"
+    assert @provider.valid?
+
+    @provider.document = ""
+    assert @provider.valid?
   end
 
   test "should only accept valid provider types" do
     @provider.provider_type = "invalid_type"
     assert_not @provider.valid?
-    assert_includes @provider.errors[:provider_type], "is not included in the list"
+    assert_includes @provider.errors[:provider_type], "não está incluído na lista"
   end
 
   test "should accept valid provider types" do

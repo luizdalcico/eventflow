@@ -25,7 +25,7 @@ class EventOwnersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "José Silva", owner.father_name
     assert_equal Date.new(1990, 5, 20), owner.birth_date
     assert_equal "maria.noiva", owner.instagram
-    assert_redirected_to [@event, owner]
+    assert_redirected_to [ @event, owner ]
   end
 
   test "update changes the extended contractor fields" do
@@ -45,7 +45,7 @@ class EventOwnersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Pedro", owner.father_name
     assert_equal Date.new(1985, 12, 1), owner.birth_date
     assert_equal "joao_eventos", owner.instagram
-    assert_redirected_to [@event, owner]
+    assert_redirected_to [ @event, owner ]
   end
 
   test "form renders the extended contractor field inputs" do

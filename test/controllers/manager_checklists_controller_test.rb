@@ -1,43 +1,61 @@
 require "test_helper"
 
 class ManagerChecklistsControllerTest < ActionDispatch::IntegrationTest
-  test "should get index" do
-    get manager_checklists_index_url
+  def setup
+    @event = Event.create!(title: "Casamento X", event_type: "wedding",
+                           main_date: Date.current + 1.month, estimated_guests: 100)
+  end
+
+  test "index renders the checklist page" do
+    @event.manager_checklists.create!(task: "Reservar buffet")
+
+    get event_manager_checklists_url(@event)
+    assert_response :success
+    assert_select "#checklist_items"
+    assert_select "h1", text: "Checklist interno"
+  end
+
+  test "index shows the empty state when there are no tasks" do
+    get event_manager_checklists_url(@event)
+    assert_response :success
+    assert_select "#checklist_empty"
+  end
+
+  test "create adds a task to the event" do
+    assert_difference -> { @event.manager_checklists.count }, 1 do
+      post event_manager_checklists_url(@event), as: :turbo_stream,
+           params: { manager_checklist: { task: "Confirmar fornecedores" } }
+    end
+    assert_response :success
+    assert_equal "Confirmar fornecedores", @event.manager_checklists.last.task
+  end
+
+  test "create with a blank task does not persist" do
+    assert_no_difference -> { @event.manager_checklists.count } do
+      post event_manager_checklists_url(@event), as: :turbo_stream,
+           params: { manager_checklist: { task: "" } }
+    end
     assert_response :success
   end
 
-  test "should get show" do
-    get manager_checklists_show_url
-    assert_response :success
+  test "update persists the new values" do
+    item = @event.manager_checklists.create!(task: "Tarefa antiga")
+
+    patch event_manager_checklist_url(@event, item),
+          params: { manager_checklist: { task: "Tarefa nova", completed: true } }
+    assert_response :no_content
+
+    item.reload
+    assert_equal "Tarefa nova", item.task
+    assert item.completed?
   end
 
-  test "should get new" do
-    get manager_checklists_new_url
-    assert_response :success
-  end
+  test "destroy removes the task" do
+    item = @event.manager_checklists.create!(task: "Remover esta")
 
-  test "should get create" do
-    get manager_checklists_create_url
-    assert_response :success
-  end
-
-  test "should get edit" do
-    get manager_checklists_edit_url
-    assert_response :success
-  end
-
-  test "should get update" do
-    get manager_checklists_update_url
-    assert_response :success
-  end
-
-  test "should get destroy" do
-    get manager_checklists_destroy_url
-    assert_response :success
-  end
-
-  test "should get toggle_completed" do
-    get manager_checklists_toggle_completed_url
+    assert_difference -> { @event.manager_checklists.count }, -1 do
+      delete event_manager_checklist_url(@event, item), as: :turbo_stream
+    end
     assert_response :success
   end
 end
