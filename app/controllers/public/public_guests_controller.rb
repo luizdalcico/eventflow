@@ -1,7 +1,7 @@
 module Public
   # Página pública: convidados se cadastram na lista do evento (linha plana).
   class PublicGuestsController < BaseController
-    before_action :require_editable!
+    before_action :require_editable!, except: %i[template]
 
     def create
       @guest = @event.guests.create!
@@ -26,6 +26,29 @@ module Public
         format.turbo_stream { render turbo_stream: turbo_stream.remove("guest_#{guest.id}") }
         format.html { redirect_to guest_list_path(@list.token) }
       end
+    end
+
+    def import
+      if params[:file].blank?
+        redirect_to guest_list_path(@list.token), alert: "Selecione um arquivo .xlsx ou .csv." and return
+      end
+
+      result = GuestImport.new(@event, params[:file]).call
+
+      if result.imported.positive?
+        notice = "#{result.imported} convidado(s) importado(s)."
+        notice += " #{result.skipped} linha(s) ignorada(s)." if result.skipped.positive?
+        redirect_to guest_list_path(@list.token), notice: notice
+      else
+        redirect_to guest_list_path(@list.token), alert: result.errors.first || "Nenhum convidado importado."
+      end
+    end
+
+    def template
+      send_data GuestTemplate.xlsx,
+                filename: GuestTemplate::FILENAME,
+                type: GuestTemplate::CONTENT_TYPE,
+                disposition: "attachment"
     end
 
     private

@@ -1,4 +1,7 @@
-<%= turbo_stream.remove "guests_empty" %>
-<%= turbo_stream.append "guests_list" do %>
-  <%= render partial: "public/public_guests/row", locals: { guest: @guest, list: @list } %>
+<%= turbo_stream.append "guests_body" do %>
+  <%= render partial: "guests/guest_row", locals: {
+        guest: @guest, admin: false, expanded: true,
+        row_url: guest_list_guest_path(@list.token, @guest),
+        delete_url: guest_list_guest_path(@list.token, @guest)
+      } %>
 <% end %>

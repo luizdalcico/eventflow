@@ -29,7 +29,7 @@ class GuestTableTest < ApplicationSystemTestCase
   test "the all-send button opens the custom confirm modal" do
     page.driver.browser.manage.window.resize_to(1400, 900)
     visit event_guests_path(@event)
-    click_button "📨 Enviar RSVP para TODOS os convidados"
+    click_button "📨 Enviar RSVP para todos"
     assert_selector "dialog[open]", wait: 5
     assert_text "Enviar o convite RSVP para TODOS"
     page.save_screenshot(Rails.root.join("tmp/modal.png").to_s)

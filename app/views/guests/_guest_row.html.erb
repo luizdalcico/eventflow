@@ -1,9 +1,16 @@
 <%#
-  Linha editável de convidado.
+  Linha editável de convidado — reutilizada no admin e na página pública.
   Desktop: célula de planilha (Excel), tudo visível.
-  Mobile: card colapsável — mostra só o nome; toca pra abrir e editar.
-  Locals: `guest`, `event`.
+  Mobile: card colapsável — mostra só o resumo; toca pra abrir e editar.
+  Locals:
+    guest      — o convidado
+    row_url    — URL de PATCH (auto-save da linha)
+    delete_url — URL de DELETE
+    admin      — quando true, mostra seleção e coluna RSVP (default false)
+    body_id    — id do tbody (alvo do colapso ao adicionar; default "guests_body")
 %>
+<% admin = local_assigns.fetch(:admin, false) %>
+<% body_id = local_assigns.fetch(:body_id, "guests_body") %>
 <%# No load inicial tudo começa colapsado; só a linha recém-adicionada vem aberta. %>
 <% collapsed = !local_assigns.fetch(:expanded, false) %>
 <%
@@ -18,8 +25,8 @@
 
 <tr id="guest_<%= guest.id %>"
     data-controller="guest-row pair-collapse"
-    data-guest-row-url-value="<%= event_guest_path(event, guest) %>"
-    data-pair-collapse-append-target-value="guests_body"
+    data-guest-row-url-value="<%= row_url %>"
+    data-pair-collapse-append-target-value="<%= body_id %>"
     class="block md:table-row bg-white border border-gray-300 md:border-0 rounded-lg md:rounded-none mb-4 md:mb-0">
 
   <%# Resumo (só mobile) — clique pra abrir/fechar %>
@@ -30,20 +37,23 @@
         <span class="shrink-0 text-xs text-gray-400"><%= pluralize(guest.party_size, "pessoa", "pessoas") %></span>
       </div>
       <div class="flex items-center gap-2 shrink-0">
-        <% if rsvp_badge %><span class="text-xs"><%= rsvp_badge %></span><% end %>
+        <% if admin && rsvp_badge %><span class="text-xs"><%= rsvp_badge %></span><% end %>
         <span data-pair-collapse-target="chevron"
               class="text-gray-400 transition-transform <%= "rotate-180" unless collapsed %>">▾</span>
       </div>
     </div>
   </td>
 
-  <%# Seleção para envio %>
-  <td class="<%= detail %> md:w-8 md:text-center" data-pair-collapse-target="detail">
-    <span class="<%= label %>">Selecionar</span>
-    <% if guest.rsvp_invitable? %>
-      <%= check_box_tag "guest_ids[]", guest.id, false, data: { "select-all-target": "item" } %>
-    <% end %>
-  </td>
+  <% if admin %>
+    <%# Seleção para envio (apenas admin) %>
+    <td class="<%= detail %> md:w-8 md:text-center" data-pair-collapse-target="detail">
+      <span class="<%= label %>">Selecionar</span>
+      <% if guest.rsvp_invitable? %>
+        <%= check_box_tag "guest_ids[]", guest.id, false,
+              data: { "select-all-target": "item", "bulk-select-target": "checkbox", action: "change->bulk-select#refresh" } %>
+      <% end %>
+    </td>
+  <% end %>
 
   <%# Nome %>
   <td class="<%= detail %>" data-pair-collapse-target="detail">
@@ -72,13 +82,15 @@
           class: field, data: act.merge(controller: "simple-mask", simple_mask_pattern_value: "(00) 00000-0000") %>
   </td>
 
-  <%# RSVP (marcação manual) %>
-  <td class="<%= detail %> md:w-44" data-pair-collapse-target="detail">
-    <span class="<%= label %>">RSVP</span>
-    <%= select_tag "guest[rsvp_status]",
-          options_for_select([["— Pendente", "pending"], ["⏳ Enviado", "sent"], ["✅ Confirmado", "confirmed"], ["❌ Recusou", "declined"]], guest.rsvp_status),
-          class: field, data: act %>
-  </td>
+  <% if admin %>
+    <%# RSVP (marcação manual — apenas admin) %>
+    <td class="<%= detail %> md:w-44" data-pair-collapse-target="detail">
+      <span class="<%= label %>">RSVP</span>
+      <%= select_tag "guest[rsvp_status]",
+            options_for_select([["— Pendente", "pending"], ["⏳ Enviado", "sent"], ["✅ Confirmado", "confirmed"], ["❌ Recusou", "declined"]], guest.rsvp_status),
+            class: field, data: act %>
+    </td>
+  <% end %>
 
   <%# Observações %>
   <td class="<%= detail %>" data-pair-collapse-target="detail">
@@ -88,7 +100,7 @@
 
   <%# Remover %>
   <td class="<%= detail %> md:w-8 md:text-center" data-pair-collapse-target="detail">
-    <%= link_to event_guest_path(event, guest),
+    <%= link_to delete_url,
           data: { turbo_method: :delete, turbo_confirm: "Remover este convidado?" }, title: "Remover",
           class: "inline-block px-2 py-1.5 md:p-0 text-gray-400 hover:text-red-600 text-sm" do %>
       <span class="md:hidden">× Remover</span>

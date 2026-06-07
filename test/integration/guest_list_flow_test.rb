@@ -31,6 +31,31 @@ class GuestListFlowTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "public page reuses the guests table and the import block" do
+    @event.guests.create!(name: "João", party_size: 2)
+    get guest_list_path(@list.token)
+    assert_response :success
+    # Mesma tabela do painel do cerimonial.
+    assert_select "tbody#guests_body tr#guest_#{@event.guests.first.id}"
+    # Bloco de importação por planilha.
+    assert_select "a[href=?]", guest_list_template_path(@list.token)
+    assert_select "form[action=?]", guest_list_import_path(@list.token)
+  end
+
+  # --- Importação por planilha ---
+
+  test "public template downloads the sample spreadsheet" do
+    get guest_list_template_path(@list.token)
+    assert_response :success
+    assert_equal GuestTemplate::CONTENT_TYPE, @response.media_type
+  end
+
+  test "public import without a file redirects with an alert" do
+    post guest_list_import_path(@list.token)
+    assert_redirected_to guest_list_path(@list.token)
+    assert_match(/Selecione um arquivo/, flash[:alert])
+  end
+
   # --- Convidados: criar / atualizar / remover ---
 
   test "creating a guest adds a row to the event" do

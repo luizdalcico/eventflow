@@ -83,6 +83,8 @@ Rails.application.routes.draw do
   # Página pública de preenchimento da lista de convidados (protegida por token)
   get    "convidados/:token",            to: "public/guest_lists#show",        as: :guest_list
   patch  "convidados/:token/finalize",   to: "public/guest_lists#finalize",    as: :finalize_guest_list
+  post   "convidados/:token/importar",   to: "public/public_guests#import",    as: :guest_list_import
+  get    "convidados/:token/modelo",     to: "public/public_guests#template",  as: :guest_list_template
   post   "convidados/:token/guests",     to: "public/public_guests#create",    as: :guest_list_guests
   patch  "convidados/:token/guests/:id", to: "public/public_guests#update",    as: :guest_list_guest
   delete "convidados/:token/guests/:id", to: "public/public_guests#destroy"

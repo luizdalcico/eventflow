@@ -1,0 +1,17 @@
+<%#
+  Resumo compacto de RSVP numa única faixa. Locals: guests.
+%>
+<% confirmed = guests.count { |g| g.rsvp_status == "confirmed" } %>
+<% declined  = guests.count { |g| g.rsvp_status == "declined" } %>
+<% pending   = guests.size - confirmed - declined %>
+<% people_total    = guests.sum(&:party_size) %>
+<% people_adults   = guests.select { |g| g.guest_type == "adult" }.sum(&:party_size) %>
+<% people_children = guests.select { |g| g.guest_type == "child" }.sum(&:party_size) %>
+
+<div class="bg-white rounded-xl ring-1 ring-gray-200 shadow-sm px-4 py-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-green-500"></span><strong class="text-green-700"><%= confirmed %></strong> confirmados</span>
+  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-500"></span><strong class="text-red-700"><%= declined %></strong> recusaram</span>
+  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-gray-400"></span><strong class="text-gray-700"><%= pending %></strong> pendentes</span>
+  <span class="text-gray-400 hidden sm:inline">·</span>
+  <span class="text-gray-500"><strong class="text-gray-700"><%= people_total %></strong> pessoas (<%= people_adults %> adultos · <%= people_children %> crianças)</span>
+</div>

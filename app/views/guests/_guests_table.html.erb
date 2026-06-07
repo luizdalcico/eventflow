@@ -1,0 +1,52 @@
+<%#
+  Tabela de convidados (planilha no desktop, cards no mobile) — admin + público.
+  Locals:
+    guests   — coleção de convidados
+    admin    — true no painel do cerimonial (mostra seleção + RSVP)
+    add_url  — URL de POST para adicionar uma linha em branco
+    editable — quando false, esconde o botão "Adicionar" (default true)
+    event    — presente no admin (para montar as URLs por linha)
+    token    — presente no público (para montar as URLs por linha)
+%>
+<% admin = local_assigns.fetch(:admin, false) %>
+<% editable = local_assigns.fetch(:editable, true) %>
+<% th = "border border-gray-200 px-2 py-2 text-left text-xs font-semibold text-gray-600" %>
+
+<div class="overflow-x-auto bg-white rounded-xl ring-1 ring-gray-200 shadow-sm">
+  <table class="block md:table w-full border-collapse text-sm">
+    <thead class="hidden md:table-header-group bg-gray-100">
+      <tr>
+        <% if admin %>
+          <th class="<%= th %> w-8 text-center">
+            <%= check_box_tag "all", "1", false, data: { action: "select-all#toggle change->bulk-select#refresh" } %>
+          </th>
+        <% end %>
+        <th class="<%= th %>">Nome</th>
+        <th class="<%= th %>">Pessoas</th>
+        <th class="<%= th %>">Tipo</th>
+        <th class="<%= th %>">Telefone</th>
+        <% if admin %><th class="<%= th %>">RSVP</th><% end %>
+        <th class="<%= th %>">Observações</th>
+        <th class="border border-gray-200 w-8"></th>
+      </tr>
+    </thead>
+    <tbody id="guests_body" class="block md:table-row-group p-3 md:p-0">
+      <% guests.each do |guest| %>
+        <% if admin %>
+          <%= render "guests/guest_row", guest: guest, admin: true,
+                row_url: event_guest_path(event, guest), delete_url: event_guest_path(event, guest) %>
+        <% else %>
+          <%= render "guests/guest_row", guest: guest, admin: false,
+                row_url: guest_list_guest_path(token, guest), delete_url: guest_list_guest_path(token, guest) %>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if editable %>
+    <%= button_to add_url, class: "flex items-center gap-2 w-full text-left px-4 py-3 text-sm font-medium " \
+          "text-gray-500 hover:text-blue-600 hover:bg-gray-50 border-t border-gray-200" do %>
+      <span class="text-lg leading-none">＋</span> Adicionar convidado
+    <% end %>
+  <% end %>
+</div>

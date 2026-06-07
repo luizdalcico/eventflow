@@ -1,0 +1,32 @@
+<%#
+  Bloco recolhível de importação de convidados via planilha — admin + público.
+  Locals:
+    import_url   — URL de POST para importar
+    template_url — URL para baixar o modelo .xlsx
+%>
+<details class="group bg-white rounded-xl ring-1 ring-gray-200 shadow-sm">
+  <summary class="flex items-center justify-between gap-2 cursor-pointer select-none px-4 py-3 text-sm font-medium text-gray-700">
+    <span class="flex items-center gap-2">
+      <span class="text-gray-400 transition-transform group-open:rotate-90">▸</span>
+      Importar de uma planilha (Excel/CSV)
+    </span>
+    <%= link_to "⬇ Baixar modelo", template_url, class: "text-sm text-blue-600 hover:text-blue-800" %>
+  </summary>
+
+  <div class="px-4 pb-4 border-t border-gray-100 pt-3">
+    <p class="text-sm text-gray-500 mb-3">
+      Envie um <strong>.xlsx</strong> ou <strong>.csv</strong> com colunas <strong>Nome</strong>, <strong>Quantidade</strong>, <strong>Telefone</strong> e (opcional) <strong>Observações</strong>.
+    </p>
+    <%= form_with url: import_url, method: :post, multipart: true,
+          data: { controller: "file-input" }, class: "flex flex-wrap items-center gap-3" do %>
+      <%= file_field_tag :file, accept: ".xlsx,.csv", id: "guest_import_file", class: "hidden",
+            data: { file_input_target: "input", action: "change->file-input#display" } %>
+      <label for="guest_import_file"
+             class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-400 text-gray-700 rounded-lg hover:bg-gray-200 cursor-pointer text-sm font-medium">
+        📎 Escolher arquivo
+      </label>
+      <span data-file-input-target="name" class="text-sm text-gray-500">Nenhum arquivo selecionado</span>
+      <%= submit_tag "Importar", class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer text-sm" %>
+    <% end %>
+  </div>
+</details>
