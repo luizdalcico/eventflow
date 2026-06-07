@@ -2,15 +2,20 @@
 	email dalcico@gmail.com
 }
 
-# eventflow — DNS points straight at this server, so Caddy obtains a real
-# Let's Encrypt certificate and terminates TLS here. X-Forwarded-Proto is set
-# explicitly to https (Caddy redirects http->https, so the backend only ever
-# sees https-origin traffic).
-eventos.apisys.com.br {
+# eventflow — these hostnames point straight at this server (DNS-only), so Caddy
+# obtains real Let's Encrypt certificates and terminates TLS here.
+# X-Forwarded-Proto is set explicitly to https (Caddy redirects http->https, so
+# the backend only ever sees https-origin traffic).
+eventos.apisys.com.br, cerimonial.app {
 	encode gzip zstd
 	reverse_proxy eventflow-web:3000 {
 		header_up X-Forwarded-Proto https
 	}
+}
+
+# Redirect www to the bare cerimonial.app domain.
+www.cerimonial.app {
+	redir https://cerimonial.app{uri} permanent
 }
 
 # github_pr_viewer — sits behind Cloudflare (Flexible mode), so TLS is

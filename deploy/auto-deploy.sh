@@ -63,12 +63,17 @@ get_local_commit() {
 update_repository() {
     log "Updating repository..."
     cd "$WORK_DIR"
-    # Preserve the server-only .env across the hard reset.
-    [ -f ".env" ] && cp .env /tmp/eventflow.env.backup
+    # Preserve the server-only .env across the hard reset. .env is gitignored so
+    # reset/clean won't touch it, but we back it up anyway. Use a private mktemp
+    # file to avoid ownership clashes on a shared path like /tmp.
+    local env_backup
+    env_backup=$(mktemp)
+    [ -f ".env" ] && cp .env "$env_backup"
     git fetch origin || error_exit "git fetch failed"
     git reset --hard "origin/$GITHUB_BRANCH" || error_exit "git reset failed"
     git clean -fd -e .env -e deploy.log || error_exit "git clean failed"
-    [ -f "/tmp/eventflow.env.backup" ] && mv /tmp/eventflow.env.backup .env
+    [ -s "$env_backup" ] && cp "$env_backup" .env
+    rm -f "$env_backup"
 }
 
 deploy_application() {
