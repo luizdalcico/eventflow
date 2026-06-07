@@ -23,12 +23,17 @@ services:
     # (creates/migrates the primary, cache, queue and cable databases). Solid Queue
     # runs inside Puma via SOLID_QUEUE_IN_PUMA, so no separate worker is needed.
     command: ["./bin/rails", "server"]
+    # App secrets/config (RAILS_MASTER_KEY, EVENTFLOW_DATABASE_PASSWORD, TWILIO_*,
+    # RSVP_*, etc.) come from the server-only .env — see env.example for the full
+    # list. Any new var added to .env reaches the app automatically. The .env is
+    # not baked into the image (.dockerignore), so this is how prod gets them.
+    env_file:
+      - .env
+    # Deploy-fixed values that don't belong in .env (override env_file on clash).
     environment:
       RAILS_ENV: production
       PORT: 3000
       DB_HOST: db
-      EVENTFLOW_DATABASE_PASSWORD: ${EVENTFLOW_DATABASE_PASSWORD}
-      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
       RAILS_LOG_TO_STDOUT: enabled
       RAILS_SERVE_STATIC_FILES: enabled
       SOLID_QUEUE_IN_PUMA: "true"
