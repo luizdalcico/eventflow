@@ -3,7 +3,7 @@
     also rendered as plain text. %>
 <% crumbs = Array(crumbs).reject { |label, _path| label.blank? } %>
 <% if crumbs.any? %>
-  <nav aria-label="Breadcrumb" class="mb-4">
+  <nav aria-label="Breadcrumb" class="-mt-4 mb-3">
     <ol class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-gray-500">
       <% crumbs.each_with_index do |(label, path), index| %>
         <% is_last = index == crumbs.size - 1 %>

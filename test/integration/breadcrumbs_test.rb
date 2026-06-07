@@ -10,10 +10,10 @@ class BreadcrumbsTest < ActionDispatch::IntegrationTest
                                  contact_name: "Paulo", phone_number: "85999990000", document: "")
   end
 
-  test "events index renders a breadcrumb trail" do
+  test "events index (home) does not render a breadcrumb trail" do
     get events_url
     assert_response :success
-    assert_select "nav[aria-label=?] ol li", "Breadcrumb"
+    assert_select "nav[aria-label=?]", "Breadcrumb", count: 0
   end
 
   test "event show breadcrumb links back to the events list" do
@@ -85,12 +85,10 @@ class BreadcrumbsTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "providers index renders a breadcrumb trail" do
+  test "providers index (section root) does not render a breadcrumb trail" do
     get providers_url
     assert_response :success
-    assert_select "nav[aria-label=?]", "Breadcrumb" do
-      assert_select "span[aria-current=?]", "page", text: "Fornecedores"
-    end
+    assert_select "nav[aria-label=?]", "Breadcrumb", count: 0
   end
 
   test "provider show breadcrumb links back to the providers list" do
