@@ -46,6 +46,18 @@ module ApplicationHelper
     EVENT_TYPE_LABELS[event_type] || event_type.to_s.humanize
   end
 
+  # Renders the reusable breadcrumb trail. Each crumb is a [label, path] pair;
+  # the final crumb is the current page and is rendered as plain text.
+  def breadcrumbs(*crumbs)
+    render "shared/breadcrumbs", crumbs: crumbs
+  end
+
+  # Short label for an event used across breadcrumb trails: its title, falling
+  # back to the humanized event type when the title is blank.
+  def event_crumb_label(event)
+    event.title.presence || translate_event_type(event.event_type)
+  end
+
   PROVIDER_STATUS_LABELS = {
     "pendente" => "Pendente",
     "orcado" => "Orçado",

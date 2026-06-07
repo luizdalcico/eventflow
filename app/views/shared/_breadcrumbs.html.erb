@@ -1,0 +1,25 @@
+<%# Reusable breadcrumb trail. Local: crumbs — Array of [label, path] pairs.
+    The last crumb is the current page (plain text); a pair with a nil path is
+    also rendered as plain text. %>
+<% crumbs = Array(crumbs).reject { |label, _path| label.blank? } %>
+<% if crumbs.any? %>
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <ol class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-gray-500">
+      <% crumbs.each_with_index do |(label, path), index| %>
+        <% is_last = index == crumbs.size - 1 %>
+        <li class="flex items-center gap-x-1.5 min-w-0">
+          <% if path.present? && !is_last %>
+            <%= link_to label, path, class: "text-blue-600 hover:text-blue-800 truncate max-w-[12rem]" %>
+          <% elsif is_last %>
+            <span class="font-medium text-gray-900 truncate max-w-[12rem]" aria-current="page"><%= label %></span>
+          <% else %>
+            <span class="truncate max-w-[12rem]"><%= label %></span>
+          <% end %>
+          <% unless is_last %>
+            <span class="text-gray-300" aria-hidden="true">›</span>
+          <% end %>
+        </li>
+      <% end %>
+    </ol>
+  </nav>
+<% end %>

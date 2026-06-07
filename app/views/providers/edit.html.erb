@@ -1,9 +1,9 @@
 <% content_for :title, "Editar fornecedor - Cerimonial.app" %>
 
 <div class="max-w-3xl mx-auto">
+  <%= breadcrumbs ["Fornecedores", providers_path], [@provider.name, @provider], ["Editar", nil] %>
   <div class="mb-6">
-    <%= link_to "← Voltar", @provider, class: "text-sm text-blue-600 hover:text-blue-800" %>
-    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-1">Editar fornecedor</h1>
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Editar fornecedor</h1>
     <p class="text-gray-500 mt-1">Atualize as informações do fornecedor</p>
   </div>
 

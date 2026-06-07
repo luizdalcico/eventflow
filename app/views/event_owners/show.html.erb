@@ -1,5 +1,7 @@
 <% content_for :title, "#{@event_owner.name} - Cerimonial.app" %>
 
+<%= breadcrumbs ["Eventos", events_path], [event_crumb_label(@event), @event], ["Responsáveis", event_event_owners_path(@event)], [@event_owner.name, nil] %>
+
 <div class="mb-6">
   <div class="flex justify-between items-start">
     <div>

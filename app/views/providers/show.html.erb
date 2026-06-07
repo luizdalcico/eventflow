@@ -1,9 +1,9 @@
 <% content_for :title, "#{@provider.name} - Cerimonial.app" %>
 <% card = "bg-white rounded-xl ring-1 ring-gray-200 shadow-sm p-5 md:p-6" %>
 
+<%= breadcrumbs ["Fornecedores", providers_path], [@provider.name, nil] %>
 <div class="mb-6">
-  <%= link_to "← Fornecedores", providers_path, class: "text-sm text-blue-600 hover:text-blue-800" %>
-  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mt-1">
+  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
     <div class="min-w-0">
       <h1 class="text-2xl md:text-3xl font-bold text-gray-900"><%= @provider.name %></h1>
       <span class="inline-flex mt-2 px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">

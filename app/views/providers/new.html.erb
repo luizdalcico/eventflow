@@ -1,9 +1,9 @@
 <% content_for :title, "Novo fornecedor - Cerimonial.app" %>
 
 <div class="max-w-3xl mx-auto">
+  <%= breadcrumbs ["Fornecedores", providers_path], ["Novo fornecedor", nil] %>
   <div class="mb-6">
-    <%= link_to "← Fornecedores", providers_path, class: "text-sm text-blue-600 hover:text-blue-800" %>
-    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-1">Novo fornecedor</h1>
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Novo fornecedor</h1>
     <p class="text-gray-500 mt-1">Cadastre um fornecedor para usar nos seus eventos</p>
   </div>
 
