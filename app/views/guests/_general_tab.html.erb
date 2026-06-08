@@ -15,19 +15,22 @@
   <%= render "guests/import_form", import_url: import_event_guests_path(event), template_url: template_event_guests_path(event) %>
 </div>
 
-<%# Tabela + ações de RSVP (toolbar contextual, sem rodapé fixo) %>
-<%= form_with url: send_rsvp_event_guests_path(event), method: :post,
-      data: { controller: "select-all bulk-select" } do %>
+<%# Tabela + ações de RSVP. O form de RSVP é vazio (só estabelece o destino);
+    os checkboxes das linhas e os botões de envio referenciam-no via form="guests_rsvp_form".
+    Assim o botão "Adicionar convidado" (button_to, que gera o próprio form) NÃO fica
+    aninhado dentro do form de RSVP — evita HTML inválido e submit indevido. %>
+<div data-controller="select-all bulk-select">
+  <%= form_with url: send_rsvp_event_guests_path(event), method: :post, id: "guests_rsvp_form" do %><% end %>
 
   <%# Toolbar: estado padrão (busca/ações) e estado contextual (ao selecionar) %>
   <div class="flex flex-wrap items-center gap-3 mb-3">
-    <%# Estado padrão: dica de auto-save + envio para todos (marque linhas para enviar a alguns) %>
+    <%# Estado padrão: dica de auto-save + envio para todos %>
     <div data-bulk-select-target="default" class="flex flex-wrap items-center gap-3 w-full">
       <span class="text-sm text-gray-400 mr-auto">
         Edição salva automaticamente. Marque convidados para enviar o RSVP a alguns.
       </span>
       <%= button_tag "📨 Enviar RSVP para todos",
-            type: :submit, name: "all", value: "1",
+            type: :submit, name: "all", value: "1", form: "guests_rsvp_form",
             data: { turbo_confirm: "Enviar o convite RSVP para TODOS os convidados com telefone?", confirm_label: "Enviar" },
             class: "px-3 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 cursor-pointer text-sm" %>
     </div>
@@ -38,14 +41,14 @@
       <span class="text-sm text-blue-800 mr-auto">
         <strong data-bulk-select-target="count">0</strong> selecionado(s)
       </span>
-      <%= submit_tag "📨 Enviar RSVP",
+      <%= submit_tag "📨 Enviar RSVP", form: "guests_rsvp_form",
             class: "px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer text-sm" %>
       <%= button_tag "Limpar", type: "button", data: { action: "bulk-select#clear" },
             class: "px-3 py-2 text-blue-700 hover:text-blue-900 text-sm cursor-pointer" %>
     </div>
   </div>
 
-  <%# Tabela compartilhada (admin) %>
+  <%# Tabela compartilhada (admin) — checkboxes referenciam o form de RSVP %>
   <%= render "guests/guests_table", guests: guests, admin: true, event: event,
-        add_url: event_guests_path(event) %>
-<% end %>
+        add_url: event_guests_path(event), rsvp_form_id: "guests_rsvp_form" %>
+</div>

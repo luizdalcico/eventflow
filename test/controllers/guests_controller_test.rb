@@ -50,6 +50,20 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button", text: /Adicionar par/
   end
 
+  test "add-guest button is not nested inside the RSVP form" do
+    get event_guests_path(@event)
+    assert_response :success
+    body = @response.body
+    # O form de RSVP precisa fechar ANTES do form do botão "Adicionar convidado"
+    # (forms aninhados fazem o navegador submeter o form errado).
+    rsvp_open = body.index('id="guests_rsvp_form"')
+    rsvp_close = body.index("</form>", rsvp_open)
+    add_form = body.index(%r{action="#{Regexp.escape(event_guests_path(@event))}"})
+    assert rsvp_open, "expected the RSVP form to be present"
+    assert add_form, "expected the add-guest form to be present"
+    assert rsvp_close < add_form, "RSVP form must close before the add-guest form opens (no nesting)"
+  end
+
   test "familiares tab reuses the shared add form and member rows" do
     @event.family_members.create!(name: "Maria", role: "mae_noiva", position: 1)
     get event_guests_path(@event)

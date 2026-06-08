@@ -10,6 +10,7 @@
     body_id    — id do tbody (alvo do colapso ao adicionar; default "guests_body")
 %>
 <% admin = local_assigns.fetch(:admin, false) %>
+<% rsvp_form_id = local_assigns.fetch(:rsvp_form_id, nil) %>
 <% body_id = local_assigns.fetch(:body_id, "guests_body") %>
 <%# No load inicial tudo começa colapsado; só a linha recém-adicionada vem aberta. %>
 <% collapsed = !local_assigns.fetch(:expanded, false) %>
@@ -49,7 +50,7 @@
     <td class="<%= detail %> md:w-8 md:text-center" data-pair-collapse-target="detail">
       <span class="<%= label %>">Selecionar</span>
       <% if guest.rsvp_invitable? %>
-        <%= check_box_tag "guest_ids[]", guest.id, false,
+        <%= check_box_tag "guest_ids[]", guest.id, false, form: rsvp_form_id,
               data: { "select-all-target": "item", "bulk-select-target": "checkbox", action: "change->bulk-select#refresh" } %>
       <% end %>
     </td>

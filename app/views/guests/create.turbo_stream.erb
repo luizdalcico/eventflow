@@ -1,6 +1,6 @@
 <%= turbo_stream.append "guests_body" do %>
   <%= render partial: "guests/guest_row", locals: {
-        guest: @guest, admin: true, expanded: true,
+        guest: @guest, admin: true, expanded: true, rsvp_form_id: "guests_rsvp_form",
         row_url: event_guest_path(@event, @guest), delete_url: event_guest_path(@event, @guest)
       } %>
 <% end %>
