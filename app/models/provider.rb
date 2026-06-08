@@ -17,6 +17,15 @@ class Provider < ApplicationRecord
 
   scope :by_type, ->(type) { where(provider_type: type) }
 
+  # Case-insensitive match on the company name or the contact name.
+  # Blank query is a no-op so the scope composes cleanly.
+  scope :search, ->(query) {
+    next all if query.blank?
+
+    pattern = "%#{sanitize_sql_like(query.strip)}%"
+    where("name ILIKE :p OR contact_name ILIKE :p", p: pattern)
+  }
+
   private
 
   def sanitize_phone_number

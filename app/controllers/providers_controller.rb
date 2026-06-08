@@ -2,7 +2,13 @@ class ProvidersController < ApplicationController
   before_action :set_provider, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @providers = Provider.all.order(:provider_type, :name)
+    @query = params[:q]
+    @type = params[:type].presence_in(Provider::PROVIDER_TYPES)
+    @filters_active = @query.present? || @type.present?
+
+    providers = Provider.search(@query)
+    providers = providers.by_type(@type) if @type
+    @providers = providers.order(:provider_type, :name)
   end
 
   def show

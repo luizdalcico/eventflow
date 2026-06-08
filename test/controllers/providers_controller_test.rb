@@ -16,10 +16,16 @@ class ProvidersControllerTest < ActionDispatch::IntegrationTest
     assert_select "th", text: "Fornecedor"
     assert_select "th", text: "Contato"
 
-    assert_select "tbody tr", count: 1
-    assert_select "tbody tr td", text: /Fotógrafo/
-    assert_select "tbody tr td a", text: "Foto & Arte"
-    assert_select "tbody tr td", text: /Paulo/
+    assert_select "[data-tabs-name=todos] tbody tr a", text: "Foto & Arte"
+    assert_select "[data-tabs-name=todos] tbody tr td", text: /Fotógrafo/
+    assert_select "[data-tabs-name=todos] tbody tr td", text: /Paulo/
+  end
+
+  test "index renders the tabs navigation" do
+    get providers_url
+    assert_response :success
+    assert_select "[data-testid=tab-todos]"
+    assert_select "[data-testid=tab-por-tipo]"
   end
 
   test "index shows the empty state when there are no providers" do
@@ -28,6 +34,55 @@ class ProvidersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "table", false
     assert_select "div", text: /Nenhum fornecedor cadastrado ainda/
+  end
+
+  test "index searches by company name" do
+    other = Provider.create!(provider_type: "buffet", name: "Sabor & Cia",
+                             contact_name: "Ana", phone_number: "85988887777", document: "")
+    get providers_url(q: "Foto")
+    assert_response :success
+    assert_select "[data-tabs-name=todos] tbody tr a", text: "Foto & Arte"
+    assert_select "[data-tabs-name=todos] tbody tr a", { text: other.name, count: 0 }
+  end
+
+  test "index searches by contact name" do
+    Provider.create!(provider_type: "buffet", name: "Sabor & Cia",
+                     contact_name: "Ana", phone_number: "85988887777", document: "")
+    get providers_url(q: "Paulo")
+    assert_response :success
+    assert_select "[data-tabs-name=todos] tbody tr a", text: "Foto & Arte"
+    assert_select "[data-tabs-name=todos] tbody tr a", { text: "Sabor & Cia", count: 0 }
+  end
+
+  test "index filters by type" do
+    Provider.create!(provider_type: "buffet", name: "Sabor & Cia",
+                     contact_name: "Ana", phone_number: "85988887777", document: "")
+    get providers_url(type: "buffet")
+    assert_response :success
+    assert_select "[data-tabs-name=todos] tbody tr a", text: "Sabor & Cia"
+    assert_select "[data-tabs-name=todos] tbody tr a", { text: "Foto & Arte", count: 0 }
+  end
+
+  test "index ignores an unknown type filter" do
+    get providers_url(type: "not-a-real-type")
+    assert_response :success
+    assert_select "[data-tabs-name=todos] tbody tr a", text: "Foto & Arte"
+  end
+
+  test "index combines type filter and search" do
+    Provider.create!(provider_type: "buffet", name: "Sabor & Cia",
+                     contact_name: "Paulo", phone_number: "85988887777", document: "")
+    get providers_url(type: "buffet", q: "Paulo")
+    assert_response :success
+    assert_select "[data-tabs-name=todos] tbody tr a", text: "Sabor & Cia"
+    assert_select "[data-tabs-name=todos] tbody tr a", { text: "Foto & Arte", count: 0 }
+  end
+
+  test "index shows a no-results message when filters match nothing" do
+    get providers_url(q: "Inexistente")
+    assert_response :success
+    assert_select "table", false
+    assert_select "div", text: /Nenhum fornecedor encontrado para os filtros aplicados/
   end
 
   test "show renders the provider" do

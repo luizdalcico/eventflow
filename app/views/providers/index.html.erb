@@ -8,44 +8,61 @@
   <% end %>
 </div>
 
+<%# Filtros: busca por nome/contato + tipo. Auto-submit via Stimulus
+    (debounced) — o botão "Filtrar" só aparece sem JavaScript. %>
+<%= form_with url: providers_path, method: :get,
+      data: { controller: "autosave", action: "input->autosave#save change->autosave#save" },
+      class: "flex flex-col sm:flex-row gap-3 mb-6" do %>
+  <div class="relative flex-1">
+    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">🔍</span>
+    <%= text_field_tag :q, @query,
+          placeholder: "Buscar por nome ou contato",
+          class: "w-full rounded-lg border border-gray-300 pl-9 pr-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500" %>
+  </div>
+  <%= select_tag :type,
+        options_for_select(Provider::PROVIDER_TYPES.map { |t| [translate_provider_type(t), t] }.sort_by(&:first), @type),
+        include_blank: "Todos os tipos",
+        class: "rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500" %>
+  <div class="flex gap-2">
+    <noscript>
+      <%= submit_tag "Filtrar",
+            class: "bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm cursor-pointer" %>
+    </noscript>
+    <% if @filters_active %>
+      <%= link_to "Limpar", providers_path,
+            class: "inline-flex items-center text-gray-600 hover:text-gray-900 text-sm px-2" %>
+    <% end %>
+  </div>
+<% end %>
+
 <% if @providers.any? %>
-  <div class="bg-white rounded-xl ring-1 ring-gray-200 shadow-sm overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200 text-sm">
-      <thead class="bg-gray-50">
-        <tr>
-          <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide text-xs">Tipo</th>
-          <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide text-xs">Fornecedor</th>
-          <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide text-xs">Contato</th>
-          <th scope="col" class="px-4 py-3 text-right font-semibold text-gray-500 uppercase tracking-wide text-xs">Ações</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-100">
-        <% @providers.each do |provider| %>
-          <tr class="hover:bg-gray-50">
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"><%= translate_provider_type(provider.provider_type) %></span>
-            </td>
-            <td class="px-4 py-3">
-              <%= link_to provider.name, provider, class: "font-semibold text-gray-900 hover:text-blue-600" %>
-              <% if provider.document.present? %><div class="text-gray-400 text-xs mt-0.5"><%= provider.document %></div><% end %>
-            </td>
-            <td class="px-4 py-3 text-gray-600">
-              <% if provider.contact_name.present? %><div>👤 <%= provider.contact_name %></div><% end %>
-              <% if provider.phone_number.present? %><div class="flex items-center gap-1">📞 <%= format_phone(provider.phone_number) %> <%= whatsapp_link(provider.phone_number) %></div><% end %>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              <span class="inline-flex items-center gap-3">
-                <%= link_to "Ver", provider, class: "font-medium text-blue-600 hover:text-blue-800" %>
-                <%= link_to "Editar", edit_provider_path(provider), class: "text-gray-600 hover:text-gray-900" %>
-                <%= link_to "Excluir", provider,
-                      data: { turbo_method: :delete, turbo_confirm: "Excluir este fornecedor?", confirm_label: "Excluir" },
-                      class: "text-red-600 hover:text-red-800" %>
-              </span>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+  <div data-controller="tabs">
+    <%# Navegação das abas: lista plana ("Todos") ou agrupada por tipo. %>
+    <div class="flex gap-2 border-b border-gray-200 mb-6">
+      <button type="button" data-testid="tab-todos" data-tabs-target="tab" data-tabs-name="todos"
+              data-action="tabs#select" class="px-4 py-2 -mb-px border-b-2 text-sm font-medium cursor-pointer focus:outline-none">Todos</button>
+      <button type="button" data-testid="tab-por-tipo" data-tabs-target="tab" data-tabs-name="por-tipo"
+              data-action="tabs#select" class="px-4 py-2 -mb-px border-b-2 text-sm font-medium cursor-pointer focus:outline-none">Por tipo</button>
+    </div>
+
+    <div data-tabs-target="panel" data-tabs-name="todos">
+      <%= render "table", providers: @providers %>
+    </div>
+
+    <div data-tabs-target="panel" data-tabs-name="por-tipo" class="hidden space-y-8">
+      <% @providers.group_by(&:provider_type).each do |provider_type, providers| %>
+        <section>
+          <h2 class="text-sm font-semibold text-gray-700 mb-2"><%= translate_provider_type(provider_type) %></h2>
+          <%= render "table", providers: providers %>
+        </section>
+      <% end %>
+    </div>
+  </div>
+<% elsif @filters_active %>
+  <div class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-16 px-4">
+    <div class="text-gray-500 text-lg mb-4">Nenhum fornecedor encontrado para os filtros aplicados</div>
+    <%= link_to "Limpar filtros", providers_path,
+          class: "inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg" %>
   </div>
 <% else %>
   <div class="bg-white rounded-xl ring-1 ring-gray-200 text-center py-16 px-4">
