@@ -18,6 +18,15 @@ www.cerimonial.app {
 	redir https://cerimonial.app{uri} permanent
 }
 
+# Static institutional landing page (Cerimonial.app). Served straight from a
+# mounted directory — no app/container/build. Update by re-copying the files
+# into /opt/sites/cerimonial-site on the server (served live, no reload needed).
+site.cerimonial.app {
+	encode gzip zstd
+	root * /srv/cerimonial-site
+	file_server
+}
+
 # github_pr_viewer — sits behind Cloudflare (Flexible mode), so TLS is
 # terminated at Cloudflare and traffic arrives here as plain HTTP on :80.
 # We reach its nginx over the app's own docker network (avoids the host

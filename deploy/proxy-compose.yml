@@ -12,6 +12,8 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+      # Static institutional site (site.cerimonial.app), served via file_server.
+      - /opt/sites/cerimonial-site:/srv/cerimonial-site:ro
     networks:
       - web_proxy
       - prviewer
