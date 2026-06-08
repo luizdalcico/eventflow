@@ -100,6 +100,13 @@ class GuestsController < ApplicationController
   end
 
   def send_rsvp
+    # Botão visível, porém sem ação concreta enquanto o WhatsApp Business não é
+    # aprovado: não enfileira nada nem altera status dos convidados.
+    unless Rsvp.sending_enabled?
+      redirect_to event_guests_path(@event),
+                  notice: "Envio de RSVP em breve — aguardando aprovação do WhatsApp Business. O botão ainda não dispara mensagens." and return
+    end
+
     candidates =
       if params[:all].present?
         @event.guests.with_phone.to_a

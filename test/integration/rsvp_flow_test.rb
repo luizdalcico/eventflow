@@ -8,6 +8,15 @@ class RsvpFlowTest < ActionDispatch::IntegrationTest
                            main_date: Date.current + 1.month, estimated_guests: 100)
   end
 
+  # Liga o feature gate de envio só dentro do bloco, restaurando o ENV depois.
+  def with_rsvp_sending
+    previous = ENV["RSVP_SENDING_ENABLED"]
+    ENV["RSVP_SENDING_ENABLED"] = "true"
+    yield
+  ensure
+    ENV["RSVP_SENDING_ENABLED"] = previous
+  end
+
   test "index renders the editable guest table" do
     @event.guests.create!(name: "João", phone_number: "85999990000")
     get event_guests_path(@event)
@@ -88,10 +97,23 @@ class RsvpFlowTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "send_rsvp does nothing while sending is disabled (button is a placeholder)" do
+    guest = @event.guests.create!(name: "João", phone_number: "85999990000")
+    # Flag desligado (padrão): botão visível, mas sem ação concreta.
+    assert_no_enqueued_jobs only: SendRsvpJob do
+      post send_rsvp_event_guests_path(@event), params: { all: "1" }
+    end
+    assert_redirected_to event_guests_path(@event)
+    assert_match(/aguardando aprovação/i, flash[:notice])
+    assert_equal "pending", guest.reload.rsvp_status # status não muda
+  end
+
   test "send_rsvp to a single guest enqueues one job" do
     guest = @event.guests.create!(name: "João", phone_number: "85999990000")
-    assert_enqueued_jobs 1, only: SendRsvpJob do
-      post send_rsvp_event_guests_path(@event), params: { guest_ids: [ guest.id ] }
+    with_rsvp_sending do
+      assert_enqueued_jobs 1, only: SendRsvpJob do
+        post send_rsvp_event_guests_path(@event), params: { guest_ids: [ guest.id ] }
+      end
     end
     assert_redirected_to event_guests_path(@event)
   end
@@ -100,8 +122,10 @@ class RsvpFlowTest < ActionDispatch::IntegrationTest
     @event.guests.create!(name: "A", phone_number: "85999990001")
     @event.guests.create!(name: "B", phone_number: "85999990002")
     @event.guests.create!(name: "Sem fone")
-    assert_enqueued_jobs 2, only: SendRsvpJob do
-      post send_rsvp_event_guests_path(@event), params: { all: "1" }
+    with_rsvp_sending do
+      assert_enqueued_jobs 2, only: SendRsvpJob do
+        post send_rsvp_event_guests_path(@event), params: { all: "1" }
+      end
     end
   end
 
@@ -111,8 +135,10 @@ class RsvpFlowTest < ActionDispatch::IntegrationTest
     @event.guests.create!(name: "Confirmado", phone_number: "85999990003", rsvp_status: "confirmed")
 
     # Só o pendente é enviado, mesmo pedindo "todos".
-    assert_enqueued_jobs 1, only: SendRsvpJob do
-      post send_rsvp_event_guests_path(@event), params: { all: "1" }
+    with_rsvp_sending do
+      assert_enqueued_jobs 1, only: SendRsvpJob do
+        post send_rsvp_event_guests_path(@event), params: { all: "1" }
+      end
     end
   end
 
@@ -120,8 +146,10 @@ class RsvpFlowTest < ActionDispatch::IntegrationTest
     g1 = @event.guests.create!(name: "João", phone_number: "85999990000")
     g2 = @event.guests.create!(name: "Sem fone") # not invitable
 
-    assert_enqueued_jobs 1, only: SendRsvpJob do
-      post send_rsvp_event_guests_path(@event), params: { guest_ids: [ g1.id, g2.id ] }
+    with_rsvp_sending do
+      assert_enqueued_jobs 1, only: SendRsvpJob do
+        post send_rsvp_event_guests_path(@event), params: { guest_ids: [ g1.id, g2.id ] }
+      end
     end
     assert_redirected_to event_guests_path(@event)
   end

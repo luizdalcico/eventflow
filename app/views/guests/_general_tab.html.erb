@@ -15,6 +15,10 @@
   <%= render "guests/import_form", import_url: import_event_guests_path(event), template_url: template_event_guests_path(event) %>
 </div>
 
+<%# Envio real fica desligado até a aprovação do WhatsApp Business: o botão
+    aparece, mas não dispara ação concreta (sem turbo_confirm, com aviso). %>
+<% rsvp_sending = Rsvp.sending_enabled? %>
+
 <%# Tabela + ações de RSVP. O form de RSVP é vazio (só estabelece o destino);
     os checkboxes das linhas e os botões de envio referenciam-no via form="guests_rsvp_form".
     Assim o botão "Adicionar convidado" (button_to, que gera o próprio form) NÃO fica
@@ -31,9 +35,16 @@
       </span>
       <%= button_tag "📨 Enviar RSVP para todos",
             type: :submit, name: "all", value: "1", form: "guests_rsvp_form",
-            data: { turbo_confirm: "Enviar o convite RSVP para TODOS os convidados com telefone?", confirm_label: "Enviar" },
+            data: rsvp_sending ? { turbo_confirm: "Enviar o convite RSVP para TODOS os convidados com telefone?", confirm_label: "Enviar" } : {},
             class: "px-3 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 cursor-pointer text-sm" %>
     </div>
+
+    <% unless rsvp_sending %>
+      <%# Aviso: o envio ainda não está ativo (aguardando aprovação). %>
+      <p class="w-full text-xs text-amber-700 bg-amber-50 ring-1 ring-amber-200 rounded-lg px-3 py-2">
+        Envio de RSVP em breve — aguardando aprovação do WhatsApp Business. Por ora o botão não dispara mensagens.
+      </p>
+    <% end %>
 
     <%# Estado contextual (escondido até selecionar) %>
     <div data-bulk-select-target="bar"

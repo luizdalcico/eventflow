@@ -26,12 +26,23 @@ class GuestTableTest < ApplicationSystemTestCase
     page.save_screenshot(Rails.root.join("tmp/convidados_mobile.png").to_s)
   end
 
-  test "the all-send button opens the custom confirm modal" do
+  test "the all-send button opens the custom confirm modal when sending is enabled" do
+    previous = ENV["RSVP_SENDING_ENABLED"]
+    ENV["RSVP_SENDING_ENABLED"] = "true"
     page.driver.browser.manage.window.resize_to(1400, 900)
     visit event_guests_path(@event)
     click_button "📨 Enviar RSVP para todos"
     assert_selector "dialog[open]", wait: 5
     assert_text "Enviar o convite RSVP para TODOS"
     page.save_screenshot(Rails.root.join("tmp/modal.png").to_s)
+  ensure
+    ENV["RSVP_SENDING_ENABLED"] = previous
+  end
+
+  test "shows the awaiting-approval hint while sending is disabled (button is a placeholder)" do
+    page.driver.browser.manage.window.resize_to(1400, 900)
+    visit event_guests_path(@event)
+    assert_button "📨 Enviar RSVP para todos" # botão visível
+    assert_text "aguardando aprovação do WhatsApp Business"
   end
 end
