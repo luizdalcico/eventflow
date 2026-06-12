@@ -40,17 +40,16 @@ module Rsvp
     private
 
     # Variáveis numeradas do Content template "rsvp":
-    #   {{1}} = convidado, {{2}} = empresa, {{3}} = evento + data + horário.
-    # (Poucas variáveis pra passar na validação da Meta de proporção texto/variável.)
+    #   {{1}} = convidado, {{2}} = nome do evento, {{3}} = data + horário.
+    # (A empresa é texto fixo no corpo do template, não é variável.)
     def content_variables
       event = @guest.event
       when_text = [ event.main_date&.strftime("%d/%m/%Y"), event.start_time&.strftime("%Hh%M") ].compact.join(" às ")
-      details = [ event.title.presence, when_text.presence ].compact.join(" - ")
 
       {
         "1" => @guest.name.to_s,
-        "2" => ENV["RSVP_COMPANY_NAME"].to_s,
-        "3" => details
+        "2" => event.title.to_s,
+        "3" => when_text
       }
     end
 

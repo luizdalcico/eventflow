@@ -29,8 +29,9 @@ gem "caxlsx"
 # WhatsApp messages (RSVP) via Twilio
 gem "twilio-ruby"
 
-# Load environment variables from a .env file (all environments, incl. production)
-gem "dotenv-rails"
+# Load environment variables from a .env file. Excludes :test so the suite stays
+# deterministic (tests set the env they need explicitly).
+gem "dotenv-rails", groups: [ :development, :production ]
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
